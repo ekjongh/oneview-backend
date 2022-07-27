@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/oneview-backend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/oneview-backend.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/core/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/core/security.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/core/security.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/blacklist.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/blacklist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/item.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/item.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/base_class.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/base_class.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/init_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/init_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/dependency.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/dependency.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/errors/exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/errors/exceptions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/middleware/db_session.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/middleware/db_session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/blacklist.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/blacklist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/item.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/item.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/items.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/deps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/item.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/item.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/token.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/token.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2CWMUwkoRr7qhlTncq8zLLxZvzi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="" />
+      <created>1658913910019</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1658913910019</updated>
+    </task>
+    <servers />
+  </component>
+</project>
