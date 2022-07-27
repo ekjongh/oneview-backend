@@ -3,14 +3,11 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..core.security import get_password_hash
+from ..utils.user import dashboard_schema_to_model
 
 
-def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
-
-
-def get_user_by_employee_id(db: Session, employee_id: str):
-    return db.query(models.User).filter(models.User.employee_id == employee_id).first()
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(models.User).filter(models.User.user_id == user_id).first()
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
@@ -20,11 +17,8 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def create_user(db: Session, user: schemas.UserCreate):
     print("CREATE USER START")
     hashed_password = get_password_hash(user.password)
-    # DB ID 쿼리 후, 가장 큰 ID값을 찾아서 +1 한 ID 값을 ID로 지정
-    recent_user:schemas.User = db.query(models.User).order_by(models.User.id.desc()).first()
 
-    db_user = models.User(id=recent_user.id + 1,
-                          employee_id=user.employee_id,
+    db_user = models.User(user_id=user.user_id,
                           hashed_password=hashed_password)
 
     db.add(db_user)
@@ -36,8 +30,7 @@ def create_user(db: Session, user: schemas.UserCreate):
 def create_superuser(db: Session, user: schemas.UserCreate):
     hashed_password = get_password_hash(user.password)
 
-    db_user = models.User(id=1,
-                          employee_id=user.employee_id,
+    db_user = models.User(user_id=user.user_id,
                           # username=user.username,
                           # email=user.email,
                           # phone=user.phone,
@@ -51,7 +44,7 @@ def create_superuser(db: Session, user: schemas.UserCreate):
 
 
 def update_user(db: Session, user_id: int, user: schemas.UserUpdate):
-    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -69,9 +62,61 @@ def update_user(db: Session, user_id: int, user: schemas.UserUpdate):
 
 
 def delete_user(db: Session, user_id: int):
-    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     db.delete(db_user)
     db.commit()
     return db_user
+
+
+# ------------------------------- User DashBoard Config ... -------------------------------------- #
+
+def create_dashboard_config(db: Session, board_config: schemas.UserBoardConfigBase):
+    id = board_config.owner_id + "_" + board_config.config_nm
+    db_board_config = models.UserDashboardConfig(**board_config.dict(), id=id)
+
+    db.add(db_board_config)
+    db.commit()
+    db.refresh(db_board_config)
+    return db_board_config
+
+
+def get_dashboard_configs(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.UserDashboardConfig).offset(skip).limit(limit).all()
+
+
+def get_dashboard_configs_by_id(db: Session, user_id: str):
+    return db.query(models.UserDashboardConfig).filter(models.UserDashboardConfig.owner_id == user_id).all()
+
+
+# def get_dashboard_config_by_id(db: Session, id: str):
+#     return db.query(models.UserDashboardConfig).filter(models.UserDashboardConfig.id == id).first()
+
+
+def update_dashboard_config(db: Session, board_config: schemas.UserBoardConfig, id: str):
+    # id = board_config.owner_id + "_" + board_config.config_nm
+    db_dashboard_config = db.query(models.UserDashboardConfig).filter(models.UserDashboardConfig.id == id).first()
+    if db_dashboard_config is None:
+        raise HTTPException(status_code=404, detail="UserDashboardConfig not found")
+    db_dashboard_config = dashboard_schema_to_model(db_dashboard_config, board_config)
+    
+    db.add(db_dashboard_config)
+    db.commit()
+    db.refresh(db_dashboard_config)
+    return db_dashboard_config
+
+
+def delete_dashboard_config(db: Session, id: str):
+    # id = board_config.owner_id + "_" + board_config.config_nm
+    db_board_config = db.query(models.UserDashboardConfig).filter(models.UserDashboardConfig.id == id).first()
+
+    if db_board_config is None:
+        raise HTTPException(status_code=404, detail="User Dashboard Config not found")
+
+    db.delete(db_board_config)
+    db.commit()
+    return db_board_config
+
+
+

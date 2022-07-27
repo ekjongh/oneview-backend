@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends
-from .endpoints import auth, users, items
+from .endpoints import auth, users, items, voc, volte, events, offloading
 from ..deps import get_current_user
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 api_v1_router.include_router(users.router, prefix="/api/v1/users", tags=["users"])
+api_v1_router.include_router(events.router, prefix="/api/v1/events", tags=["events"])
+api_v1_router.include_router(voc.router, prefix="/api/v1/voc", tags=["voc"])
+api_v1_router.include_router(volte.router, prefix="/api/v1/volte", tags=["volte"])
+api_v1_router.include_router(offloading.router, prefix="/api/v1/offloading", tags=["offloading"])
+
+
 api_v1_router.include_router(items.router, prefix="/api/v1/items", tags=["items"])

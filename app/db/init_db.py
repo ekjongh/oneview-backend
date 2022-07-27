@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 from app.core.security import get_password_hash
-from app.crud.user import get_user_by_employee_id, create_superuser
+from app.crud.user import create_superuser, get_user_by_id
 from app.db.session import engine
 from app.schemas.user import UserCreate
 from app.db import base  # noqa: F401
@@ -44,10 +44,10 @@ def init_db(db: Session) -> None:
     Base.metadata.create_all(bind=engine)
 
     if FIRST_SUPERUSER_ID:
-        superuser = get_user_by_employee_id(db=db, employee_id=FIRST_SUPERUSER_ID)  # 2
+        superuser = get_user_by_id(db=db, user_id=FIRST_SUPERUSER_ID)  # 2
         if not superuser:
             user_in = UserCreate(
-                employee_id=FIRST_SUPERUSER_ID,
+                user_id=FIRST_SUPERUSER_ID,
                 username=FIRST_SUPERUSER_NAME,
                 email=FIRST_SUPERUSER_EMAIL,
                 password=FIRST_SUPERUSER_PW,

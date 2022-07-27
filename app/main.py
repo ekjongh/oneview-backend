@@ -21,9 +21,19 @@ app = FastAPI()
 init_db(SessionLocal())
 # 미들웨어 추가.
 origins = [
-    "https://localhost:8081",
     "http://localhost",
     "http://localhost:8080",
+    "http://127.0.0.1",
+    "http://127.0.0.1:8080",
+    "http://10.200.242.253",
+    "http://10.200.242.253:8080",
+    "http://10.203.13.202",
+    "http://10.203.13.202:8242",
+    "http://10.203.13.202:8310",
+    "http://10.203.13.202:8311",
+    "http://10.214.168.57",
+    "http://10.214.168.57:8080",
+    "http://10.203.228.81:8080",
 ]
 
 app.add_middleware(
@@ -38,8 +48,8 @@ class Settings(BaseModel):
     authjwt_secret_key: str = JWT_SECRET_CODE
     authjwt_denylist_enabled: bool = True
     authjwt_denylist_token_checks: set = {"access", "refresh"}
-    access_expires: int = timedelta(minutes=60)
-    refresh_expires: int = timedelta(days=1)
+    access_expires = timedelta(minutes=60)
+    refresh_expires = timedelta(days=1)
 
 
 @AuthJWT.token_in_denylist_loader

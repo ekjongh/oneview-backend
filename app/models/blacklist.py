@@ -6,6 +6,7 @@ from ..db.base_class import Base
 class Blacklist(Base):
     __tablename__ = "blacklists"
 
+    id = Column(String(100), primary_key=True)
     token = Column(String(100))
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner_id = Column(String(100), ForeignKey("users.user_id"))
     owner = relationship("User", back_populates="blacklists")
