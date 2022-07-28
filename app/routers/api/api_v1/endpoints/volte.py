@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app import schemas
 from app.db.session import SessionLocal
 from app.routers.api.deps import get_db
-from app.crud.volte import get_volte_event_by_group_date, get_volte_trend_by_group_date, get_worst10_volte_bts_by_group_date, get_volte_fc_trend_by_group_date
+from app.crud.volte import get_volte_event_by_group_date, get_volte_trend_by_group_date, get_worst10_volte_bts_by_group_date
 
 router = APIRouter()
 

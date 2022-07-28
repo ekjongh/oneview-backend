@@ -16,10 +16,12 @@ async def get_worst_offloading_bts(limit: int = 10, group:str="", start_date: st
     worst_offloading_bts = get_worst10_offloading_jo_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date, limit=limit)
     return worst_offloading_bts
 
+
 @router.get("/trend-day", response_model=List[schemas.OffloadingTrendOutput])
 async def get_offloading_trend_day(group:str="", start_date: str = "20220501", end_date: str = None, db: SessionLocal = Depends(get_db)):
     offloading_trend_days = get_offloading_trend_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date)
     return offloading_trend_days
+
 
 @router.get("/kpi-day", response_model=schemas.OffloadingKpiOutput)
 async def get_offloading_kpi_day(group:str="", date:str="20220502", db: SessionLocal = Depends(get_db)):

@@ -4,22 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="이성현 Openlab 작업본 Commit(20220727)">
-      <change afterPath="$PROJECT_DIR$/app/utils/internel/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/internel/offloading.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/internel/voc.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/internel/volte.py" afterDir="false" />
+    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="CRUD Format 변경(VOC)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Untitled.ipynb" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/crud/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/voc.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/voc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/internel/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nohup.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql_app.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/volte.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/volte.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/offloading.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/volte.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/volte.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +69,14 @@
       <option name="project" value="LOCAL" />
       <updated>1658914480169</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="CRUD Format 변경(VOC)">
+      <created>1658971658755</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1658971658755</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -95,6 +92,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="이성현 Openlab 작업본 Commit(20220727)" />
-    <option name="LAST_COMMIT_MESSAGE" value="이성현 Openlab 작업본 Commit(20220727)" />
+    <MESSAGE value="CRUD Format 변경(VOC)" />
+    <option name="LAST_COMMIT_MESSAGE" value="CRUD Format 변경(VOC)" />
   </component>
 </project>

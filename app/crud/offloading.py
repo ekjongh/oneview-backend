@@ -64,10 +64,10 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str=
     sum_total_data = func.sum(func.nvl(models.Offloading.total_data_qnt, 0.0))
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
-    g5_off_ratio = func.coalesce(g5_off_ratio, 0.0).label("g5_off_ratio")
+    g5_off_ratio = func.coalesce(g5_off_ratio, 0.0).label("value")
     
     entities = [
-        models.Offloading.base_date,
+        models.Offloading.base_date.label("date"),
     ]
     entities_groupby = [
         g5_off_ratio
@@ -91,11 +91,12 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str=
         stmt = stmt.where(models.Offloading.area_jo_nm == group)
     
     stmt = stmt.group_by(*entities).order_by(models.Offloading.base_date.asc())
-    query_result = db.execute(stmt).all()
-    list_offloading_trend = list(map(lambda x: schemas.OffloadingTrendOutput(
-                                date=x[0],
-                                value=x[1]
-                                ), query_result))
+
+    query = db.execute(stmt)
+    query_result = query.all()
+    query_keys = query.keys()
+
+    list_offloading_trend = list(map(lambda x: schemas.OffloadingTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_trend
 
 def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None):
@@ -142,33 +143,33 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
     )
     return offloading_event
 
-def get_offloading_compare_by_group_date(db: Session, group: str, date:str=None):
-    sum_5g_data = func.sum(func.nvl(models.Offloading.g5_total_data_qnt, 0.0))
-    sum_sru_data = func.sum(func.nvl(models.Offloading.sru_total_data_qnt, 0.0))
-    sum_total_data = func.sum(func.nvl(models.Offloading.total_data_qnt, 0.0))
-    g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + sum_sru_data + 1e-6) * 100
-    g5_off_ratio = func.round(g5_off_ratio, 4)
-    g5_off_ratio = func.coalesce(g5_off_ratio, 0.0).label("g5_off_ratio")
-
-    entities = [
-        models.Offloading.base_date,
-        models.Offloading.area_jo_nm
-    ]
-    entities_groupby = [
-        g5_off_ratio
-    ]
-    stmt = select(*entities, *entities_groupby)
-
-    if not date:
-        date = datetime.today().strftime("%Y%m%d")
-        yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
-    
-    stmt = stmt.where(between(models.Offloading.base_date, yesterday, date))
-
-    if group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.Offloading.bts_oper_team_nm == group)
-        
-
-    stmt = stmt.group_by(*entities).having(g5_off_ratio>0).order_by(g5_off_ratio.asc())
-    # query_result = db.execute(stmt).all()
-    pass
+# def get_offloading_compare_by_group_date(db: Session, group: str, date:str=None):
+#     sum_5g_data = func.sum(func.nvl(models.Offloading.g5_total_data_qnt, 0.0))
+#     sum_sru_data = func.sum(func.nvl(models.Offloading.sru_total_data_qnt, 0.0))
+#     sum_total_data = func.sum(func.nvl(models.Offloading.total_data_qnt, 0.0))
+#     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + sum_sru_data + 1e-6) * 100
+#     g5_off_ratio = func.round(g5_off_ratio, 4)
+#     g5_off_ratio = func.coalesce(g5_off_ratio, 0.0).label("g5_off_ratio")
+#
+#     entities = [
+#         models.Offloading.base_date,
+#         models.Offloading.area_jo_nm
+#     ]
+#     entities_groupby = [
+#         g5_off_ratio
+#     ]
+#     stmt = select(*entities, *entities_groupby)
+#
+#     if not date:
+#         date = datetime.today().strftime("%Y%m%d")
+#         yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+#
+#     stmt = stmt.where(between(models.Offloading.base_date, yesterday, date))
+#
+#     if group.endswith("팀") or group.endswith("부"):
+#         stmt = stmt.where(models.Offloading.bts_oper_team_nm == group)
+#
+#
+#     stmt = stmt.group_by(*entities).having(g5_off_ratio>0).order_by(g5_off_ratio.asc())
+#     # query_result = db.execute(stmt).all()
+#     pass
