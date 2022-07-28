@@ -4,23 +4,23 @@ from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
 
 def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date: str=None, end_date: str=None, limit: int=10):
-    sum_5g_data = func.sum(func.nvl(models.Offloading.g5_total_data_qnt, 0.0))
-    sum_sru_data = func.sum(func.nvl(models.Offloading.sru_total_data_qnt, 0.0))
-    sum_3g_data = func.sum(func.nvl(models.Offloading.g3_total_data_qnt, 0.0))
-    sum_lte_data = func.sum(func.nvl(models.Offloading.gl_total_data_qnt, 0.0))
-    sum_total_data = func.sum(func.nvl(models.Offloading.total_data_qnt, 0.0))
+    sum_5g_data = func.sum(func.nvl(models.Offloading.g5_total_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.nvl(models.Offloading.sru_total_data_qnt, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.nvl(models.Offloading.g3_total_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.nvl(models.Offloading.gl_total_data_qnt, 0.0)).label("sum_lte_data")
+    sum_total_data = func.sum(func.nvl(models.Offloading.total_data_qnt, 0.0)).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
     g5_off_ratio = func.coalesce(g5_off_ratio, 0.0).label("g5_off_ratio")
     juso = func.concat(models.Offloading.sido_nm, models.Offloading.eup_myun_dong_nm).label("juso")
 
     entities = [
-        models.Offloading.equip_nm,
-        models.Offloading.equip_cd,
+        # models.Offloading.equip_nm,
+        # models.Offloading.equip_cd,
         juso,
-        models.Offloading.area_center_nm,
-        models.Offloading.bts_oper_team_nm,
-        models.Offloading.area_jo_nm
+        models.Offloading.area_center_nm.label("center"),
+        models.Offloading.bts_oper_team_nm.label("team"),
+        models.Offloading.area_jo_nm.label("jo")
     ]
     entities_groupby = [
         sum_3g_data,
@@ -50,22 +50,11 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
 
     stmt = stmt.group_by(*entities).having(g5_off_ratio>0).order_by(g5_off_ratio.asc())
     
-    query_result = db.execute(stmt).fetchmany(size=limit)
+    query = db.execute(stmt)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
 
-    list_offloading_offloading_bts = list(map(lambda x: schemas.OffloadingBtsOutput(
-                                # 기지국명=x[0],
-                                # equip_cd=x[1],
-                                juso=x[0],
-                                center=x[1],
-                                team=x[2],
-                                jo=x[3],
-                                sum_3g_data = x[4],
-                                sum_lte_data = x[5],
-                                sum_5g_data=x[6],
-                                sum_sru_data=x[7],
-                                sum_total_data=x[8],
-                                g5_off_ratio=x[9]
-                                ), query_result))
+    list_offloading_offloading_bts = list(map(lambda x: schemas.OffloadingBtsOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_offloading_bts
 
 

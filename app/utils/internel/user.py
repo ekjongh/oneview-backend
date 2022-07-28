@@ -8,12 +8,18 @@ def dashboard_model_to_schema(board_config):
     events = []
 
     board_list = [
-                    (board_config.dashboard_kpi_1, board_config.dashboard_type_1, board_config.dashboard_group_1, board_config.dashboard_date_1),
-                    (board_config.dashboard_kpi_2, board_config.dashboard_type_2, board_config.dashboard_group_2, board_config.dashboard_date_2),
-                    (board_config.dashboard_kpi_3, board_config.dashboard_type_3, board_config.dashboard_group_3, board_config.dashboard_date_3),
-                    (board_config.dashboard_kpi_4, board_config.dashboard_type_4, board_config.dashboard_group_4, board_config.dashboard_date_4),
-                    (board_config.dashboard_kpi_5, board_config.dashboard_type_5, board_config.dashboard_group_5, board_config.dashboard_date_5),
-                    (board_config.dashboard_kpi_6, board_config.dashboard_type_6, board_config.dashboard_group_6, board_config.dashboard_date_6)
+                    (board_config.dashboard_kpi_1, board_config.dashboard_type_1,
+                     board_config.dashboard_group_1, board_config.dashboard_date_1),
+                    (board_config.dashboard_kpi_2, board_config.dashboard_type_2,
+                     board_config.dashboard_group_2, board_config.dashboard_date_2),
+                    (board_config.dashboard_kpi_3, board_config.dashboard_type_3,
+                     board_config.dashboard_group_3, board_config.dashboard_date_3),
+                    (board_config.dashboard_kpi_4, board_config.dashboard_type_4,
+                     board_config.dashboard_group_4, board_config.dashboard_date_4),
+                    (board_config.dashboard_kpi_5, board_config.dashboard_type_5,
+                     board_config.dashboard_group_5, board_config.dashboard_date_5),
+                    (board_config.dashboard_kpi_6, board_config.dashboard_type_6,
+                     board_config.dashboard_group_6, board_config.dashboard_date_6)
                 ]
     event_list = [
                     (board_config.event_kpi_1, board_config.event_type_1, board_config.event_group_1),
@@ -22,10 +28,10 @@ def dashboard_model_to_schema(board_config):
                 ]
 
     for idx, board in enumerate(board_list):
-        if board[0] == None:
+        if board[0] is None:
             continue
         board_tmp = BoardConfigBase(
-                                        order= idx,
+                                        order= idx+1,
                                         kpi= board[0],
                                         type= board[1],
                                         group= board[2],
@@ -33,10 +39,8 @@ def dashboard_model_to_schema(board_config):
                                     )
         boards.append(board_tmp)
 
-
-
     for idx, event in enumerate(event_list):
-        if event[0] == None:
+        if event[0] is None:
             continue
         event_tmp = BoardConfigBase(
                                         order= idx+1,
@@ -52,6 +56,7 @@ def dashboard_model_to_schema(board_config):
             events=events
         )
     return output_schema
+
 
 def dashboard_schema_to_model(update_model, board_config: UserBoardConfig):
     result = update_model
@@ -78,7 +83,6 @@ def dashboard_schema_to_model(update_model, board_config: UserBoardConfig):
         user_data[f"event_kpi_{event.order}"] = event.kpi
         user_data[f"event_type_{event.order}"] = event.type
         user_data[f"event_group_{event.order}"] = event.group
-
 
     for k, v in user_data.items():
         setattr(result, k, v)

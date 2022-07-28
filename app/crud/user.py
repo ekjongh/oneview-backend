@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..core.security import get_password_hash
-from ..utils.user import dashboard_schema_to_model
+from app.utils.internel.user import dashboard_schema_to_model
 
 
-def get_user_by_id(db: Session, user_id: int):
+def get_user_by_id(db: Session, user_id: str):
     return db.query(models.User).filter(models.User.user_id == user_id).first()
 
 

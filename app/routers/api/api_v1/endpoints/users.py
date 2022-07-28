@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 
 from app.crud.user import create_user, delete_dashboard_config, get_dashboard_configs, get_dashboard_configs_by_id, get_users, get_user_by_id, update_user, delete_user, create_dashboard_config, update_dashboard_config
-from app.routers.api.deps import get_db, get_current_user, get_current_active_superuser, get_current_active_user
-from app.schemas.user import User, UserCreate, UserUpdate, UserMe
-from app.schemas.user_board_config import UserBoardConfigBase, UserBoardConfig, BoardConfigBase, EventConfigBase
-from app.utils.user import dashboard_model_to_schema
+from app.routers.api.deps import get_db, get_current_user, get_current_active_user
+from app.schemas.user import User, UserCreate, UserUpdate, UserOutput
+from app.schemas.user_board_config import UserBoardConfigBase, UserBoardConfig
+from app.utils.internel.user import dashboard_model_to_schema
 
 router = APIRouter()
 
@@ -19,48 +19,32 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     if register_user:
         raise HTTPException(status_code=401, detail="user already exist")
     user = create_user(db, user)
-    return {"result": True, "employee_id": user.employee_id}
+    return {"result": True, "user": user}
 
 
-@router.get("/", response_model=List[UserUpdate])
-async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user:User = Depends(get_current_active_superuser)):
+@router.get("/", response_model=List[UserOutput])
+async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = get_users(db, skip=skip, limit=limit)
-    users_out = list(map(lambda model:
-        UserUpdate(
-            id=model.id,
-            user_id=model.user_id,
-            password=model.hashed_password,
-            username=model.username,
-            email=model.email,
-            phone=model.phone,
-            is_active=model.is_active,
-            is_superuser=model.is_superuser,
-
-            auth=model.auth,
-            belong_1=model.belong_1,
-            belong_2=model.belong_2,
-            belong_3=model.belong_3,
-            belong_4=model.belong_4,
-        ), users))
+    users_out = list(map(lambda model:UserOutput(**model.__dict__), users))
     return users_out
 
 
-@router.get("/me", response_model=UserMe)
-async def read_my_config(user:User = Depends(get_current_user)):
-    userMe = UserMe(
-        id = user.id,
-        username = user.username,
-        user_id = user.user_id,
-        auth = user.auth,
-        belong_1 = user.belong_1,
-        belong_2 = user.belong_2,
-        belong_3 = user.belong_3,
-        belong_4 = user.belong_4,
-    )
-    return userMe
+@router.get("/me", response_model=UserOutput)
+async def read_my_config(user: User = Depends(get_current_user)):
+    user_me = UserOutput(**user.__dict__)
+    # user_me = UserOutput(
+    #     user_name = user.user_name,
+    #     user_id = user.user_id,
+    #     auth = user.auth,
+    #     belong_1 = user.belong_1,
+    #     belong_2 = user.belong_2,
+    #     belong_3 = user.belong_3,
+    #     belong_4 = user.belong_4,
+    # )
+    return user_me
 
 
-@router.put("/me", response_model=UserMe)
+@router.put("/me", response_model=UserOutput)
 async def update_my_config(user:User = Depends(get_current_user)):
     pass
 
@@ -95,6 +79,7 @@ async def delete_user_by_id(id: int, db: Session = Depends(get_db),
 
 # ------------------------------- User DashBoard Config ... -------------------------------------- #
 
+
 @router.post("/boardconfig")
 async def register_dashboard_config(board_config: UserBoardConfigBase, db: SessionLocal = Depends(get_db)):
     id = board_config.owner_id + "_" + board_config.config_nm
@@ -104,12 +89,14 @@ async def register_dashboard_config(board_config: UserBoardConfigBase, db: Sessi
     new_dashboard_config = create_dashboard_config(db, board_config)
     return {"result": True, "user_id": board_config.owner_id}
 
+
 @router.get("/boardconfig/all")
 async def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db)):
     board_configs = get_dashboard_configs(db=db, skip=skip, limit=limit)
     result = [dashboard_model_to_schema(board_config) for board_config in board_configs]
 
     return result
+
 
 @router.get("/boardconfig/{id}", response_model=List[UserBoardConfig])
 async def read_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
@@ -119,10 +106,12 @@ async def read_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db
 
     return result
 
+
 @router.put("/boardconfig/{id}")
 async def update_dashboard_config_by_id(id: str, board_config: UserBoardConfig, db: SessionLocal = Depends(get_db)):
     rst = update_dashboard_config(id=id, db=db, board_config=board_config)
     return {"result": rst}
+
 
 @router.delete("/boardconfig/{id}")
 async def delete_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
