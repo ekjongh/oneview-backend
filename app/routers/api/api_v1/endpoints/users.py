@@ -58,14 +58,14 @@ async def read_user_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=User)
-async def update_user_by_id(id: int, user:UserUpdate, db: Session = Depends(get_db),
+async def update_user_by_id(id: str, user:UserOutput, db: Session = Depends(get_db),
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
         if client.id != id:
             raise HTTPException(status_code=401, detail="Need Auth...")
     _user = update_user(db, user_id=id, user=user)
 
-    return {"result": "Update Success!", "id": _user.id}
+    return {"result": "Update Success!", "user": _user}
 
 
 @router.delete("/{id}", response_model=User)

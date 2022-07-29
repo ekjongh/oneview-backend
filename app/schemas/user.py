@@ -21,7 +21,6 @@ class UserCreate(UserBase):
     # phone: Union[str, None] = None
 
 
-
 class UserUpdate(UserBase):
     password: Union[str, None]
     user_name: Union[str, None] = None

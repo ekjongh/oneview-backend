@@ -15,8 +15,8 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
     juso = func.concat(models.Offloading.sido_nm, models.Offloading.eup_myun_dong_nm).label("juso")
 
     entities = [
-        # models.Offloading.equip_nm,
-        # models.Offloading.equip_cd,
+        # models.Offloading.equip_nm.label("기지국명"),
+        # models.Offloading.equip_cd.label("equip_cd"),
         juso,
         models.Offloading.area_center_nm.label("center"),
         models.Offloading.bts_oper_team_nm.label("team"),

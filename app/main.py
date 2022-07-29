@@ -21,6 +21,7 @@ app = FastAPI()
 init_db(SessionLocal())
 # 미들웨어 추가.
 origins = [
+    "http://localhost:8080",
     "http://localhost",
     "http://localhost:8080",
     "http://127.0.0.1",
@@ -34,6 +35,8 @@ origins = [
     "http://10.214.168.57",
     "http://10.214.168.57:8080",
     "http://10.203.228.81:8080",
+    "http://10.214.168.57",
+    "http://10.214.168.57:8080",
 ]
 
 app.add_middleware(

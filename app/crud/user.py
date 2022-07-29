@@ -43,14 +43,10 @@ def create_superuser(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def update_user(db: Session, user_id: int, user: schemas.UserUpdate):
+def update_user(db: Session, user_id: str, user: schemas.UserOutput):
     db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-
-    # 1. PASSWORD가 존재할 시, HASH
-    if user.password:
-        user.password = get_password_hash(user.password)
 
     user_data = user.dict(exclude_unset=True)
     for k, v in user_data.items():
@@ -74,7 +70,7 @@ def delete_user(db: Session, user_id: int):
 
 def create_dashboard_config(db: Session, board_config: schemas.UserBoardConfigBase):
     id = board_config.owner_id + "_" + board_config.config_nm
-    db_board_config = models.UserDashboardConfig(**board_config.dict(), id=id)
+    db_board_config = models.UserDashboardConfig(**board_config.__dict__, id=id)
 
     db.add(db_board_config)
     db.commit()

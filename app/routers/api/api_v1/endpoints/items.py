@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app import schemas
 from app.crud.item import get_items
 from app.db.session import SessionLocal
-from app.dependency import get_db
+from app.routers.api.deps import get_db
 
 router = APIRouter()
 

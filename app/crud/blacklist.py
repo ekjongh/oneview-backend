@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 
-def create_blacklist(db: Session, token: schemas.TokenCreate, user_id: int):
-    db_blacklist:schemas.TokenCreate = models.Blacklist(token=token.token, owner_id=user_id)
+def create_blacklist(db: Session, token: str, user_id: str):
+    id = f"{token}_{user_id}"
+    db_blacklist = models.Blacklist(id=id, token=token, owner_id=user_id)
     db.add(db_blacklist)
     db.commit()
     db.refresh(db_blacklist)

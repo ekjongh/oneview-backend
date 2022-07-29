@@ -4,12 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="CRUD Format 변경(VOC)">
+    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="CRUD Format 변경(VOC, OFFLOADING, VOLTE)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/DB_QUERY_TEST-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Query_Test-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/SQLALCHEMY QUERY TEST-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Untitled-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/blacklist.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/blacklist.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/crud/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/volte.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/volte.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/volte.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/volte.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/dependency.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/items.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/internel/offloading.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/internel/voc.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/internel/volte.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +88,14 @@
       <option name="project" value="LOCAL" />
       <updated>1658971658755</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="CRUD Format 변경(VOC, OFFLOADING, VOLTE)">
+      <created>1658982838766</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1658982838766</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -93,6 +112,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="이성현 Openlab 작업본 Commit(20220727)" />
     <MESSAGE value="CRUD Format 변경(VOC)" />
-    <option name="LAST_COMMIT_MESSAGE" value="CRUD Format 변경(VOC)" />
+    <MESSAGE value="CRUD Format 변경(VOC, OFFLOADING, VOLTE)" />
+    <option name="LAST_COMMIT_MESSAGE" value="CRUD Format 변경(VOC, OFFLOADING, VOLTE)" />
   </component>
 </project>

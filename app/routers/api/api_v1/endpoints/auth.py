@@ -25,8 +25,8 @@ async def login(user: UserBase, db: Session = Depends(get_db), Authorize: AuthJW
     if not verify_password(user.password, login_user.hashed_password):
         raise HTTPException(status_code=401,detail="Bad password")
 
-    access_token = Authorize.create_access_token(subject=user.employee_id)
-    refresh_token = Authorize.create_refresh_token(subject=user.employee_id)
+    access_token = Authorize.create_access_token(subject=user.user_id)
+    refresh_token = Authorize.create_refresh_token(subject=user.user_id)
     return {"access": access_token, "refresh": refresh_token}
 
 
@@ -36,10 +36,10 @@ async def logout_access(db: Session = Depends(get_db), Authorize: AuthJWT = Depe
     current_user = Authorize.get_jwt_subject()
 
     _user = get_user_by_id(db, current_user)
-    _user_id = _user.id
+    _user_id = _user.user_id
 
     decrypted_token = Authorize.get_raw_jwt()['jti']
-    create_blacklist(db, token=TokenCreate(token=decrypted_token), user_id=_user_id)
+    create_blacklist(db, token=decrypted_token, user_id=_user_id)
     return {"detail": "Access Token Revoke success!"}
 
 
@@ -49,11 +49,12 @@ async def logout_refresh(db: Session = Depends(get_db), Authorize: AuthJWT = Dep
     current_user = Authorize.get_jwt_subject()
 
     _user = get_user_by_id(db, current_user)
-    _user_id = _user.id
 
+    _user_id = _user.user_id
     decrypted_token = Authorize.get_raw_jwt()['jti']
-    create_blacklist(db, token=TokenCreate(token=decrypted_token), user_id=_user_id)
-    return {"detail": "Refresh Token Revoke success!"}
+
+    db_blacklist = create_blacklist(db, token=decrypted_token, user_id=_user_id)
+    return {"detail": db_blacklist}
 
 
 # @router.delete('/jwt/logout/access')
