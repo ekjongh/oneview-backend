@@ -6,4 +6,5 @@ from .bts_info import Bts
 from .voc_list import VocList
 from .volte import Volte, VolteFc
 from .offloading import Offloading
+from .mdt import Mdt
 from .user_dashboard_config import UserDashboardConfig
