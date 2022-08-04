@@ -7,3 +7,5 @@ from .voc_list import VocList
 from .volte import Volte, VolteFc
 from .offloading import Offloading
 from .user_dashboard_config import UserDashboardConfig
+from .events_bts import EventsBts
+from .events_bts_comment import EventsBtsComment

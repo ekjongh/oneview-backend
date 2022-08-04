@@ -4,24 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="CRUD Format 변경(VOC, OFFLOADING, VOLTE)">
+    <list default="true" id="e4a7cea6-639b-4e09-bd12-667f264975d6" name="Changes" comment="오류 및 형식 수정">
+      <change afterPath="$PROJECT_DIR$/app/models/events_bts.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/models/events_bts_comment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/logger.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/DB_QUERY_TEST-checkpoint.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Query_Test-checkpoint.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/SQLALCHEMY QUERY TEST-checkpoint.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Untitled-checkpoint.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/blacklist.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/blacklist.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/offloading.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/dependency.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/items.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/user_dashboard_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/user_dashboard_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/internel/offloading.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/internel/voc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/internel/volte.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/user_board_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user_board_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/internel/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/internel/user.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +32,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -50,7 +51,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -95,7 +96,14 @@
       <option name="project" value="LOCAL" />
       <updated>1658982838766</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="오류 및 형식 수정">
+      <created>1659053006498</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1659053006498</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -113,6 +121,7 @@
     <MESSAGE value="이성현 Openlab 작업본 Commit(20220727)" />
     <MESSAGE value="CRUD Format 변경(VOC)" />
     <MESSAGE value="CRUD Format 변경(VOC, OFFLOADING, VOLTE)" />
-    <option name="LAST_COMMIT_MESSAGE" value="CRUD Format 변경(VOC, OFFLOADING, VOLTE)" />
+    <MESSAGE value="오류 및 형식 수정" />
+    <option name="LAST_COMMIT_MESSAGE" value="오류 및 형식 수정" />
   </component>
 </project>

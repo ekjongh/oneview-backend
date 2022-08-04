@@ -80,14 +80,14 @@ async def delete_user_by_id(id: int, db: Session = Depends(get_db),
 # ------------------------------- User DashBoard Config ... -------------------------------------- #
 
 
-@router.post("/boardconfig")
-async def register_dashboard_config(board_config: UserBoardConfigBase, db: SessionLocal = Depends(get_db)):
-    id = board_config.owner_id + "_" + board_config.config_nm
-    register_board_config = get_dashboard_configs_by_id(db, id)
-    if register_board_config:
-        raise HTTPException(status_code=401, detail="user dashboard config already exist")
-    new_dashboard_config = create_dashboard_config(db, board_config)
-    return {"result": True, "user_id": board_config.owner_id}
+# @router.post("/boardconfig")
+# async def register_dashboard_config(board_config: UserBoardConfigBase, db: SessionLocal = Depends(get_db)):
+#     owner_id = board_config.owner_id
+#     register_board_config = get_dashboard_configs_by_id(db, id)
+#     if register_board_config:
+#         raise HTTPException(status_code=401, detail="user dashboard config already exist")
+#     new_dashboard_config = create_dashboard_config(db, board_config)
+#     return {"result": True, "user_id": board_config.owner_id}
 
 
 @router.get("/boardconfig/all")
@@ -98,22 +98,21 @@ async def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: Sessio
     return result
 
 
-@router.get("/boardconfig/{id}", response_model=List[UserBoardConfig])
+@router.get("/boardconfig/{id}", response_model=UserBoardConfig)
 async def read_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
-
     board_configs = get_dashboard_configs_by_id(db, user_id=id)
-    result = [dashboard_model_to_schema(board_config) for board_config in board_configs]
-
+    result = dashboard_model_to_schema(board_configs)
     return result
 
 
-@router.put("/boardconfig/{id}")
+@router.put("/boardconfig/{id}", response_model=UserBoardConfig)
 async def update_dashboard_config_by_id(id: str, board_config: UserBoardConfig, db: SessionLocal = Depends(get_db)):
-    rst = update_dashboard_config(id=id, db=db, board_config=board_config)
-    return {"result": rst}
+    board_configs = update_dashboard_config(id=id, db=db, board_config=board_config)
+    result = dashboard_model_to_schema(board_configs)
+    return result
 
 
-@router.delete("/boardconfig/{id}")
-async def delete_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
-    rst = delete_dashboard_config(id=id, db=db)
-    return {"result": rst}
+# @router.delete("/boardconfig/{id}")
+# async def delete_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
+#     rst = delete_dashboard_config(id=id, db=db)
+#     return {"result": rst}
