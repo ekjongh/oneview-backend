@@ -4,30 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="adc37df2-5df2-4287-9323-169fdd8ddaec" name="Changes" comment="CRUD Format 변경(VOC, OFFLOADING, VOLTE)">
-      <change beforePath="$PROJECT_DIR$/.idea/dbnavigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/oneview-backend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/oneview-backend.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/voc.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/voc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/crud/volte.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/volte.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/session.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/voc.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/voc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/offloading.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/offloading.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/user_board_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user_board_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/voc_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/voc_list.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/volte.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/volte.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/internel/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/internel/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql_app.db" beforeDir="false" />
-    </list>
+    <list default="true" id="adc37df2-5df2-4287-9323-169fdd8ddaec" name="Changes" comment="CRUD Format 변경(VOC, OFFLOADING, VOLTE)" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,6 +18,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="api_kay" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
