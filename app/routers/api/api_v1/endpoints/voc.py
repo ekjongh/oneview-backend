@@ -15,11 +15,6 @@ async def get_worst_bts(limit: int = 10, group:str="", start_date: str = "202205
     worst_bts = get_worst10_bts_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date, limit=limit)
     return worst_bts
 
-# 기존 Code
-# @router.get("/bts/list", response_model=List[schemas.VocBtsOutput])
-# async def get_worst_bts(limit: int = 10, team: str = "성남엔지니어링부", start_date: str = "20220510", end_date: str = "20220520", db: SessionLocal = Depends(get_db)):
-#     worst_bts = get_worst10_bts_by_group_date(db=db, group=team, start_date=start_date, end_date=end_date, limit=limit)
-#     return worst_bts
 
 @router.get("/list", response_model=List[schemas.VocListOutput])
 async def get_vocs_detail(limit: int = 1000, group:str="", start_date: str = "20220501", end_date: str = None, db: SessionLocal = Depends(get_db)):
@@ -47,12 +42,6 @@ async def get_voc_trend_daily(group:str="", start_date: str = "20220501", end_da
 async def get_voc_event_day(group: str = "", date:str="20220502", db: SessionLocal = Depends(get_db)):
     voc_event_day = get_voc_event_by_group_date(db=db, group=group, date=date)
     return voc_event_day
-
-# 기존 Code
-# @router.get("/kpi/day", response_model=schemas.VocEventOutput)
-# async def get_voc_event_day(team: str = "성남엔지니어링부", date:str="20220502", db: SessionLocal = Depends(get_db)):
-#     voc_event_day = get_voc_event_by_group_date(db=db, group=team, date=date)
-#     return voc_event_day
 
 
 

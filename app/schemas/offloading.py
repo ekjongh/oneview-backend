@@ -13,10 +13,10 @@ class OffloadingTrendOutput(BaseModel):
     value: Union[float, None]
 
 
-class OffloadingKpiOutput(BaseModel):
+class OffloadingEventOutput(BaseModel):
     title: Union[str, None]
     score: Union[float, None]
-    rate: Union[float, None]
+    score_ref: Union[float, None]
 
 
 class OffloadingBtsOutput(BaseModel):

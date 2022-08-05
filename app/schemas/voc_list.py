@@ -50,4 +50,4 @@ class VocTrendOutput(BaseModel):
 class VocEventOutput(BaseModel):
     title: Union[str, None]
     score: Union[float, None]
-    rate: Union[float, None]
+    score_ref: Union[float, None]

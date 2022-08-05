@@ -23,7 +23,7 @@ async def get_offloading_trend_day(group:str="", start_date: str = "20220501", e
     return offloading_trend_days
 
 
-@router.get("/kpi-day", response_model=schemas.OffloadingKpiOutput)
+@router.get("/kpi-day", response_model=schemas.OffloadingEventOutput)
 async def get_offloading_kpi_day(group:str="", date:str="20220502", db: SessionLocal = Depends(get_db)):
     offloading_event_days = get_offloading_event_by_group_date(db=db, group=group, date=date)
     return offloading_event_days

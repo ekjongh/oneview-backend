@@ -15,18 +15,17 @@ def dashboard_model_to_schema(board_config):
     return output_schema
 
 
-def dashboard_schema_to_model(update_model, schema: UserBoardConfig):
-    result = update_model
-    
-    owner_id = schema.owner_id
-    banners = json.dumps(schema.banners)
-    cards = json.dumps(schema.cards)
+def dashboard_schema_to_model(schema: UserBoardConfig):
 
-    user_data = dict(
+    owner_id = schema.owner_id
+    banners = [dict(obj) for obj in schema.banners]
+    cards = [dict(obj) for obj in schema.cards]
+    banners = json.dumps(banners)
+    cards = json.dumps(cards)
+
+    dashboard_data = dict(
         owner_id=owner_id,
         banners=banners,
         cards=cards
     )
-    for k, v in user_data.items():
-        setattr(result, k, v)
-    return result
+    return dashboard_data

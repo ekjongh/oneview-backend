@@ -11,7 +11,7 @@ class Offloading(KBase):
     year_base_week_nm = Column(String(100))
     dow_nm = Column(String(100))
     wday_eweek_div_nm = Column(String(100))
-    bts_oper_team_nm = Column(String(100))
+    oper_team_nm = Column(String(100))
     area_hq_nm = Column(String(100))
     area_center_nm = Column(String(100))
     area_team_nm = Column(String(100))

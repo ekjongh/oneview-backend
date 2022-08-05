@@ -19,5 +19,5 @@ class EventConfigBase(BaseModel):
 
 
 class UserBoardConfig(UserBoardConfigBase):
-    banners: Union[List[BoardConfigBase], None]
-    cards: Union[List[EventConfigBase], None]
+    banners: List[BoardConfigBase]
+    cards: List[EventConfigBase]

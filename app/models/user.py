@@ -30,5 +30,5 @@ class User(Base):
 
     items = relationship("Item", back_populates="owner")
     blacklists = relationship("Blacklist", back_populates="owner")
-    user_dashboard_configs = relationship("UserDashboardConfig", back_populates="owner")
     events_bts_comment = relationship("EventsBtsComment", back_populates="owner")
+    user_dashboard_configs = relationship("UserDashboardConfig", back_populates="owner")

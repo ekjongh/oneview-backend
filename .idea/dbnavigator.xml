@@ -28,7 +28,7 @@
     <loaded-nodes />
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="c675cdf7-a479-4365-9c72-674799cedaee">
+    <connection id="054dd6b3-056f-44f8-ba61-9bba5deef8ec">
       <console name="Connection" type="STANDARD" schema="main" session="Main" />
     </connection>
   </component>
@@ -36,10 +36,12 @@
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="c675cdf7-a479-4365-9c72-674799cedaee" />
+    <connection id="054dd6b3-056f-44f8-ba61-9bba5deef8ec" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-actions connection-id="c675cdf7-a479-4365-9c72-674799cedaee" dataset="main.USER_DASHBOARD_CONFIGS" active-filter-id="" />
+    <filter-actions connection-id="054dd6b3-056f-44f8-ba61-9bba5deef8ec" dataset="main.USER_DASHBOARD_CONFIGS" active-filter-id="e1f500d9-6b6e-401d-a79c-95183a85e967">
+      <filter id="e1f500d9-6b6e-401d-a79c-95183a85e967" name="Filter 1" temporary="false" custom-name="false" type="basic" join-type="AND" />
+    </filter-actions>
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -70,10 +72,10 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="c675cdf7-a479-4365-9c72-674799cedaee" active="true" signed="true">
+      <connection id="054dd6b3-056f-44f8-ba61-9bba5deef8ec" active="true" signed="true">
         <database>
           <name value="Connection" />
-          <description value="oneview-develop" />
+          <description value="" />
           <database-type value="SQLITE" />
           <config-type value="BASIC" />
           <database-version value="3.3" />
