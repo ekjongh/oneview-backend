@@ -83,6 +83,7 @@ def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None,
         stmt = stmt.where(between(models.Mdt.base_date, start_date, end_date))
 
     if group.endswith("센터"):
+        group = group[:-2]
         stmt = stmt.where(models.Mdt.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
@@ -190,6 +191,7 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
         stmt = stmt.where(between(models.Mdt.base_date, start_date, end_date))
 
     if group.endswith("센터"):
+        group = group[:-2]
         stmt = stmt.where(models.Mdt.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):

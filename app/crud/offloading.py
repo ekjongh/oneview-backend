@@ -39,8 +39,9 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
     if start_date:
         stmt = stmt.where(between(models.Offloading.base_date, start_date, end_date))
     
-    # if group.endswith("센터"):
-        # stmt = stmt.where(models.Offloading.area_center_nm == group)
+    if group.endswith("센터"):
+        group = group[:-2]
+        stmt = stmt.where(models.Offloading.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Offloading.bts_oper_team_nm == group)
@@ -82,6 +83,7 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str=
         stmt = stmt.where(between(models.Offloading.base_date, start_date, end_date))
     
     if group.endswith("센터"):
+        group = group[:-2]
         stmt = stmt.where(models.Offloading.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):

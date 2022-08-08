@@ -32,6 +32,7 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
     
     if group.endswith("센터"):
+        group = group[:-2]
         stmt = stmt.where(models.VocList.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
@@ -76,6 +77,7 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
     
     if group.endswith("센터"):
+        group = group[:-2]
         stmt = stmt.where(models.VocList.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
@@ -111,6 +113,7 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str=None, e
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
     
     if group.endswith("센터"):
+        group = group[:-2]
         stmt = stmt.where(models.VocList.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):

@@ -39,8 +39,9 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
     if start_date:
         stmt = stmt.where(between(models.Volte.base_date, start_date, end_date))
     
-    # if group.endswith("센터"):
-        # stmt = stmt.where(models.Volte.area_center_nm == group)
+    if group.endswith("센터"):
+        group = group[:-2]
+        stmt = stmt.where(models.Volte.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Volte.oper_team_nm == group)
@@ -95,6 +96,7 @@ def get_volte_trend_by_group_date(db: Session, group: str, start_date: str=None,
         stmt_fc = stmt_fc.where(between(models.VolteFc.base_date, start_date, end_date))
 
     if group.endswith("센터"):
+        group = group[:-2]
         stmt_cut = stmt_cut.where(models.Volte.area_center_nm == group)
         stmt_fc = stmt_fc.where(models.VolteFc.area_center_nm == group)
 
