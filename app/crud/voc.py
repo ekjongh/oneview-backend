@@ -199,3 +199,71 @@ def get_voc_event_by_group_date(db: Session, group: str="", date:str=None):
         score_ref = score_ref,
     )
     return voc_event
+
+
+def get_voc_event_by_group_date7(db: Session, group: str = "", date: str = None):
+    # today = datetime.today().strftime("%Y%m%d")
+    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+
+    today = date
+    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
+    in_cond = [ref_day, today]
+
+    voc_cnt = func.sum(func.nvl(models.VocList.wjxbfs1, 0))
+    voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
+
+    entities = [
+        models.VocList.base_date,
+        # models.VocList.bts_oper_team_nm,
+        # models.VocList.area_jo_nm
+    ]
+    entities_groupby = [
+        voc_cnt
+    ]
+    if group.endswith("센터"):
+        select_group = models.VocList.area_center_nm
+        group = group[:-2]
+
+    elif group.endswith("팀") or group.endswith("부"):
+        select_group = models.VocList.bts_oper_team_nm
+
+    elif group.endswith("조"):
+        select_group = models.VocList.area_jo_nm
+
+    else:
+        select_group = None
+
+    if select_group:
+        entities.append(select_group)
+        stmt = select([*entities, *entities_groupby], models.VocList.base_date.in_(in_cond)). \
+            group_by(*entities).order_by(models.VocList.base_date.asc())
+        stmt = stmt.where(select_group == group)
+    else:
+        stmt = select([*entities, *entities_groupby], models.VocList.base_date.in_(in_cond)). \
+            group_by(*entities).order_by(models.VocList.base_date.asc())
+    try:
+        query = db.execute(stmt)
+        query_result = query.all()
+        result = list(zip(*query_result))
+        values = result[-1]
+        dates = result[0]
+    except:
+        return None
+
+    if len(values) == 1:
+        if today in dates:
+            score = values[0]
+            score_ref = 0
+        else:
+            score = 0
+            score_ref = values[0]
+    else:
+        score = values[1]
+        score_ref = values[0]
+
+    voc_event = schemas.VocEventOutput(
+        title="품질VOC 발생건수(전주대비)",
+        score=score,
+        score_ref=score_ref,
+    )
+    return voc_event

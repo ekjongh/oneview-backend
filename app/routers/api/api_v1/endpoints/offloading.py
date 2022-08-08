@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app import schemas
 from app.db.session import SessionLocal
 from app.routers.api.deps import get_db
-from app.crud.offloading import get_offloading_trend_by_group_date, get_worst10_offloading_jo_by_group_date, get_offloading_event_by_group_date
+from app.crud.offloading import get_offloading_trend_by_group_date, get_worst10_offloading_jo_by_group_date, get_offloading_event_by_group_date,get_offloading_event_by_group_date7
 
 
 router = APIRouter()
@@ -26,4 +26,9 @@ async def get_offloading_trend_day(group:str="", start_date: str = "20220501", e
 @router.get("/kpi-day", response_model=schemas.OffloadingEventOutput)
 async def get_offloading_kpi_day(group:str="", date:str="20220502", db: SessionLocal = Depends(get_db)):
     offloading_event_days = get_offloading_event_by_group_date(db=db, group=group, date=date)
+    return offloading_event_days
+
+@router.get("/kpi-week", response_model=schemas.OffloadingEventOutput)
+async def get_offloading_kpi_week(group:str="", date:str="20220502", db: SessionLocal = Depends(get_db)):
+    offloading_event_days = get_offloading_event_by_group_date7(db=db, group=group, date=date)
     return offloading_event_days
