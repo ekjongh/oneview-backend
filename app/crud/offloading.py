@@ -19,7 +19,7 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
         # models.Offloading.equip_cd.label("equip_cd"),
         juso,
         models.Offloading.area_center_nm.label("center"),
-        models.Offloading.bts_oper_team_nm.label("team"),
+        models.Offloading.oper_team_nm.label("team"),
         models.Offloading.area_jo_nm.label("jo")
     ]
     entities_groupby = [
@@ -44,7 +44,7 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
         stmt = stmt.where(models.Offloading.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.Offloading.bts_oper_team_nm == group)
+        stmt = stmt.where(models.Offloading.oper_team_nm == group)
         
     if group.endswith("조"):
         stmt = stmt.where(models.Offloading.area_jo_nm == group)
@@ -87,7 +87,7 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str=
         stmt = stmt.where(models.Offloading.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.Offloading.bts_oper_team_nm == group)
+        stmt = stmt.where(models.Offloading.oper_team_nm == group)
         
     if group.endswith("조"):
         stmt = stmt.where(models.Offloading.area_jo_nm == group)
@@ -126,6 +126,7 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
 
     if group.endswith("센터"):
         select_group = models.Offloading.area_center_nm
+        print(group)
         group = group[:-2]
 
     elif group.endswith("팀") or group.endswith("부"):
