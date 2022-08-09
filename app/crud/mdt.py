@@ -64,14 +64,14 @@ def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None,
     ]
     entities_groupby = [
         rsrp_bad_rate,
-        # rsrp_mean,
-        # rsrq_bad_rate,
-        # rsrq_mean,
-        # rip_bad_rate,
-        # rip_mean,
-        # phr_bad_rate,
-        # phr_mean,
-        # nr_rsrp_mean
+        rsrp_mean,
+        rsrq_bad_rate,
+        rsrq_mean,
+        rip_bad_rate,
+        rip_mean,
+        phr_bad_rate,
+        phr_mean,
+        nr_rsrp_mean
     ]
 
     stmt = select(*entities, *entities_groupby)
