@@ -6,4 +6,4 @@ from .voc_list import VocBtsOutput, VocListOutput, VocTrendOutput, VocEventOutpu
 from .volte import VolteBtsOutput, VolteEventOutput, VolteTrendOutput, VolteFcTrendOutput
 from .offloading import OffloadingTrendOutput, OffloadingBtsOutput, OffloadingEventOutput, OffloadingCompareOutput
 from .user_board_config import UserBoardConfig, UserBoardConfigBase, BoardConfigBase, EventConfigBase
-from .mdt import MdtTrendOutput
+from .mdt import MdtTrendOutput, MdtBtsOutput

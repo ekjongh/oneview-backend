@@ -39,8 +39,9 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
     if start_date:
         stmt = stmt.where(between(models.Volte.base_date, start_date, end_date))
     
-    # if group.endswith("센터"):
-        # stmt = stmt.where(models.Volte.area_center_nm == group)
+    if group.endswith("센터"):
+        group = group[:-2]
+        stmt = stmt.where(models.Volte.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Volte.oper_team_nm == group)
@@ -95,6 +96,7 @@ def get_volte_trend_by_group_date(db: Session, group: str, start_date: str=None,
         stmt_fc = stmt_fc.where(between(models.VolteFc.base_date, start_date, end_date))
 
     if group.endswith("센터"):
+        group = group[:-2]
         stmt_cut = stmt_cut.where(models.Volte.area_center_nm == group)
         stmt_fc = stmt_fc.where(models.VolteFc.area_center_nm == group)
 
@@ -196,6 +198,82 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
 
     volte_event = schemas.VolteEventOutput(
         title = "VoLTE 절단율(전일대비)",
+        score = score,
+        score_ref = score_ref,
+    )
+    return volte_event
+
+
+def get_volte_event_by_group_date7(db: Session, group: str="", date:str=None):
+    # today = datetime.today().strftime("%Y%m%d")
+    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+
+    today = date
+    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
+    in_cond = [ref_day, today]
+
+    sum_suc = func.sum(func.nvl(models.Volte.wjxbfs2, 0.0))
+    sum_cut = func.sum(func.nvl(models.Volte.wjxbfs4, 0.0))
+    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
+    cut_ratio = func.round(cut_ratio, 4)
+    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
+
+    entities = [
+        models.Volte.base_date,
+        # models.Volte.area_jo_nm
+    ]
+    entities_groupby = [
+        cut_ratio
+    ]
+
+    if group.endswith("센터"):
+        select_group = models.Volte.area_center_nm
+        group = group[:-2]
+
+    elif group.endswith("팀") or group.endswith("부"):
+        select_group = models.Volte.oper_team_nm
+
+    elif group.endswith("조"):
+        select_group = models.Volte.area_jo_nm
+
+    else:
+        select_group = None
+
+    if select_group:
+        entities.append(select_group)
+        stmt = select([*entities, *entities_groupby], models.Volte.base_date.in_(in_cond)). \
+            group_by(*entities).order_by(models.Volte.base_date.asc())
+        stmt = stmt.where(select_group == group)
+    else:
+        stmt = select([*entities, *entities_groupby], models.Volte.base_date.in_(in_cond)). \
+            group_by(*entities).order_by(models.Volte.base_date.asc())
+    try:
+        query = db.execute(stmt)
+        query_result = query.all()
+        query_keys = query.keys()
+        result = list(zip(*query_result))
+        values = result[-1]
+        dates = result[0]
+    except:
+        return None
+    print("date: ", in_cond)
+    print("resut: ", result)
+    print("keys: ", query_keys)
+    print(dict(zip(query_keys, result)))
+
+    if len(values) == 1:
+        if today in dates:
+            score = values[0]
+            score_ref = 0
+        else:
+            score = 0
+            score_ref = values[0]
+    else:
+        score = values[1]
+        score_ref = values[0]
+
+    volte_event = schemas.VolteEventOutput(
+        title = "VoLTE 절단율(전주대비)",
         score = score,
         score_ref = score_ref,
     )
