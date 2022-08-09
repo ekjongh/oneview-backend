@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app import schemas
 from app.db.session import SessionLocal
 from app.routers.api.deps import get_db
-from app.crud.voc import get_voc_event_by_group_date, get_voc_event_by_group_date7, get_voc_list_by_group_date, get_voc_trend_by_group_date, get_worst10_bts_by_group_date
+from app.crud.voc import get_voc_event_by_group_date, get_voc_list_by_group_date, get_voc_trend_by_group_date, get_worst10_bts_by_group_date
 
 router = APIRouter()
 
@@ -42,12 +42,6 @@ async def get_voc_trend_daily(group:str="", start_date: str = "20220501", end_da
 async def get_voc_event_day(group: str = "", date:str="20220502", db: SessionLocal = Depends(get_db)):
     voc_event_day = get_voc_event_by_group_date(db=db, group=group, date=date)
     return voc_event_day
-
-@router.get("/kpi-week", response_model=schemas.VocEventOutput)
-async def get_voc_event_week(group: str = "", date:str="20220502", db: SessionLocal = Depends(get_db)):
-    voc_event_day = get_voc_event_by_group_date7(db=db, group=group, date=date)
-    return voc_event_day
-
 
 
 

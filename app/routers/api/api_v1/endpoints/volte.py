@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app import schemas
 from app.db.session import SessionLocal
 from app.routers.api.deps import get_db
-from app.crud.volte import get_volte_event_by_group_date, get_volte_event_by_group_date7, get_volte_trend_by_group_date, get_worst10_volte_bts_by_group_date
+from app.crud.volte import get_volte_event_by_group_date, get_volte_trend_by_group_date, get_worst10_volte_bts_by_group_date
 
 router = APIRouter()
 
@@ -29,7 +29,3 @@ async def get_volte_event_day(group:str="", date:str="20220502", db: SessionLoca
     volte_event_days = get_volte_event_by_group_date(db=db, group=group, date=date)
     return volte_event_days
 
-@router.get("/kpi-week", response_model=schemas.VolteEventOutput)
-async def get_volte_event_week(group:str="", date:str="20220502", db: SessionLocal = Depends(get_db)):
-    volte_event_days = get_volte_event_by_group_date7(db=db, group=group, date=date)
-    return volte_event_days
