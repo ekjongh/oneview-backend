@@ -14,9 +14,10 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
     juso = func.concat(models.VocList.sido_nm+' ', models.VocList.eup_myun_dong_nm).label("juso")
     
     entities = [
+        models.VocList.equip_cd,
         models.VocList.equip_nm.label("기지국명"),
         juso,
-        models.VocList.area_center_nm.label("center"),
+        models.VocList.biz_hq_nm.label("center"),
         models.VocList.oper_team_nm.label("team"),
         models.VocList.area_jo_nm.label("jo")
     ]
@@ -33,7 +34,7 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
     
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.VocList.area_center_nm == group)
+        stmt = stmt.where(models.VocList.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.VocList.oper_team_nm == group)
@@ -42,8 +43,13 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
         stmt = stmt.where(models.VocList.area_jo_nm == group)
     
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc())
-    
-    query = db.execute(stmt)
+
+    stmt_rk = select([
+        func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('rank'),
+        *stmt.c,
+    ])
+
+    query = db.execute(stmt_rk)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -72,7 +78,7 @@ def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date:
 
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.VocList.area_center_nm == group)
+        stmt = stmt.where(models.VocList.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.VocList.oper_team_nm == group)
@@ -108,7 +114,7 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
         models.VocList.anals_3_prod_level_nm.label("분석상품레벨3"),
         models.VocList.bprod_nm.label("요금제"),
         models.VocList.equip_nm.label("주기지국"),
-        models.VocList.area_center_nm.label("주기지국센터"),
+        models.VocList.biz_hq_nm.label("주기지국센터"),
         models.VocList.oper_team_nm.label("주기지국팀"),
         models.VocList.area_jo_nm.label("주기지국조")
     ]
@@ -121,7 +127,7 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
     
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.VocList.area_center_nm == group)
+        stmt = stmt.where(models.VocList.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.VocList.bts_oper_team_nm == group)
@@ -157,7 +163,7 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str=None, e
     
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.VocList.area_center_nm == group)
+        stmt = stmt.where(models.VocList.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.VocList.bts_oper_team_nm == group)
@@ -195,7 +201,7 @@ def get_voc_event_by_group_date(db: Session, group: str="", date:str=None):
         voc_cnt
     ]
     if group.endswith("센터"):
-        select_group = models.VocList.area_center_nm
+        select_group = models.VocList.biz_hq_nm
         group = group[:-2]
 
     elif group.endswith("팀") or group.endswith("부"):

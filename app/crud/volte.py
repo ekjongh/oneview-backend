@@ -19,8 +19,7 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
         models.Volte_Fail_Bts.equip_nm.label("기지국명"),
         models.Volte_Fail_Bts.equip_cd,
         juso,
-        # models.Volte_Fail_Bts.area_hq_nm,
-        models.Volte_Fail_Bts.area_center_nm.label("center"),
+        models.Volte_Fail_Bts.biz_hq_nm.label("center"),
         models.Volte_Fail_Bts.oper_team_nm.label("team"),
         models.Volte_Fail_Bts.area_jo_nm.label("jo")
     ]
@@ -42,7 +41,7 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
     
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.Volte_Fail_Bts.area_center_nm == group)
+        stmt = stmt.where(models.Volte_Fail_Bts.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Volte_Fail_Bts.oper_team_nm == group)
@@ -90,7 +89,7 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
 
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.Volte_Fail_Hndset.area_center_nm == group)
+        stmt = stmt.where(models.Volte_Fail_Hndset.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Volte_Fail_Hndset.oper_team_nm == group)
@@ -141,7 +140,7 @@ def get_volte_trend_by_group_date(db: Session, group: str, start_date: str=None,
 
     if group.endswith("센터"):
         group = group[:-2]
-        stmt_cut = stmt_cut.where(models.Volte_Fail_Bts.area_center_nm == group)
+        stmt_cut = stmt_cut.where(models.Volte_Fail_Bts.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt_cut = stmt_cut.where(models.Volte_Fail_Bts.oper_team_nm == group)
@@ -183,7 +182,7 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
     ]
 
     if group.endswith("센터"):
-        select_group = models.Volte_Fail_Bts.area_center_nm
+        select_group = models.Volte_Fail_Bts.biz_hq_nm
         group = group[:-2]
 
     elif group.endswith("팀") or group.endswith("부"):

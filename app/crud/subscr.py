@@ -36,7 +36,7 @@ def get_subscr_compare_by_hndset(db: Session, group: str, start_date: str = '202
 
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.Subscr.area_center_nm == group)
+        stmt = stmt.where(models.Subscr.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Subscr.oper_team_nm == group)
@@ -53,7 +53,7 @@ def get_subscr_compare_by_hndset(db: Session, group: str, start_date: str = '202
 
     query_keys = list(query_keys_hnd)
 
-    query_result = query_result_hnd +  query_result_total
+    query_result = query_result_hnd + query_result_total
 
     list_subscr_compare = list(map(lambda x: schemas.SubscrCompareOutput(**dict(zip(query_keys, x))), query_result))
     return list_subscr_compare

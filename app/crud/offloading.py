@@ -22,7 +22,7 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
         models.Offloading_Bts.equip_nm.label("기지국명"),
         models.Offloading_Bts.equip_cd.label("equip_cd"),
         juso,
-        models.Offloading_Bts.area_center_nm.label("center"),
+        models.Offloading_Bts.biz_hq_nm.label("center"),
         models.Offloading_Bts.oper_team_nm.label("team"),
         models.Offloading_Bts.area_jo_nm.label("jo")
     ]
@@ -45,7 +45,7 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
     
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.Offloading_Bts.area_center_nm == group)
+        stmt = stmt.where(models.Offloading_Bts.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Offloading_Bts.oper_team_nm == group)
@@ -99,7 +99,7 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str=
     
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.Offloading_Bts.area_center_nm == group)
+        stmt = stmt.where(models.Offloading_Bts.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Offloading_Bts.oper_team_nm == group)
@@ -146,7 +146,7 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
     ]
 
     if group.endswith("센터"):
-        select_group = models.Offloading_Bts.area_center_nm
+        select_group = models.Offloading_Bts.biz_hq_nm
         group = group[:-2]
 
     elif group.endswith("팀") or group.endswith("부"):
@@ -238,7 +238,7 @@ def get_worst10_offloading_hndset_by_group_date(db: Session, group: str, start_d
 
     if group.endswith("센터"):
         group = group[:-2]
-        stmt = stmt.where(models.Offloading_Hndset.area_center_nm == group)
+        stmt = stmt.where(models.Offloading_Hndset.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Offloading_Hndset.oper_team_nm == group)

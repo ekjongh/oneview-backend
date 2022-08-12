@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class VolteBtsOutput(BaseModel):
     rank: Union[int, None]
+    equip_cd: Union[str, None]
     기지국명: Union[str, None]
     cut_ratio: Union[float, None]
     sum_try: Union[float, None]

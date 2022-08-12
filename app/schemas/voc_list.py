@@ -17,6 +17,8 @@ class VocListInput(BaseModel):
     pass
 
 class VocBtsOutput(BaseModel):
+    rank: Union[int,None]
+    equip_cd: Union[str, None]
     기지국명: Union[str, None]
     voc_cnt: Union[int, None]
     juso: Union[str, None]
