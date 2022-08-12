@@ -24,6 +24,13 @@ class VocBtsOutput(BaseModel):
     team: Union[str, None]
     jo: Union[str, None]
 
+
+class VocHndsetOutput(BaseModel):
+    rank: Union[int, None]
+    hndset_nm: Union[str, None]
+    voc_cnt: Union[int, None]
+
+
 class VocListOutput(BaseModel):
     기준년원일: Union[str, None]
     VOC접수번호: Union[str, None]

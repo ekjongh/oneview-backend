@@ -9,15 +9,15 @@ from .. import models
 
 def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=None, end_date: str=None, limit: int=10):
 
-    voc_cnt = func.sum(func.nvl(models.VocList.wjxbfs1, 0))
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
-    juso = func.concat(models.VocList.sido_nm, models.VocList.eup_myun_dong_nm).label("juso")
+    juso = func.concat(models.VocList.sido_nm+' ', models.VocList.eup_myun_dong_nm).label("juso")
     
     entities = [
-        models.VocList.equip_cd0.label("기지국명"),
+        models.VocList.equip_nm.label("기지국명"),
         juso,
         models.VocList.area_center_nm.label("center"),
-        models.VocList.bts_oper_team_nm.label("team"),
+        models.VocList.oper_team_nm.label("team"),
         models.VocList.area_jo_nm.label("jo")
     ]
     entities_groupby = [
@@ -36,7 +36,7 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
         stmt = stmt.where(models.VocList.area_center_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VocList.bts_oper_team_nm == group)
+        stmt = stmt.where(models.VocList.oper_team_nm == group)
         
     if group.endswith("조"):
         stmt = stmt.where(models.VocList.area_jo_nm == group)
@@ -51,6 +51,49 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
     return list_worst_voc_bts
 
 
+def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,
+                                  limit: int = 10):
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
+   
+    entities = [
+        models.VocList.hndset_pet_nm.label("hndset_nm"),
+    ]
+    entities_groupby = [
+        voc_cnt
+    ]
+    stmt = select(*entities, *entities_groupby)
+
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
+
+    if group.endswith("센터"):
+        group = group[:-2]
+        stmt = stmt.where(models.VocList.area_center_nm == group)
+
+    if group.endswith("팀") or group.endswith("부"):
+        stmt = stmt.where(models.VocList.oper_team_nm == group)
+
+    if group.endswith("조"):
+        stmt = stmt.where(models.VocList.area_jo_nm == group)
+
+    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).subquery()
+
+    stmt_rk = select([
+        func.rank().over(order_by=stmt.c.voc_cnt.desc()).label("rank"),
+        *stmt.c
+    ])
+
+    query = db.execute(stmt_rk)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
+
+    list_worst_voc_hndset = list(map(lambda x: schemas.VocHndsetOutput(**dict(zip(query_keys, x))), query_result))
+    return list_worst_voc_hndset
+
 def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, end_date: str=None, limit: int=1000):
 
     entities=[
@@ -62,11 +105,11 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
         models.VocList.voc_wjt_qrtc_nm.label("VOC4차업무유형"),
         models.VocList.svc_cont_id.label("서비스계약번호"),
         models.VocList.hndset_pet_nm.label("단말기명"),
-        models.VocList.anals_5_prod_level_nm.label("분석상품레벨3"),
+        models.VocList.anals_3_prod_level_nm.label("분석상품레벨3"),
         models.VocList.bprod_nm.label("요금제"),
-        models.VocList.equip_cd0.label("주기지국"),
+        models.VocList.equip_nm.label("주기지국"),
         models.VocList.area_center_nm.label("주기지국센터"),
-        models.VocList.bts_oper_team_nm.label("주기지국팀"),
+        models.VocList.oper_team_nm.label("주기지국팀"),
         models.VocList.area_jo_nm.label("주기지국조")
     ]
     stmt = select(*entities)
@@ -94,7 +137,7 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
 
 
 def get_voc_trend_by_group_date(db: Session, group: str, start_date: str=None, end_date: str=None):
-    voc_cnt = func.sum(func.nvl(models.VocList.wjxbfs1, 0))
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("value")
 
     entities = [
@@ -140,7 +183,7 @@ def get_voc_event_by_group_date(db: Session, group: str="", date:str=None):
     ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
     in_cond = [ref_day, today]
 
-    voc_cnt = func.sum(func.nvl(models.VocList.wjxbfs1, 0))
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
 
     entities = [
@@ -156,7 +199,7 @@ def get_voc_event_by_group_date(db: Session, group: str="", date:str=None):
         group = group[:-2]
 
     elif group.endswith("팀") or group.endswith("부"):
-        select_group = models.VocList.bts_oper_team_nm
+        select_group = models.VocList.oper_team_nm
 
     elif group.endswith("조"):
         select_group = models.VocList.area_jo_nm

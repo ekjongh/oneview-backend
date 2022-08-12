@@ -5,16 +5,20 @@ from ..db.base_class import KBase
 
 
 class Mdt(KBase):
-    __tablename__ = "dashboard_mdt"
+    __tablename__ = "mdt"
 
+    base_ym = Column(String(100))
+    year_base_week_nm = Column(String(100))
     base_date = Column(String(100), primary_key=True)
+    dow_nm = Column(String(100))
+    wday_eweek_div_nm = Column(String(100))
     bts_maker_nm = Column(String(100))
     biz_hq_nm = Column(String(100))
     oper_team_nm = Column(String(100))
     area_hq_nm = Column(String(100))
     area_center_nm = Column(String(100))
     area_team_nm = Column(String(100))
-    area_jo_nm = Column(String(100), primary_key=True)
+    area_jo_nm = Column(String(100))
     sido_nm = Column(String(100))
     gun_gu_nm = Column(String(100))
     eup_myun_dong_nm = Column(String(100))

@@ -158,27 +158,21 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
     nr_rsrp_mean = func.round(nr_rsrp_mean, 4)
     nr_rsrp_mean = func.coalesce(nr_rsrp_mean, 0.0).label("nr_rsrp_mean")
 
-
-    juso = func.concat(models.Mdt.sido_nm+' ', models.Mdt.eup_myun_dong_nm).label("juso")
-
+    # juso = func.concat(models.Mdt.sido_nm+' ', models.Mdt.eup_myun_dong_nm).label("juso")
 
     entities = [
-        models.Mdt.equip_nm.label("기지국명"),
         models.Mdt.equip_cd,
-        juso,
-        models.Mdt.area_center_nm.label("center"),
-        models.Mdt.oper_team_nm.label("team"),
-        models.Mdt.area_jo_nm.label("jo")
+        models.Mdt.equip_nm.label("기지국명"),
+        # juso,
+        # models.Mdt.area_center_nm.label("center"),
+        # models.Mdt.oper_team_nm.label("team"),
+        # models.Mdt.area_jo_nm.label("jo")
     ]
     entities_groupby = [
         rsrp_bad_rate,
-        rsrp_mean,
         rsrq_bad_rate,
-        rsrq_mean,
         rip_bad_rate,
-        rip_mean,
         phr_bad_rate,
-        phr_mean,
         nr_rsrp_mean
     ]
 
@@ -200,9 +194,14 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
     if group.endswith("조"):
         stmt = stmt.where(models.Mdt.area_jo_nm == group)
 
-    stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc())
+    stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
 
-    query = db.execute(stmt)
+    stmt_rk = select([
+        func.rank().over(order_by=stmt.c.rsrp_bad_rate.desc()).label("rank"),
+        *stmt.c
+    ])
+
+    query = db.execute(stmt_rk)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
