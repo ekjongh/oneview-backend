@@ -17,12 +17,21 @@ class VocListInput(BaseModel):
     pass
 
 class VocBtsOutput(BaseModel):
+    rank: Union[int,None]
+    equip_cd: Union[str, None]
     기지국명: Union[str, None]
     voc_cnt: Union[int, None]
     juso: Union[str, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
+
+
+class VocHndsetOutput(BaseModel):
+    rank: Union[int, None]
+    hndset_nm: Union[str, None]
+    voc_cnt: Union[int, None]
+
 
 class VocListOutput(BaseModel):
     기준년원일: Union[str, None]
