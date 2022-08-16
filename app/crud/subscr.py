@@ -49,7 +49,7 @@ def get_subscr_compare_by_hndset(db: Session, group: str, start_date: str = '202
     
     query_total = db.execute(stmt_total)
     query_result_total = query_total.fetchall()
-    query_keys_total = query_total.keys()
+    # query_keys_total = query_total.keys()
 
     query_keys = list(query_keys_hnd)
 
