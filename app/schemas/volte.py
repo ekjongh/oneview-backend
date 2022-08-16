@@ -37,8 +37,8 @@ class VolteEventOutput(BaseModel):
     score: Union[float, None]
     score_ref: Union[float, None]
 
-class VolteFcTrendOutput(BaseModel):
-    date: Union[str, None]
-    fc_373: Union[float, None]
-    fc_9563: Union[float, None]
-    # fc_sum: Union[float, None]
+# class VolteFcTrendOutput(BaseModel):
+#     date: Union[str, None]
+#     fc_373: Union[float, None]
+#     fc_9563: Union[float, None]
+#     # fc_sum: Union[float, None]
