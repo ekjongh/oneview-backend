@@ -3,26 +3,27 @@ from typing import Union, List, Tuple
 from pydantic import BaseModel
 
 class VolteBtsOutput(BaseModel):
-    rank: Union[int, None]
-    equip_cd: Union[str, None]
+    RANK: Union[int, None]
+    기지국ID: Union[str, None]
     기지국명: Union[str, None]
-    cut_ratio: Union[float, None]
-    sum_try: Union[float, None]
-    sum_suc: Union[float, None]
+    절단율: Union[float, None]
+    시도호: Union[float, None]
+    완료호: Union[float, None]
+    절단호: Union[float, None]
+    # sum_suc: Union[float, None]
     # sum_fail: Union[float, None]
-    sum_cut: Union[float, None]
-    juso: Union[str, None]
-    center: Union[str, None]
-    team: Union[str, None]
-    jo: Union[str, None]
+    # juso: Union[str, None]
+    # center: Union[str, None]
+    # team: Union[str, None]
+    # jo: Union[str, None]
 
 class VolteHndsetOutput(BaseModel):
-    rank: Union[int, None]
-    hndset_nm: Union[str, None]
-    cut_ratio: Union[float, None]
-    sum_try: Union[float, None]
-    sum_suc: Union[float, None]
-    sum_cut: Union[float, None]
+    RANK: Union[int, None]
+    단말기명: Union[str, None]
+    절단율: Union[float, None]
+    시도호: Union[float, None]
+    완료호: Union[float, None]
+    절단호: Union[float, None]
 
 
 class VolteTrendOutput(BaseModel):

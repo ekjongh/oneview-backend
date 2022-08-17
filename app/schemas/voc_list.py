@@ -17,20 +17,20 @@ class VocListInput(BaseModel):
     pass
 
 class VocBtsOutput(BaseModel):
-    rank: Union[int,None]
-    equip_cd: Union[str, None]
+    RANK: Union[int,None]
+    기지국ID: Union[str, None]
     기지국명: Union[str, None]
-    voc_cnt: Union[int, None]
-    juso: Union[str, None]
-    center: Union[str, None]
-    team: Union[str, None]
-    jo: Union[str, None]
+    VOC건수: Union[int, None]
+    # juso: Union[str, None]
+    # center: Union[str, None]
+    # team: Union[str, None]
+    # jo: Union[str, None]
 
 
 class VocHndsetOutput(BaseModel):
-    rank: Union[int, None]
-    hndset_nm: Union[str, None]
-    voc_cnt: Union[int, None]
+    RANK: Union[int, None]
+    단말기명: Union[str, None]
+    VOC건수: Union[int, None]
 
 
 class VocListOutput(BaseModel):
@@ -54,7 +54,7 @@ class VocListOutput(BaseModel):
 
 class VocTrendOutput(BaseModel):
     date: Union[str, None]
-    value: Union[int, None]
+    value: Union[float, None]
 
 class VocEventOutput(BaseModel):
     title: Union[str, None]

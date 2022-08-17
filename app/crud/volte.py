@@ -5,23 +5,24 @@ from datetime import datetime, timedelta
 
 
 def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str=None, end_date: str=None, limit: int=10):
+    # 5G VOLTE 절단율 worst 10 기지국
     # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
-    sum_try = func.sum(func.nvl(models.Volte_Fail_Bts.try_cacnt, 0.0)).label("sum_try")
-    sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("sum_suc")
+    sum_try = func.sum(func.nvl(models.Volte_Fail_Bts.try_cacnt, 0.0)).label("시도호")
+    sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("완료호")
     # sum_fail = func.sum(func.nvl(models.Volte_Fail_Bts.fail_cacnt, 0.0)).label("sum_fail")
-    sum_cut = func.sum(func.nvl(models.Volte_Fail_Bts.fail_cacnt, 0.0)).label("sum_cut")
+    sum_cut = func.sum(func.nvl(models.Volte_Fail_Bts.fail_cacnt, 0.0)).label("절단호")
     cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
     cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
+    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("절단율")
     juso = func.concat(models.Volte_Fail_Bts.sido_nm+' ', models.Volte_Fail_Bts.eup_myun_dong_nm).label("juso")
 
     entities = [
         models.Volte_Fail_Bts.equip_nm.label("기지국명"),
-        models.Volte_Fail_Bts.equip_cd,
-        juso,
-        models.Volte_Fail_Bts.biz_hq_nm.label("center"),
-        models.Volte_Fail_Bts.oper_team_nm.label("team"),
-        models.Volte_Fail_Bts.area_jo_nm.label("jo")
+        models.Volte_Fail_Bts.equip_cd.label("기지국ID"),
+        # juso,
+        # models.Volte_Fail_Bts.biz_hq_nm.label("center"),
+        # models.Volte_Fail_Bts.oper_team_nm.label("team"),
+        # models.Volte_Fail_Bts.area_jo_nm.label("jo")
     ]
     entities_groupby = [
         sum_try,
@@ -31,7 +32,7 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
         cut_ratio
     ]
 
-    stmt = select(*entities, *entities_groupby)
+    stmt = select(*entities, *entities_groupby).where(models.Volte_Fail_Bts.anals_3_prod_level_nm=='5G')
 
     if not end_date:
         end_date = start_date
@@ -40,7 +41,6 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
         stmt = stmt.where(between(models.Volte_Fail_Bts.base_date, start_date, end_date))
     
     if group.endswith("센터"):
-        group = group[:-2]
         stmt = stmt.where(models.Volte_Fail_Bts.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
@@ -51,7 +51,7 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
 
     stmt = stmt.group_by(*entities).having(sum_try>100).order_by(cut_ratio.desc()).subquery()
     stmt_rk = select([
-        func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("rank"),
+        func.rank().over(order_by=stmt.c.절단율.desc()).label("RANK"),
         *stmt.c
     ])
     query = db.execute(stmt_rk)
@@ -63,15 +63,16 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
 
 
 def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: str = None, end_date: str=None, limit: int = 10):
-    sum_try = func.sum(func.nvl(models.Volte_Fail_Hndset.try_cacnt, 0.0)).label("sum_try")
-    sum_suc = func.sum(func.nvl(models.Volte_Fail_Hndset.comp_cacnt, 0.0)).label("sum_suc")
-    sum_cut = func.sum(func.nvl(models.Volte_Fail_Hndset.fail_cacnt, 0.0)).label("sum_cut")
+    # 5G VOLTE 절단율 worst 10 단말기
+    sum_try = func.sum(func.nvl(models.Volte_Fail_Hndset.try_cacnt, 0.0)).label("시도호")
+    sum_suc = func.sum(func.nvl(models.Volte_Fail_Hndset.comp_cacnt, 0.0)).label("완료호")
+    sum_cut = func.sum(func.nvl(models.Volte_Fail_Hndset.fail_cacnt, 0.0)).label("절단호")
     cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
     cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
+    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("절단율")
 
     entities = [
-        models.Volte_Fail_Hndset.hndset_pet_nm.label("hndset_nm"),
+        models.Volte_Fail_Hndset.hndset_pet_nm.label("단말기명"),
     ]
     entities_groupby = [
         sum_try,
@@ -80,7 +81,8 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
         cut_ratio
     ]
 
-    stmt = select(*entities, *entities_groupby)
+    stmt = select(*entities, *entities_groupby).where(models.Volte_Fail_Hndset.anals_3_prod_level_nm=='5G')
+
     if not end_date:
         end_date = start_date
 
@@ -88,7 +90,6 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
         stmt = stmt.where(between(models.Volte_Fail_Hndset.base_date, start_date, end_date))
 
     if group.endswith("센터"):
-        group = group[:-2]
         stmt = stmt.where(models.Volte_Fail_Hndset.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
@@ -97,7 +98,7 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
     stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).subquery()
 
     stmt_rk = select([
-        func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("rank"),
+        func.rank().over(order_by=stmt.c.절단율.desc()).label("RANK"),
         *stmt.c
     ])
 
@@ -130,7 +131,7 @@ def get_volte_trend_by_group_date(db: Session, group: str, start_date: str=None,
         fc_9563_cnt
     ]
 
-    stmt_cut = select(*entities_cut, *entities_groupby_cut)
+    stmt_cut = select(*entities_cut, *entities_groupby_cut).where(models.Volte_Fail_Bts.anals_3_prod_level_nm=='5G')
 
     if not end_date:
         end_date = start_date
@@ -139,7 +140,6 @@ def get_volte_trend_by_group_date(db: Session, group: str, start_date: str=None,
         stmt_cut = stmt_cut.where(between(models.Volte_Fail_Bts.base_date, start_date, end_date))
 
     if group.endswith("센터"):
-        group = group[:-2]
         stmt_cut = stmt_cut.where(models.Volte_Fail_Bts.biz_hq_nm == group)
 
     if group.endswith("팀") or group.endswith("부"):
@@ -183,7 +183,6 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
 
     if group.endswith("센터"):
         select_group = models.Volte_Fail_Bts.biz_hq_nm
-        group = group[:-2]
 
     elif group.endswith("팀") or group.endswith("부"):
         select_group = models.Volte_Fail_Bts.oper_team_nm
