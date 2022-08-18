@@ -22,21 +22,6 @@ FIRST_SUPERUSER_NAME = os.environ.get("FIRST_SUPERUSER_NAME")
 FIRST_SUPERUSER_EMAIL = os.environ.get("FIRST_SUPERUSER_EMAIL")
 FIRST_SUPERUSER_PW = os.environ.get("FIRST_SUPERUSER_PW")
 
-# def create_superuser(db: Session) -> None:
-#     print("metadata Create Table init...")
-#     Base.metadata.create_all(bind=engine)
-#     print("metadata Create Table Suc!!!!")
-#     user_in = UserCreate(
-#         # id=1,
-#         employee_id=FIRST_SUPERUSER_ID,
-#         password=FIRST_SUPERUSER_PW,
-#         email=FIRST_SUPERUSER_EMAIL,
-#         username=FIRST_SUPERUSER_NAME,
-#         is_superuser=True,
-#     )
-#     print(type(user_in))
-#     create_user(db, user_in)
-
 def init_db(db: Session) -> None:
     # Tables should be created with Alembic migrations
     # But if you don't want to use migrations, create

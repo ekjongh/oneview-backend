@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends
+from fastapi.security import APIKeyHeader
+
 from .endpoints import auth, users, items, voc, volte, events, offloading, mdt, subscr
 from ..deps import get_current_user
+
+API_KEY_HEADER = APIKeyHeader(name="Authorize", auto_error=False)
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(auth.router, prefix="/api/v1", tags=["auth"])
