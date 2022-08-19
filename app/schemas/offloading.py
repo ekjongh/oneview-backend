@@ -20,8 +20,8 @@ class OffloadingEventOutput(BaseModel):
 
 class OffloadingHndsetOutput(BaseModel):
     RANK: Union[int, None]
-    단말기명: Union[str, None]
-    오프로딩율_5G: Union[float, None]
+    hndset_pet_nm: Union[str, None]     # 단말기명
+    g5_off_ratio: Union[float, None]     # 오프로딩율_5G
     # sum_3g_data: Union[float, None]
     # sum_lte_data: Union[float, None]
     # sum_5g_data: Union[float, None]
@@ -30,13 +30,13 @@ class OffloadingHndsetOutput(BaseModel):
 
 class OffloadingBtsOutput(BaseModel):
     RANK: Union[int, None]
-    기지국ID: Union[str, None]
-    기지국명: Union[str, None]
-    오프로딩율_5G: Union[float, None]
+    equip_cd: Union[str, None]         # 기지국ID
+    equip_nm: Union[str, None]          # 기지국명
+    g5_off_ratio: Union[float, None]    # 오프로딩율_5G
     # juso: Union[str, None]
-    # center: Union[str, None]
-    # team: Union[str, None]
-    # jo: Union[str, None]
+    center: Union[str, None]
+    team: Union[str, None]
+    jo: Union[str, None]
     # sum_3g_data: Union[float, None]
     # sum_lte_data: Union[float, None]
     # sum_5g_data: Union[float, None]
