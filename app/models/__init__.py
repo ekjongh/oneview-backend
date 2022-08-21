@@ -9,3 +9,4 @@ from .offloading import Offloading_Bts, Offloading_Hndset   # Offloading,
 from .mdt import Mdt
 from .user_dashboard_config import UserDashboardConfig
 from .subscr import Subscr
+from .rrc import Rrc

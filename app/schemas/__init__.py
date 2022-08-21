@@ -9,3 +9,4 @@ from .offloading import OffloadingTrendOutput, OffloadingBtsOutput, OffloadingHn
 from .user_board_config import UserBoardConfig, UserBoardConfigBase, BoardConfigBase, EventConfigBase
 from .mdt import MdtTrendOutput, MdtBtsOutput
 from .subscr import SubscrCompareOutput
+from .rrc import RrcTrendOutput, RrcBtsOutput
