@@ -1,10 +1,12 @@
 from typing import List
 
+from app.errors import exceptions as ex
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 
-from app.crud.user import create_user, get_dashboard_configs, get_dashboard_configs_by_id, get_users, get_user_by_id, update_user, delete_user, create_dashboard_config, update_dashboard_config
+from app.crud.user import create_user, get_dashboard_configs, get_dashboard_configs_by_id, get_users, get_user_by_id, \
+    update_user, delete_user, create_dashboard_config_by_id, update_dashboard_config, delete_dashboard_config
 from app.routers.api.deps import get_db, get_current_user, get_current_active_user
 from app.schemas.user import User, UserCreate, UserUpdate, UserOutput
 from app.schemas.user_board_config import UserBoardConfigBase, UserBoardConfig
@@ -73,7 +75,7 @@ async def delete_user_by_id(id: int, db: Session = Depends(get_db),
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
         if client.id != id:
-            raise HTTPException(status_code=401, detail="Need Auth...")
+            raise ex.NotAuthorized
     _ = delete_user(db=db, user_id=id)
     return {"result": "Delete Success!"}
 
@@ -82,6 +84,9 @@ async def delete_user_by_id(id: int, db: Session = Depends(get_db),
 
 @router.get("/boardconfig/all")
 async def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db)):
+    """
+    사용자 대시보드 설정 전체 가져오기(관리자 페이지용)
+    """
     board_configs = get_dashboard_configs(db=db, skip=skip, limit=limit)
     result = [dashboard_model_to_schema(board_config) for board_config in board_configs]
     return result
@@ -89,13 +94,27 @@ async def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: Sessio
 
 @router.get("/boardconfig/{id}", response_model=UserBoardConfig)
 async def read_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
-    board_configs = get_dashboard_configs_by_id(db, user_id=id)
-    result = dashboard_model_to_schema(board_configs)
+    try:
+        board_configs = get_dashboard_configs_by_id(db, user_id=id)
+        result = dashboard_model_to_schema(board_configs)
+    except:
+        if get_user_by_id(db, user_id=id):
+            board_configs = create_dashboard_config_by_id(db, id=id)
+            result = dashboard_model_to_schema(board_configs)
+        else:
+            raise ex.NotFoundUserEx
     return result
 
 
 @router.put("/boardconfig/{id}", response_model=UserBoardConfig)
 async def update_dashboard_config_by_id(id: str, board_config: UserBoardConfig, db: SessionLocal = Depends(get_db)):
     board_configs = update_dashboard_config(id=id, db=db, board_config=board_config)
+    result = dashboard_model_to_schema(board_configs)
+    return result
+
+
+@router.delete("/boardconfig/{id}", response_model=UserBoardConfig)
+async def delete_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_db)):
+    board_configs = delete_dashboard_config(id=id, db=db)
     result = dashboard_model_to_schema(board_configs)
     return result
