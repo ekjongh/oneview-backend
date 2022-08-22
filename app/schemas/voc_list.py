@@ -17,44 +17,44 @@ class VocListInput(BaseModel):
     pass
 
 class VocBtsOutput(BaseModel):
-    rank: Union[int,None]
-    equip_cd: Union[str, None]
-    기지국명: Union[str, None]
-    voc_cnt: Union[int, None]
-    juso: Union[str, None]
+    RANK: Union[int,None]
+    equip_cd: Union[str, None]         # 기지국ID
+    equip_nm: Union[str, None]          # 기지국명
+    voc_cnt: Union[int, None]            # VOC건수
+    # juso: Union[str, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
 
 
 class VocHndsetOutput(BaseModel):
-    rank: Union[int, None]
-    hndset_nm: Union[str, None]
-    voc_cnt: Union[int, None]
+    RANK: Union[int, None]
+    hndset_pet_nm: Union[str, None]       # 단말기명
+    voc_cnt: Union[int, None]             # VOC건수
 
 
 class VocListOutput(BaseModel):
-    기준년원일: Union[str, None]
-    VOC접수번호: Union[str, None]
-    VOC유형: Union[str, None]
-    VOC2차업무유형: Union[str, None]
-    VOC3차업무유형: Union[str, None]
-    VOC4차업무유형: Union[str, None]
-    서비스계약번호: Union[str, None]
-    단말기명: Union[str, None]
-    분석상품레벨3: Union[str, None]
-    요금제: Union[str, None]
+    base_date: Union[str, None]          # 기준년원일
+    sr_tt_rcp_no: Union[str, None]         # VOC접수번호
+    voc_type_nm: Union[str, None]            # VOC유형
+    voc_wjt_scnd_nm: Union[str, None]      # VOC2차업무유형
+    voc_wjt_tert_nm: Union[str, None]      # VOC3차업무유형
+    voc_wjt_qrtc_nm: Union[str, None]      # VOC4차업무유형
+    svc_cont_id: Union[str, None]       # 서비스계약번호
+    hndset_pet_nm: Union[str, None]            # 단말기명
+    anals_3_prod_level_nm: Union[str, None]        # 분석상품레벨3
+    bprod_nm: Union[str, None]              # 요금제
     # TT번호: Union[str, None]
     # TT발행주소: Union[str, None]
     # 상담처리내역: Union[str, None]
-    주기지국: Union[str, None]
-    주기지국센터: Union[str, None]
-    주기지국팀: Union[str, None]
-    주기지국조: Union[str, None]
+    equip_nm: Union[str, None]          # 주기지국
+    biz_hq_nm: Union[str, None]        # 주기지국센터
+    oper_team_nm: Union[str, None]         # 주기지국팀
+    area_jo_nm: Union[str, None]         # 주기지국조
 
 class VocTrendOutput(BaseModel):
     date: Union[str, None]
-    value: Union[int, None]
+    value: Union[float, None]
 
 class VocEventOutput(BaseModel):
     title: Union[str, None]
