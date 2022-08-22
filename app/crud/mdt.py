@@ -83,13 +83,12 @@ def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None,
         stmt = stmt.where(between(models.Mdt.base_date, start_date, end_date))
 
     if group.endswith("센터"):
-        group = group[:-2]
         stmt = stmt.where(models.Mdt.biz_hq_nm == group)
-
-    if group.endswith("팀") or group.endswith("부"):
+    elif group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Mdt.oper_team_nm == group)
-
-    if group.endswith("조"):
+    elif group.endswith("조"):
+        stmt = stmt.where(models.Mdt.area_jo_nm == group)
+    else :
         stmt = stmt.where(models.Mdt.area_jo_nm == group)
 
     stmt = stmt.group_by(*entities).order_by(models.Mdt.base_date.asc())
@@ -161,12 +160,12 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
     # juso = func.concat(models.Mdt.sido_nm+' ', models.Mdt.eup_myun_dong_nm).label("juso")
 
     entities = [
-        models.Mdt.equip_cd,
-        models.Mdt.equip_nm.label("기지국명"),
+        models.Mdt.equip_cd.label("equip_cd"),
+        models.Mdt.equip_nm.label("equip_nm"),
         # juso,
-        # models.Mdt.area_center_nm.label("center"),
-        # models.Mdt.oper_team_nm.label("team"),
-        # models.Mdt.area_jo_nm.label("jo")
+        models.Mdt.area_center_nm.label("center"),
+        models.Mdt.oper_team_nm.label("team"),
+        models.Mdt.area_jo_nm.label("jo")
     ]
     entities_groupby = [
         rsrp_bad_rate,
@@ -185,19 +184,18 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
         stmt = stmt.where(between(models.Mdt.base_date, start_date, end_date))
 
     if group.endswith("센터"):
-        group = group[:-2]
         stmt = stmt.where(models.Mdt.biz_hq_nm == group)
-
-    if group.endswith("팀") or group.endswith("부"):
+    elif group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.Mdt.oper_team_nm == group)
-
-    if group.endswith("조"):
+    elif group.endswith("조"):
+        stmt = stmt.where(models.Mdt.area_jo_nm == group)
+    else:
         stmt = stmt.where(models.Mdt.area_jo_nm == group)
 
     stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
 
     stmt_rk = select([
-        func.rank().over(order_by=stmt.c.rsrp_bad_rate.desc()).label("rank"),
+        func.rank().over(order_by=stmt.c.rsrp_bad_rate.desc()).label("RANK"),
         *stmt.c
     ])
 
