@@ -15,7 +15,6 @@ from app.errors import exceptions as ex
 # # from app.common.consts import EXCEPT_PATH_LIST, EXCEPT_PATH_REGEX
 # from app.database.conn import db
 # from app.database.schema import Users, ApiKeys
-# from app.errors import exceptions as ex
 #
 # from app.common import config, consts
 from app.errors.exceptions import APIException, SqlFailureEx, APIQueryStringEx

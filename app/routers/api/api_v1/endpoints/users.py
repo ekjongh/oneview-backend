@@ -15,7 +15,7 @@ from app.utils.internel.user import dashboard_model_to_schema
 router = APIRouter()
 
 
-@router.post("/", response_model=User)
+@router.post("/", response_model=User, status_code=201)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     register_user = get_user_by_id(db, user.user_id)
     if register_user:
@@ -55,7 +55,7 @@ async def update_my_config(user:User = Depends(get_current_user)):
 async def read_user_by_id(id: int, db: Session = Depends(get_db)):
     db_user = get_user_by_id(db, user_id=id)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise ex.NotFoundUserEx
     return db_user
 
 
@@ -64,7 +64,7 @@ async def update_user_by_id(id: str, user:UserOutput, db: Session = Depends(get_
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
         if client.id != id:
-            raise HTTPException(status_code=401, detail="Need Auth...")
+            raise ex.NotAuthorized
     _user = update_user(db, user_id=id, user=user)
 
     return {"result": "Update Success!", "user": _user}
@@ -86,6 +86,9 @@ async def delete_user_by_id(id: int, db: Session = Depends(get_db),
 async def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db)):
     """
     사용자 대시보드 설정 전체 가져오기(관리자 페이지용)
+    :param skip:
+    :param limit:
+    :return: List(board_config)
     """
     board_configs = get_dashboard_configs(db=db, skip=skip, limit=limit)
     result = [dashboard_model_to_schema(board_config) for board_config in board_configs]

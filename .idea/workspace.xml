@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="adc37df2-5df2-4287-9323-169fdd8ddaec" name="Changes" comment="master merge">
+    <list default="true" id="adc37df2-5df2-4287-9323-169fdd8ddaec" name="Changes" comment="user 대시보드 설정 백엔드 완료">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/crud/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/middleware/token_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/middleware/token_validator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,7 +145,14 @@
       <option name="project" value="LOCAL" />
       <updated>1661129286943</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="user 대시보드 설정 백엔드 완료">
+      <created>1661133765865</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1661133765865</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -168,7 +176,8 @@
     <MESSAGE value="logging처리 기초 완료" />
     <MESSAGE value="유저 대시보드 컨피드 CRUD 수정" />
     <MESSAGE value="master merge" />
-    <option name="LAST_COMMIT_MESSAGE" value="master merge" />
+    <MESSAGE value="user 대시보드 설정 백엔드 완료" />
+    <option name="LAST_COMMIT_MESSAGE" value="user 대시보드 설정 백엔드 완료" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
