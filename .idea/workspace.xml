@@ -4,18 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="adc37df2-5df2-4287-9323-169fdd8ddaec" name="Changes" comment="total key 삭제">
-      <change afterPath="$PROJECT_DIR$/app/middleware/token_validator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/middleware/trust_hosts.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/date_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/query_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+    <list default="true" id="adc37df2-5df2-4287-9323-169fdd8ddaec" name="Changes" comment="logging처리 기초 완료">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db/init_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/init_db.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/db/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/db/session.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/middleware/db_session.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/middleware/token_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/middleware/token_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/user_dashboard_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/user_dashboard_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/api/api_v1/endpoints/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/user_board_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/user_board_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/utils/internel/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/internel/user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/utils/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/logger.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -124,7 +121,21 @@
       <option name="project" value="LOCAL" />
       <updated>1660608212640</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="logging처리 기초 완료">
+      <created>1660803812685</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1660803812685</updated>
+    </task>
+    <task id="LOCAL-00010" summary="logging처리 기초 완료">
+      <created>1660864832950</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1660864832950</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -145,7 +156,8 @@
     <MESSAGE value="kpi output 수정" />
     <MESSAGE value="merge" />
     <MESSAGE value="total key 삭제" />
-    <option name="LAST_COMMIT_MESSAGE" value="total key 삭제" />
+    <MESSAGE value="logging처리 기초 완료" />
+    <option name="LAST_COMMIT_MESSAGE" value="logging처리 기초 완료" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

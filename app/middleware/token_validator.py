@@ -45,11 +45,11 @@ async def access_control(request: Request, call_next):
     # cookies = request.cookies
 
     url = request.url.path
-    if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
-        response = await call_next(request)
-        if url != "/":
-            await api_logger(request=request, response=response)
-        return response
+    # if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
+    #     response = await call_next(request)
+    #     if url != "/":
+    #         await api_logger(request=request, response=response)
+    #     return response
 
     try:
         if url.startswith("/api"):
@@ -60,6 +60,10 @@ async def access_control(request: Request, call_next):
                 if "authorization" in headers.keys():
                     token_info = await token_decode(access_token=headers.get("Authorization"))
                     request.state.user = token_info["sub"]
+            if url.startswith("/api/v1/jwt/login"):
+                pass
+            if url.startswith("/api/v1/jwt/logout"):
+                pass
         #             request.state.user = UserToken(**token_info)
         #             # 토큰 없음
         #         else:

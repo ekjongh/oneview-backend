@@ -7,8 +7,7 @@ from ..db.base_class import Base
 
 class UserDashboardConfig(Base):
     __tablename__ = "USER_DASHBOARD_CONFIGS"
-    banners = Column(String(2000))
-    cards = Column(String(2000))
+    modules = Column(String(2000))
 
     owner_id = Column(String(100), ForeignKey("users.user_id"), primary_key=True)
     owner = relationship("User", back_populates="user_dashboard_configs")

@@ -16,7 +16,6 @@ from app.schemas.user import User, UserBase
 router = APIRouter()
 
 
-
 @router.post('/jwt/login')
 async def login(user: UserBase, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     login_user = get_user_by_id(db, user.user_id)
@@ -25,8 +24,8 @@ async def login(user: UserBase, db: Session = Depends(get_db), Authorize: AuthJW
     if not verify_password(user.password, login_user.hashed_password):
         raise HTTPException(status_code=401,detail="Bad password")
 
-    access_token = Authorize.create_access_token(subject=user.user_id)
-    refresh_token = Authorize.create_refresh_token(subject=user.user_id)
+    access_token = Authorize.create_access_token(subject=user.user_id, expires_time=timedelta(minutes=60))
+    refresh_token = Authorize.create_refresh_token(subject=user.user_id, expires_time=timedelta(days=1))
     return {"access": access_token, "refresh": refresh_token}
 
 
@@ -99,5 +98,5 @@ async def refresh(Authorize: AuthJWT = Depends()):
     Authorize.jwt_refresh_token_required()
 
     current_user = Authorize.get_jwt_subject()
-    new_access_token = Authorize.create_access_token(subject=current_user)
+    new_access_token = Authorize.create_access_token(subject=current_user, expires_time=timedelta(minutes=60))
     return {"access": new_access_token}
