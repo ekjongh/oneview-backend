@@ -17,7 +17,7 @@ from .routers.api.api_v1.api import api_v1_router
 from pydantic import BaseModel
 from .core.security import JWT_SECRET_CODE
 from .core.config import conf
-from .middleware.token_validator import access_control
+from .middleware.validator import access_control
 
 
 app = FastAPI(debug=True)

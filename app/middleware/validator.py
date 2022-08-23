@@ -59,10 +59,11 @@ async def access_control(request: Request, call_next):
                 if "authorization" in headers.keys():
                     token_info = await token_decode(access_token=headers.get("Authorization"))
                     request.state.user = token_info["sub"]
-            if url.startswith("/api/v1/jwt/login"):
-                pass
-            if url.startswith("/api/v1/jwt/logout"):
-                pass
+            else:
+                if url.startswith("/api/v1/jwt/login"):
+                    pass
+                if url.startswith("/api/v1/jwt/logout"):
+                    pass
         #             request.state.user = UserToken(**token_info)
         #             # 토큰 없음
         #         else:

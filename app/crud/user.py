@@ -80,7 +80,7 @@ def create_dashboard_config_by_id(db: Session, id: str):
     권한 별 Default Dashboard profile 설정 추가작업 필요...
     """
     db_board_config = models.UserDashboardConfig(owner_id=id,
-                                                 modules=json.dumps([]))
+                                                 modules=json.dumps(list()))
 
     db.add(db_board_config)
     db.commit()
