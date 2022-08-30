@@ -278,9 +278,13 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
         models.VocList.voc_actn_txn,
         models.VocList.equip_cd,
         models.VocList.equip_nm,
+        models.VocList.latit_val,
+        models.VocList.lngit_val,
         models.VocList.biz_hq_nm,  # label("주기지국센터"),
         models.VocList.oper_team_nm,  # label("주기지국팀"),
         models.VocList.area_jo_nm,  # label("주기지국조")
+        models.VocList.utmkx,
+        models.VocList.utmky
     ]
     stmt_voc = select(*entities_voc).where(models.VocList.sr_tt_rcp_no == sr_tt_rcp_no)
 

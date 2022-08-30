@@ -79,9 +79,13 @@ class VocUserInfo(BaseModel):
     voc_actn_txn: Union[str, None]      # voc조치내역
     equip_cd: Union[str, None]          # 주기지국id
     equip_nm: Union[str, None]          # 주기지국
+    latit_val: Union[str, None]         # 주기지국위도
+    lngit_val: Union[str, None]         # 주기지국경도
     biz_hq_nm: Union[str, None]         # 주기지국센터
     oper_team_nm: Union[str, None]      # 주기지국팀
     area_jo_nm: Union[str, None]        # 주기지국조
+    utmkx:  Union[str, None]
+    utmky:  Union[str, None]
 
 class BtsSummary(BaseModel):
     base_date: Union[str, None]         # 기준년원일
