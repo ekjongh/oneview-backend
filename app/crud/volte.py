@@ -229,5 +229,3 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
         score_ref = score_ref,
     )
     return volte_event
-
-

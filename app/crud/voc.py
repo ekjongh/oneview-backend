@@ -251,70 +251,105 @@ def get_voc_event_by_group_date(db: Session, group: str = "", date: str = None):
     )
     return voc_event
 
-# def get_voc_event_by_group_date(db: Session, group: str="", date:str=None):
-#     # today = datetime.today().strftime("%Y%m%d")
-#     # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
-#
-#     today = date
-#     ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
-#     in_cond = [ref_day, today]
-#
-#     voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
-#     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
-#
-#     entities = [
-#         models.VocList.base_date,
-#         # models.VocList.bts_oper_team_nm,
-#         # models.VocList.area_jo_nm
-#     ]
-#     entities_groupby = [
-#         voc_cnt
-#     ]
-#     if group.endswith("센터"):
-#         select_group = models.VocList.biz_hq_nm
-#
-#     elif group.endswith("팀") or group.endswith("부"):
-#         select_group = models.VocList.oper_team_nm
-#
-#     elif group.endswith("조"):
-#         select_group = models.VocList.area_jo_nm
-#
-#     else:
-#         select_group = None
-#
-#     if select_group:
-#         entities.append(select_group)
-#         stmt = select([*entities, *entities_groupby], models.VocList.base_date.in_(in_cond)). \
-#             group_by(*entities).order_by(models.VocList.base_date.asc())
-#         stmt = stmt.where(select_group == group)
-#     else:
-#         stmt = select([*entities, *entities_groupby], models.VocList.base_date.in_(in_cond)). \
-#             group_by(*entities).order_by(models.VocList.base_date.asc())
-#     try:
-#         query = db.execute(stmt)
-#         query_result = query.all()
-#         result = list(zip(*query_result))
-#         values = result[-1]
-#         dates = result[0]
-#     except:
-#         return None
-#
-#     if len(values) == 1:
-#         if today in dates:
-#             score = values[0]
-#             score_ref = 0
-#         else:
-#             score = 0
-#             score_ref = values[0]
-#     else:
-#         score = values[1]
-#         score_ref = values[0]
-#
-#
-#     voc_event = schemas.VocEventOutput(
-#         title = "품질VOC 발생건수(전일대비)",
-#         score = score,
-#         score_ref = score_ref,
-#     )
-#     return voc_event
+
+def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
+    #1. voc상세
+    juso = models.VocList.trobl_rgn_broad_sido_nm + ' ' \
+           + models.VocList.trobl_rgn_sgg_nm + ' ' \
+           + models.VocList.trobl_rgn_eup_myun_dong_li_nm + ' ' \
+           + models.VocList.trobl_rgn_dtl_sbst
+    juso = juso.label("juso")
+
+    entities_voc = [
+        models.VocList.base_date,  # label("기준년원일"),
+        models.VocList.sr_tt_rcp_no,  # label("VOC접수번호"),
+        models.VocList.voc_type_nm,  # label("VOC유형"),
+        models.VocList.voc_wjt_scnd_nm,  # label("VOC2차업무유형"),
+        models.VocList.voc_wjt_tert_nm,  # label("VOC3차업무유형"),
+        models.VocList.voc_wjt_qrtc_nm,  # label("VOC4차업무유형"),
+        models.VocList.svc_cont_id,  # label("서비스계약번호"),
+        models.VocList.hndset_pet_nm,  # label("단말기명"),
+        models.VocList.anals_3_prod_level_nm,  # label("분석상품레벨3"),
+        models.VocList.bprod_nm,  # label("요금제"),
+        models.VocList.sr_tt_rcp_no,
+        models.VocList.svc_cont_id,
+        juso,
+        models.VocList.voc_rcp_txn,
+        models.VocList.voc_actn_txn,
+        models.VocList.equip_cd,
+        models.VocList.equip_nm,
+        models.VocList.biz_hq_nm,  # label("주기지국센터"),
+        models.VocList.oper_team_nm,  # label("주기지국팀"),
+        models.VocList.area_jo_nm,  # label("주기지국조")
+    ]
+    stmt_voc = select(*entities_voc).where(models.VocList.sr_tt_rcp_no == sr_tt_rcp_no)
+
+    query = db.execute(stmt_voc)
+    query_result = query.first()
+    query_keys = query.keys()
+
+    if not query_result:
+        return schemas.VocSpecOutput(
+            voc_user_info='',
+            bts_summary=[]
+        )
+
+    voc_user_info = schemas.VocUserInfo(**dict(zip(query_keys, query_result)))
+
+    #test용..
+    voc_user_info.base_date='20220821'
+    voc_user_info.svc_cont_id='581953185'
+
+    # 2 bts summary list ( by voc.base_date + voc.svc_cont_id )
+    sum_s1ap_fail_cnt = func.sum(func.nvl(models.VocSpec.s1ap_fail_cnt, 0)).label("s1ap_fail_cnt")
+    sum_rsrp_bad_cnt = func.sum(
+                                func.nvl(models.VocSpec.rsrp_m105d_cnt, 0)
+                                + func.nvl(models.VocSpec.rsrp_m110d_cnt, 0)
+                        ).label("rsrp_bad_cnt")
+    sum_rsrq_bad_cnt = func.sum(
+                            func.nvl(models.VocSpec.rsrq_m15d_cnt, 0)
+                            + func.nvl(models.VocSpec.rsrq_m17d_cnt, 0)
+                        ).label("rsrq_bad_cnt")
+    sum_rip_cnt = func.sum(func.nvl(models.VocSpec.rip_cnt,0)).label("rip_cnt")
+    sum_new_phr_m3d_cnt = func.sum(func.nvl(models.VocSpec.new_phr_m3d_cnt,0)).label("new_phr_m3d_cnt")
+    sum_phr_cnt = func.sum(func.nvl(models.VocSpec.phr_cnt,0)).label("phr_cnt")
+    sum_nr_rsrp_cnt = func.sum(func.nvl(models.VocSpec.nr_rsrp_cnt,0)).label("nr_rsrp_cnt")
+    sum_volte_self_fail_cacnt = func.sum(func.nvl(models.VocSpec.volte_self_fail_cacnt,0)).label("volte_self_fail_cacnt")
+
+    entities_bts = [
+        # models.VocSpec.base_date,  # label("기준년원일"),
+        models.VocSpec.svc_cont_id,
+        models.VocSpec.equip_cd,
+        models.VocSpec.equip_nm,
+        models.VocSpec.latit_val,
+        models.VocSpec.lngit_val,
+    ]
+    entities_bts_groupby = [
+        sum_s1ap_fail_cnt,
+        sum_rsrp_bad_cnt,
+        sum_rsrq_bad_cnt,
+        sum_rip_cnt,
+        sum_new_phr_m3d_cnt,
+        sum_phr_cnt,
+        sum_nr_rsrp_cnt,
+        sum_volte_self_fail_cacnt
+    ]
+
+    stmt_bts = select(*entities_bts, *entities_bts_groupby)
+    ref_day = (datetime.strptime(voc_user_info.base_date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
+
+    stmt_bts = stmt_bts.where(between(models.VocSpec.base_date, ref_day, voc_user_info.base_date))
+    stmt_bts = stmt_bts.where(models.VocSpec.svc_cont_id == voc_user_info.svc_cont_id)
+    stmt_bts = stmt_bts.group_by(*entities_bts).order_by(sum_volte_self_fail_cacnt.desc())
+
+    query = db.execute(stmt_bts)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
+    print(stmt_bts)
+    bts_summary_list = list(map(lambda x: schemas.BtsSummary(**dict(zip(query_keys, x))), query_result))
+
+    return schemas.VocSpecOutput(
+        voc_user_info = voc_user_info,
+        bts_summary = bts_summary_list
+    )
 

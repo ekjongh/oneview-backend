@@ -3,7 +3,7 @@ from .item import Item
 from .blacklist import Blacklist
 # from .voc_tb import Voc
 from .bts_info import Bts
-from .voc_list import VocList
+from .voc_list import VocList, VocSpec
 from .volte import Volte, VolteFc, Volte_Fail_Bts, Volte_Fail_Hndset
 from .offloading import Offloading_Bts, Offloading_Hndset   # Offloading,
 from .mdt import Mdt
