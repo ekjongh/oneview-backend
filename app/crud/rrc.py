@@ -88,7 +88,7 @@ def get_worst10_rrc_bts_by_group_date(db: Session, group: str, start_date: str =
     else:
         stmt = stmt.where(models.Rrc.area_jo_nm == group)
 
-    stmt = stmt.group_by(*entities).order_by(rrc_rate.desc()).subquery()
+    stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc()).subquery()
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.rrc_rate.asc()).label("RANK"),
