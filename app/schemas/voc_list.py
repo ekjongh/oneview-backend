@@ -26,12 +26,10 @@ class VocBtsOutput(BaseModel):
     team: Union[str, None]
     jo: Union[str, None]
 
-
 class VocHndsetOutput(BaseModel):
     RANK: Union[int, None]
     hndset_pet_nm: Union[str, None]       # 단말기명
     voc_cnt: Union[int, None]             # VOC건수
-
 
 class VocTrendOutput(BaseModel):
     date: Union[str, None]
@@ -86,6 +84,10 @@ class VocUserInfo(BaseModel):
     area_jo_nm: Union[str, None]        # 주기지국조
     utmkx:  Union[str, None]
     utmky:  Union[str, None]
+    day_utmkx: Union[str, None]
+    day_utmky: Union[str, None]
+    ngt_utmkx: Union[str, None]
+    ngt_utmky: Union[str, None]
 
 class BtsSummary(BaseModel):
     base_date: Union[str, None]         # 기준년원일
@@ -103,8 +105,10 @@ class BtsSummary(BaseModel):
     nr_rsrp_cnt: Union[int, None]
     volte_self_fail_cacnt: Union[int, None]
 
-
-
 class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo
     bts_summary: List[BtsSummary]
+
+class VocTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[VocTrendOutput]

@@ -7,8 +7,9 @@ from datetime import datetime, timedelta
 from .. import models
 
 
-def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=None, end_date: str=None, limit: int=10):
-    # 기지국별 5G품질 VOC Worst TOP 10
+def get_worst10_bts_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
+                                  start_date: str=None, end_date: str=None, limit: int=10):
+    # 기지국별 VOC Worst TOP 10
     voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
     juso = func.concat(models.VocList.sido_nm+' ', models.VocList.eup_myun_dong_nm).label("juso")
@@ -24,26 +25,41 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
     entities_groupby = [
         voc_cnt
     ]
-    stmt = select(
-                *entities, *entities_groupby
-            ).where( 
-                models.VocList.anals_3_prod_level_nm == '5G'
-            )
-    
+    stmt = select(*entities, *entities_groupby)
+
+    # 기간 조건
     if not end_date:
         end_date = start_date
         
     if start_date:
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
-    
-    if group.endswith("센터"):
-        stmt = stmt.where(models.VocList.biz_hq_nm == group)
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VocList.oper_team_nm == group)
-    elif group.endswith("조"):
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+
+    # 상품 조건
+    if prod and prod != "전체":
+        stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
+
+    # 선택 조건
+    if code == "제조사" :
+        code_val = models.VocList.mkng_cmpn_nm
+    elif code == "센터" :
+        code_val = models.VocList.biz_hq_nm
+    elif code == "팀":
+        code_val = models.VocList.oper_team_nm
+    elif code == "조":
+        code_val = models.VocList.area_jo_nm
+    elif code == "시도":
+        code_val = models.VocList.sido_nm
+    elif code == "시군구":
+        code_val = models.VocList.gun_gu_nm
+    elif code == "읍면동":
+        code_val = models.VocList.eup_myun_dong_nm
     else:
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+        code_val = None
+    
+    #code의 값목록 : 삼성|노키아
+    if code_val and group:
+        txt_l = group.split("|")
+        stmt = stmt.where(code_val.in_(txt_l))
 
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc())
 
@@ -60,9 +76,9 @@ def get_worst10_bts_by_group_date(db: Session, group:str=None, start_date: str=N
     return list_worst_voc_bts
 
 
-def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,
-                                  limit: int = 10):
-    # 단말별 5G품질 VOC Worst TOP10
+def get_worst10_hndset_by_group_date2(db: Session, prod:str=None, code:str=None, group: str = None,
+                                     start_date: str = None, end_date: str = None, limit: int = 10):
+    # 단말별 품질 VOC Worst TOP10
     voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
    
@@ -72,26 +88,41 @@ def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date:
     entities_groupby = [
         voc_cnt
     ]
-    stmt = select(
-                *entities, *entities_groupby
-            ).where(
-                models.VocList.anals_3_prod_level_nm == '5G'
-            )
+    stmt = select(*entities, *entities_groupby)
 
+    # 기간 조건
     if not end_date:
         end_date = start_date
 
     if start_date:
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
 
-    if group.endswith("센터"):
-        stmt = stmt.where(models.VocList.biz_hq_nm == group)
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VocList.oper_team_nm == group)
-    elif group.endswith("조"):
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+    # 상품 조건
+    if prod and prod != "전체":
+        stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
+
+    # 선택 조건
+    if code == "제조사":
+        code_val = models.VocList.mkng_cmpn_nm
+    elif code == "센터":
+        code_val = models.VocList.biz_hq_nm
+    elif code == "팀":
+        code_val = models.VocList.oper_team_nm
+    elif code == "조":
+        code_val = models.VocList.area_jo_nm
+    elif code == "시도":
+        code_val = models.VocList.sido_nm
+    elif code == "시군구":
+        code_val = models.VocList.gun_gu_nm
+    elif code == "읍면동":
+        code_val = models.VocList.eup_myun_dong_nm
     else:
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+        code_val = None
+
+    # code의 값목록 : 삼성|노키아
+    if code_val and group:
+        txt_l = group.split("|")
+        stmt = stmt.where(code_val.in_(txt_l))
 
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).subquery()
 
@@ -148,24 +179,16 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
     return list_voc_list
 
 
-def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
-    # 1000가입자당 5G VOC건수
+def get_voc_trend_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
+                                start_date: str = None, end_date: str = None):
+    # 1000가입자당  VOC건수
     voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.nvl(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
 
-    stmt_sbscr = select(
-            models.Subscr.base_date,
-            sbscr_cnt
-        ).where(
-            models.Subscr.anals_3_prod_level_nm == '5G'
-        )
-    stmt_voc = select(
-            models.VocList.base_date,
-            voc_cnt
-        ).where(
-            models.VocList.anals_3_prod_level_nm == '5G'
-        )
+    stmt_sbscr = select(models.Subscr.base_date, sbscr_cnt)
+    stmt_voc = select(models.VocList.base_date,voc_cnt)
 
+    #기간
     if not end_date:
         end_date = start_date
 
@@ -173,15 +196,39 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None,
         stmt_sbscr = stmt_sbscr.where(between(models.Subscr.base_date, start_date, end_date))
         stmt_voc = stmt_voc.where(between(models.VocList.base_date, start_date, end_date))
 
-    if group.endswith("센터"):
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.biz_hq_nm == group)
-        stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm == group)
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
-        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
+    #상품 조건
+    if prod and prod != "전체":
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.anals_3_prod_level_nm == prod)
+        stmt_voc = stmt_voc.where(models.VocList.anals_3_prod_level_nm == prod)
+
+    # 선택 조건
+    if code == "제조사":
+        code_val_sbscr = models.Subscr.mkng_cmpn_nm
+        code_val_voc = models.VocList.mkng_cmpn_nm
+    elif code == "센터":
+        code_val_sbscr = models.Subscr.biz_hq_nm
+        code_val_voc = models.VocList.biz_hq_nm
+    elif code == "팀":
+        code_val_sbscr = models.Subscr.oper_team_nm
+        code_val_voc = models.VocList.oper_team_nm
+    elif code == "시도":
+        code_val_sbscr = models.Subscr.sido_nm
+        code_val_voc = models.VocList.sido_nm
+    elif code == "시군구":
+        code_val_sbscr = models.Subscr.gun_gu_nm
+        code_val_voc = models.VocList.gun_gu_nm
+    elif code == "읍면동":
+        code_val_sbscr = models.Subscr.eup_myun_dong_nm
+        code_val_voc = models.VocList.eup_myun_dong_nm
     else:
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
-        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
+        code_val_sbscr = None
+        code_val_voc = None
+
+    # code의 값목록 : 삼성|노키아
+    if code_val_sbscr and group:
+        txt_l = group.split("|")
+        stmt_sbscr = stmt_sbscr.where(code_val_sbscr.in_(txt_l))
+        stmt_voc = stmt_voc.where(code_val_voc.in_(txt_l))
 
     stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).order_by(models.Subscr.base_date.asc()).subquery()
     stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
@@ -201,7 +248,7 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None,
     return list_voc_trend
 
 
-def get_voc_event_by_group_date(db: Session, group: str = "", date: str = None):
+def get_voc_event_by_group_date(db: Session, prod:str=None, code:str=None, group:str="", date:str=None):
     # today = datetime.today().strftime("%Y%m%d")
     # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
 
@@ -218,27 +265,40 @@ def get_voc_event_by_group_date(db: Session, group: str = "", date: str = None):
              , else_=0)
     ).label("score_ref")
 
-    entities = [
-        #
-    ]
+    entities = []
     entities_groupby = [
         sum_cnt,
         sum_cnt_ref,
     ]
 
-    stmt = select([*entities, *entities_groupby]
-           ).where(
-                and_(models.VocList.base_date.in_(in_cond),models.VocList.anals_3_prod_level_nm == '5G')
-           )
+    stmt = select(*entities, *entities_groupby)
 
-    if group.endswith("센터"):
-        stmt = stmt.where(models.VocList.biz_hq_nm == group)
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VocList.oper_team_nm == group)
-    elif group.endswith("조"):
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+    # 상품 조건
+    if prod and prod != "전체":
+        stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
+
+    # 선택 조건
+    if code == "제조사":
+        code_val = models.VocList.mkng_cmpn_nm
+    elif code == "센터":
+        code_val = models.VocList.biz_hq_nm
+    elif code == "팀":
+        code_val = models.VocList.oper_team_nm
+    elif code == "조":
+        code_val = models.VocList.area_jo_nm
+    elif code == "시도":
+        code_val = models.VocList.sido_nm
+    elif code == "시군구":
+        code_val = models.VocList.gun_gu_nm
+    elif code == "읍면동":
+        code_val = models.VocList.eup_myun_dong_nm
     else:
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+        code_val = None
+
+    # code의 값목록 : 삼성|노키아
+    if code_val and group:
+        txt_l = group.split("|")
+        stmt = stmt.where(code_val.in_(txt_l))
 
     query = db.execute(stmt)
     query_result = query.first()
@@ -284,7 +344,11 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
         models.VocList.oper_team_nm,  # label("주기지국팀"),
         models.VocList.area_jo_nm,  # label("주기지국조")
         models.VocList.utmkx,
-        models.VocList.utmky
+        models.VocList.utmky,
+        models.VocList.day_utmkx,
+        models.VocList.day_utmky,
+        models.VocList.ngt_utmkx,
+        models.VocList.ngt_utmky,
     ]
     stmt_voc = select(*entities_voc).where(models.VocList.sr_tt_rcp_no == sr_tt_rcp_no)
 
@@ -299,10 +363,6 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
         )
 
     voc_user_info = schemas.VocUserInfo(**dict(zip(query_keys, query_result)))
-
-    #test용..
-    voc_user_info.base_date='20220821'
-    voc_user_info.svc_cont_id='581953185'
 
     # 2 bts summary list ( by voc.base_date + voc.svc_cont_id )
     sum_s1ap_fail_cnt = func.sum(func.nvl(models.VocSpec.s1ap_fail_cnt, 0)).label("s1ap_fail_cnt")
@@ -357,3 +417,233 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
         bts_summary = bts_summary_list
     )
 
+
+def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, group:str=None,
+                                start_date: str = None, end_date: str = None):
+    # 1000가입자당  VOC건수
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
+    sbscr_cnt = func.sum(func.nvl(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
+
+    stmt_sbscr = select(models.Subscr.base_date, sbscr_cnt)
+    stmt_voc = select(models.VocList.base_date,voc_cnt)
+
+    #기간
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt_sbscr = stmt_sbscr.where(between(models.Subscr.base_date, start_date, end_date))
+        stmt_voc = stmt_voc.where(between(models.VocList.base_date, start_date, end_date))
+
+    #상품 조건
+    if prod and prod != "전체":
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.anals_3_prod_level_nm == prod)
+        stmt_voc = stmt_voc.where(models.VocList.anals_3_prod_level_nm == prod)
+
+    # 선택 조건
+    if code == "제조사":
+        code_val_sbscr = models.Subscr.mkng_cmpn_nm
+        code_val_voc = models.VocList.mkng_cmpn_nm
+    elif code == "센터":
+        code_val_sbscr = models.Subscr.biz_hq_nm
+        code_val_voc = models.VocList.biz_hq_nm
+    elif code == "팀":
+        code_val_sbscr = models.Subscr.oper_team_nm
+        code_val_voc = models.VocList.oper_team_nm
+    elif code == "시도":
+        code_val_sbscr = models.Subscr.sido_nm
+        code_val_voc = models.VocList.sido_nm
+    elif code == "시군구":
+        code_val_sbscr = models.Subscr.gun_gu_nm
+        code_val_voc = models.VocList.gun_gu_nm
+    elif code == "읍면동":
+        code_val_sbscr = models.Subscr.eup_myun_dong_nm
+        code_val_voc = models.VocList.eup_myun_dong_nm
+    else:
+        code_val_sbscr = None
+        code_val_voc = None
+
+    # code의 값목록 : 삼성|노키아
+    if code_val_sbscr and group:
+        txt_l = group.split("|")
+        stmt_sbscr = stmt_sbscr.where(code_val_sbscr.in_(txt_l))
+        stmt_voc = stmt_voc.where(code_val_voc.in_(txt_l))
+
+    # for item in txt_l:
+    #     sum_cnt = func.sum(case((models.code_val_voc == item, models.Subscr.bprod_maint_sbscr_cascnt)
+    #                     , else_=0)).label("sum_cnt")
+
+
+
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).order_by(models.Subscr.base_date.asc()).subquery()
+    stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
+
+    stmt = select(
+            stmt_sbscr.c.base_date.label("date"),
+            func.nvl(func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000.0, 4), 0.0).label("value"),
+            ).outerjoin(
+                stmt_voc,
+                (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
+            )
+    query = db.execute(stmt)
+    query_result = query.all()
+    query_keys = query.keys()
+    
+
+    list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
+    return list_voc_trend
+
+######################################
+def get_worst10_bts_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,
+                                  limit: int = 10):
+    # 기지국별 5G품질 VOC Worst TOP 10
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
+    juso = func.concat(models.VocList.sido_nm + ' ', models.VocList.eup_myun_dong_nm).label("juso")
+
+    entities = [
+        models.VocList.equip_cd,
+        models.VocList.equip_nm,
+        # juso,
+        models.VocList.biz_hq_nm.label("center"),
+        models.VocList.oper_team_nm.label("team"),
+        models.VocList.area_jo_nm.label("jo")
+    ]
+    entities_groupby = [
+        voc_cnt
+    ]
+    stmt = select(
+        *entities, *entities_groupby
+    ).where(
+        models.VocList.anals_3_prod_level_nm == '5G'
+    )
+
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
+
+    if group.endswith("센터"):
+        stmt = stmt.where(models.VocList.biz_hq_nm == group)
+    elif group.endswith("팀") or group.endswith("부"):
+        stmt = stmt.where(models.VocList.oper_team_nm == group)
+    elif group.endswith("조"):
+        stmt = stmt.where(models.VocList.area_jo_nm == group)
+    else:
+        stmt = stmt.where(models.VocList.area_jo_nm == group)
+
+    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc())
+
+    stmt_rk = select([
+        func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('RANK'),
+        *stmt.c,
+    ])
+
+    query = db.execute(stmt_rk)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
+
+    list_worst_voc_bts = list(map(lambda x: schemas.VocBtsOutput(**dict(zip(query_keys, x))), query_result))
+    return list_worst_voc_bts
+
+
+def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,
+                                     limit: int = 10):
+    # 단말별 5G품질 VOC Worst TOP10
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
+
+    entities = [
+        models.VocList.hndset_pet_nm,
+    ]
+    entities_groupby = [
+        voc_cnt
+    ]
+    stmt = select(
+        *entities, *entities_groupby
+    ).where(
+        models.VocList.anals_3_prod_level_nm == '5G'
+    )
+
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
+
+    if group.endswith("센터"):
+        stmt = stmt.where(models.VocList.biz_hq_nm == group)
+    elif group.endswith("팀") or group.endswith("부"):
+        stmt = stmt.where(models.VocList.oper_team_nm == group)
+    elif group.endswith("조"):
+        stmt = stmt.where(models.VocList.area_jo_nm == group)
+    else:
+        stmt = stmt.where(models.VocList.area_jo_nm == group)
+
+    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).subquery()
+
+    stmt_rk = select([
+        func.rank().over(order_by=stmt.c.voc_cnt.desc()).label("RANK"),
+        *stmt.c
+    ])
+
+    query = db.execute(stmt_rk)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
+
+    list_worst_voc_hndset = list(map(lambda x: schemas.VocHndsetOutput(**dict(zip(query_keys, x))), query_result))
+    return list_worst_voc_hndset
+
+
+def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
+    # 1000가입자당 5G VOC건수
+    voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
+    sbscr_cnt = func.sum(func.nvl(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
+
+    stmt_sbscr = select(
+            models.Subscr.base_date,
+            sbscr_cnt
+        ).where(
+            models.Subscr.anals_3_prod_level_nm == '5G'
+        )
+    stmt_voc = select(
+            models.VocList.base_date,
+            voc_cnt
+        ).where(
+            models.VocList.anals_3_prod_level_nm == '5G'
+        )
+
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt_sbscr = stmt_sbscr.where(between(models.Subscr.base_date, start_date, end_date))
+        stmt_voc = stmt_voc.where(between(models.VocList.base_date, start_date, end_date))
+
+    if group.endswith("센터"):
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.biz_hq_nm == group)
+        stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm == group)
+    elif group.endswith("팀") or group.endswith("부"):
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
+    else:
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
+
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).order_by(models.Subscr.base_date.asc()).subquery()
+    stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
+
+    stmt = select(
+            stmt_sbscr.c.base_date.label("date"),
+            func.nvl(func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000.0, 4), 0.0).label("value"),
+            ).outerjoin(
+                stmt_voc,
+                (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
+            )
+    query = db.execute(stmt)
+    query_result = query.all()
+    query_keys = query.keys()
+
+    list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
+    return list_voc_trend

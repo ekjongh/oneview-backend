@@ -47,3 +47,17 @@ class OffloadingCompareOutput(BaseModel):
     groups: Set[str] = set()
     type: Union[str, None]
     values: Union[List[offloadingCompare], None] = None
+
+
+class OffloadingDongOutput(BaseModel):
+    RANK: Union[int, None]
+    juso: Union[str, None]
+    g5_off_ratio: Union[float, None]    # 오프로딩율_5G
+    center: Union[str, None]
+    team: Union[str, None]
+    jo: Union[str, None]
+    # sum_3g_data: Union[float, None]
+    # sum_lte_data: Union[float, None]
+    # sum_5g_data: Union[float, None]
+    # sum_sru_data: Union[float, None]
+    # sum_total_data: Union[float, None]
