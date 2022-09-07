@@ -59,6 +59,7 @@ class VocListOutput(BaseModel):
     area_jo_nm: Union[str, None]        # 주기지국조
     voc_rcp_txn: Union[str, None]
     voc_actn_txn: Union[str, None]
+    tt_trt_sbst: Union[str, None]
 
 class VocUserInfo(BaseModel):
     sr_tt_rcp_no: Union[str, None]      # VOC접수번호
@@ -75,6 +76,7 @@ class VocUserInfo(BaseModel):
     juso: Union[str, None]              # 장애발생주소
     voc_rcp_txn: Union[str, None]       # 상담처리내역
     voc_actn_txn: Union[str, None]      # voc조치내역
+    tt_trt_sbst: Union[str, None]
     equip_cd: Union[str, None]          # 주기지국id
     equip_nm: Union[str, None]          # 주기지국
     latit_val: Union[str, None]         # 주기지국위도

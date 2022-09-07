@@ -157,6 +157,8 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
         models.VocList.area_jo_nm,      # label("주기지국조")
         models.VocList.voc_rcp_txn,
         models.VocList.voc_actn_txn,
+        models.VocList.tt_trt_sbst,
+
     ]
     stmt = select(*entities)
     if not end_date:
@@ -338,6 +340,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
         juso,
         models.VocList.voc_rcp_txn,
         models.VocList.voc_actn_txn,
+        models.VocList.tt_trt_sbst,
         models.VocList.equip_cd,
         models.VocList.equip_nm,
         models.VocList.latit_val,
