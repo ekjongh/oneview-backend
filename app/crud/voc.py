@@ -155,6 +155,8 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
         models.VocList.biz_hq_nm,       # label("주기지국센터"),
         models.VocList.oper_team_nm,    # label("주기지국팀"),
         models.VocList.area_jo_nm,      # label("주기지국조")
+        models.VocList.voc_rcp_txn,
+        models.VocList.voc_actn_txn,
     ]
     stmt = select(*entities)
     if not end_date:

@@ -53,12 +53,12 @@ class VocListOutput(BaseModel):
     bprod_nm: Union[str, None]          # 요금제
     # TT번호: Union[str, None]
     # TT발행주소: Union[str, None]
-    # 상담처리내역: Union[str, None]
     equip_nm: Union[str, None]          # 주기지국
     biz_hq_nm: Union[str, None]         # 주기지국센터
     oper_team_nm: Union[str, None]      # 주기지국팀
     area_jo_nm: Union[str, None]        # 주기지국조
-
+    voc_rcp_txn: Union[str, None]
+    voc_actn_txn: Union[str, None]
 
 class VocUserInfo(BaseModel):
     sr_tt_rcp_no: Union[str, None]      # VOC접수번호
