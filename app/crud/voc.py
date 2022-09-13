@@ -1,5 +1,6 @@
 from html import entities
 from sqlalchemy.orm import Session
+from app.errors import exceptions as ex
 from app import schemas
 from sqlalchemy import func, select, between, case, and_
 from datetime import datetime, timedelta
@@ -370,6 +371,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
     voc_user_info = schemas.VocUserInfo(**dict(zip(query_keys, query_result)))
 
     # 2 bts summary list ( by voc.base_date + voc.svc_cont_id )
+    sum_s1ap_cnt = func.sum(func.nvl(models.VocSpec.s1ap_cnt, 0)).label("s1ap_cnt")
     sum_s1ap_fail_cnt = func.sum(func.nvl(models.VocSpec.s1ap_fail_cnt, 0)).label("s1ap_fail_cnt")
     sum_rsrp_bad_cnt = func.sum(
                                 func.nvl(models.VocSpec.rsrp_m105d_cnt, 0)
@@ -394,6 +396,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
         models.VocSpec.lngit_val,
     ]
     entities_bts_groupby = [
+        sum_s1ap_cnt,
         sum_s1ap_fail_cnt,
         sum_rsrp_bad_cnt,
         sum_rsrq_bad_cnt,
@@ -425,14 +428,36 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
 
 def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, group:str=None,
                                 start_date: str = None, end_date: str = None):
-    # 1000가입자당  VOC건수
+
     voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.nvl(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
 
-    stmt_sbscr = select(models.Subscr.base_date, sbscr_cnt)
-    stmt_voc = select(models.VocList.base_date,voc_cnt)
+    # 선택 조건
+    if code == "제조사":
+        code_val_sbscr = models.Subscr.mkng_cmpn_nm.label("code")
+        code_val_voc = models.VocList.mkng_cmpn_nm.label("code")
+    elif code == "센터":
+        code_val_sbscr = models.Subscr.biz_hq_nm.label("code")
+        code_val_voc = models.VocList.biz_hq_nm.label("code")
+    elif code == "팀":
+        code_val_sbscr = models.Subscr.oper_team_nm.label("code")
+        code_val_voc = models.VocList.oper_team_nm.label("code")
+    elif code == "시도":
+        code_val_sbscr = models.Subscr.sido_nm.label("code")
+        code_val_voc = models.VocList.sido_nm.label("code")
+    elif code == "시군구":
+        code_val_sbscr = models.Subscr.gun_gu_nm.label("code")
+        code_val_voc = models.VocList.gun_gu_nm.label("code")
+    elif code == "읍면동":
+        code_val_sbscr = models.Subscr.eup_myun_dong_nm.label("code")
+        code_val_voc = models.VocList.eup_myun_dong_nm.label("code")
+    else:
+        raise ex.SqlFailureEx
 
-    #기간
+    stmt_sbscr = select(models.Subscr.base_date, code_val_sbscr, sbscr_cnt)
+    stmt_voc = select(models.VocList.base_date, code_val_voc, voc_cnt)
+
+    # 기간
     if not end_date:
         end_date = start_date
 
@@ -440,60 +465,46 @@ def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, 
         stmt_sbscr = stmt_sbscr.where(between(models.Subscr.base_date, start_date, end_date))
         stmt_voc = stmt_voc.where(between(models.VocList.base_date, start_date, end_date))
 
-    #상품 조건
+    # 상품 조건
     if prod and prod != "전체":
         stmt_sbscr = stmt_sbscr.where(models.Subscr.anals_3_prod_level_nm == prod)
         stmt_voc = stmt_voc.where(models.VocList.anals_3_prod_level_nm == prod)
 
-    # 선택 조건
-    if code == "제조사":
-        code_val_sbscr = models.Subscr.mkng_cmpn_nm
-        code_val_voc = models.VocList.mkng_cmpn_nm
-    elif code == "센터":
-        code_val_sbscr = models.Subscr.biz_hq_nm
-        code_val_voc = models.VocList.biz_hq_nm
-    elif code == "팀":
-        code_val_sbscr = models.Subscr.oper_team_nm
-        code_val_voc = models.VocList.oper_team_nm
-    elif code == "시도":
-        code_val_sbscr = models.Subscr.sido_nm
-        code_val_voc = models.VocList.sido_nm
-    elif code == "시군구":
-        code_val_sbscr = models.Subscr.gun_gu_nm
-        code_val_voc = models.VocList.gun_gu_nm
-    elif code == "읍면동":
-        code_val_sbscr = models.Subscr.eup_myun_dong_nm
-        code_val_voc = models.VocList.eup_myun_dong_nm
-    else:
-        code_val_sbscr = None
-        code_val_voc = None
-
+    txt_l = []
     # code의 값목록 : 삼성|노키아
-    if code_val_sbscr and group:
+    if code_val_sbscr != '' and group != '':
         txt_l = group.split("|")
         stmt_sbscr = stmt_sbscr.where(code_val_sbscr.in_(txt_l))
         stmt_voc = stmt_voc.where(code_val_voc.in_(txt_l))
 
-    # for item in txt_l:
-    #     sum_cnt = func.sum(case((models.code_val_voc == item, models.Subscr.bprod_maint_sbscr_cascnt)
-    #                     , else_=0)).label("sum_cnt")
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date, code_val_sbscr).subquery()
+    stmt_voc = stmt_voc.group_by(models.VocList.base_date, code_val_voc).subquery()
 
+    # 1000가입자당 VOC건수
+    sum_l = []
+    for item in txt_l:
+        sum_l.append(func.round(func.sum(
+            case((stmt_sbscr.c.code == item, stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000), else_=0)
+        ), 4).label(item))
 
-
-    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).order_by(models.Subscr.base_date.asc()).subquery()
-    stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
+    # stmt_sbscr = select(models.Subscr.base_date, *sum_sbscr_l)
+    # stmt_voc = select(models.VocList.base_date, *sum_voc_l)
 
     stmt = select(
-            stmt_sbscr.c.base_date.label("date"),
-            func.nvl(func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000.0, 4), 0.0).label("value"),
-            ).outerjoin(
-                stmt_voc,
-                (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
-            )
+        stmt_sbscr.c.base_date.label("date"),
+        *sum_l
+    ).outerjoin(
+        stmt_voc,
+        (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
+    ).group_by(stmt_sbscr.c.base_date)
+
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
     query = db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
-    
+
+    print(query_keys)
 
     list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_voc_trend
