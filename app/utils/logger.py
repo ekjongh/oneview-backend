@@ -61,12 +61,12 @@ async def api_logger(request: Request, response=None, error=None):
     #     log_dict["body"] = body
 
     # log 출력 형식
-    formatter = logging.Formatter('[LOG / %(asctime)s / %(levelname)s]: %(name)s - %(message)s')
-
-    # log print
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    # formatter = logging.Formatter('[LOG / %(asctime)s / %(levelname)s]: %(name)s - %(message)s')
+    #
+    # # log print
+    # stream_handler = logging.StreamHandler()
+    # stream_handler.setFormatter(formatter)
+    # logger.addHandler(stream_handler)
 
     # log를 파일에 출력
     # file_handler = logging.FileHandler('my.log')
