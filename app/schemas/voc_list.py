@@ -26,12 +26,10 @@ class VocBtsOutput(BaseModel):
     team: Union[str, None]
     jo: Union[str, None]
 
-
 class VocHndsetOutput(BaseModel):
     RANK: Union[int, None]
     hndset_pet_nm: Union[str, None]       # 단말기명
     voc_cnt: Union[int, None]             # VOC건수
-
 
 class VocTrendOutput(BaseModel):
     date: Union[str, None]
@@ -55,12 +53,13 @@ class VocListOutput(BaseModel):
     bprod_nm: Union[str, None]          # 요금제
     # TT번호: Union[str, None]
     # TT발행주소: Union[str, None]
-    # 상담처리내역: Union[str, None]
     equip_nm: Union[str, None]          # 주기지국
     biz_hq_nm: Union[str, None]         # 주기지국센터
     oper_team_nm: Union[str, None]      # 주기지국팀
     area_jo_nm: Union[str, None]        # 주기지국조
-
+    voc_rcp_txn: Union[str, None]
+    voc_actn_txn: Union[str, None]
+    tt_trt_sbst: Union[str, None]
 
 class VocUserInfo(BaseModel):
     sr_tt_rcp_no: Union[str, None]      # VOC접수번호
@@ -77,6 +76,7 @@ class VocUserInfo(BaseModel):
     juso: Union[str, None]              # 장애발생주소
     voc_rcp_txn: Union[str, None]       # 상담처리내역
     voc_actn_txn: Union[str, None]      # voc조치내역
+    tt_trt_sbst: Union[str, None]
     equip_cd: Union[str, None]          # 주기지국id
     equip_nm: Union[str, None]          # 주기지국
     latit_val: Union[str, None]         # 주기지국위도
@@ -86,6 +86,10 @@ class VocUserInfo(BaseModel):
     area_jo_nm: Union[str, None]        # 주기지국조
     utmkx:  Union[str, None]
     utmky:  Union[str, None]
+    day_utmkx: Union[str, None]
+    day_utmky: Union[str, None]
+    ngt_utmkx: Union[str, None]
+    ngt_utmky: Union[str, None]
 
 class BtsSummary(BaseModel):
     base_date: Union[str, None]         # 기준년원일
@@ -103,8 +107,10 @@ class BtsSummary(BaseModel):
     nr_rsrp_cnt: Union[int, None]
     volte_self_fail_cacnt: Union[int, None]
 
-
-
 class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo
     bts_summary: List[BtsSummary]
+
+class VocTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[VocTrendOutput]
