@@ -11,6 +11,7 @@ from app.routers.api.deps import get_db, get_current_user, get_current_active_us
 from app.schemas.user import User, UserCreate, UserUpdate, UserOutput
 from app.schemas.user_board_config import UserBoardConfigBase, UserBoardConfig
 from app.utils.internel.user import dashboard_model_to_schema
+from fastapi.responses import RedirectResponse
 
 router = APIRouter()
 
@@ -121,3 +122,8 @@ async def delete_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_
     board_configs = delete_dashboard_config(id=id, db=db)
     result = dashboard_model_to_schema(board_configs)
     return result
+
+@router.post("/test")
+async def test(user: UserCreate):
+    print(user.user_id, " 들어옴...")
+    return RedirectResponse("http://localhost:8080", status_code=303)
