@@ -98,6 +98,7 @@ class BtsSummary(BaseModel):
     equip_nm: Union[str, None]          # 주기지국
     latit_val: Union[str, None]
     lngit_val: Union[str, None]
+    s1ap_cnt: Union[int, None]
     s1ap_fail_cnt: Union[int, None]
     rsrp_bad_cnt: Union[int, None]
     rsrq_bad_cnt: Union[int, None]
