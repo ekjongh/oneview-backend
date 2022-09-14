@@ -17,7 +17,6 @@ class RrcTrendOutput(BaseModel):
     # nr_rsrp_mean: Union[float, None]
 
 
-
 class RrcBtsOutput(BaseModel):
     RANK: Union[int, None]
     equip_cd: Union[str, None]         # 기지국ID
@@ -29,3 +28,8 @@ class RrcBtsOutput(BaseModel):
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
+
+
+class RrcTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[RrcTrendOutput]
