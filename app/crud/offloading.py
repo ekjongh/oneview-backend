@@ -222,7 +222,7 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
     )
     return offloading_event
 
-
+# 주요단말(데이터량기준)
 def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(func.nvl(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
@@ -280,7 +280,8 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    #주요단말정렬기준 : 데이터량
+    stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),

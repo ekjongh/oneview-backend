@@ -7,8 +7,7 @@ from datetime import datetime, timedelta
 
 def get_worst10_volte_bts_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
                                         start_date: str=None, end_date: str=None, limit: int=10):
-    # 5G VOLTE 절단율 worst 10 기지국
-    # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
+    # 5G VOLTE 절단호 worst 10 기지국
     sum_try = func.sum(func.nvl(models.Volte_Fail_Bts.try_cacnt, 0.0)).label("sum_try")
     sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("sum_suc")
     # sum_fail = func.sum(func.nvl(models.Volte_Fail_Bts.fail_cacnt, 0.0)).label("sum_fail")
@@ -364,7 +363,7 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
 ############################
 def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
-    # 5G VOLTE 절단율 worst 10 기지국
+    # 5G VOLTE 절단호기준 worst 10 기지국 :
     # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
     sum_try = func.sum(func.nvl(models.Volte_Fail_Bts.try_cacnt, 0.0)).label("sum_try")
     sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("sum_suc")

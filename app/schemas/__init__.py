@@ -9,5 +9,6 @@ from .offloading import OffloadingTrendOutput, OffloadingBtsOutput, OffloadingHn
                 OffloadingCompareOutput, OffloadingDongOutput, OffloadingTrendItemOutput
 from .user_board_config import UserBoardConfig, UserBoardConfigBase, ModuleConfigBase
 from .mdt import MdtTrendOutput, MdtBtsOutput,MdtTrendItemOutput
-from .subscr import SubscrCompareOutput
+from .subscr import SubscrCompareOutput, SubscrCompareProdOutput
 from .rrc import RrcTrendOutput, RrcBtsOutput, RrcTrendItemOutput
+from .data_cnt import DataCntCompareProdOutput
