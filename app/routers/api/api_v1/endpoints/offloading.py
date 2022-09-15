@@ -11,7 +11,8 @@ from app.crud.offloading import get_offloading_trend_by_group_date, get_worst10_
     get_worst10_offloading_dong_by_group_date, \
     get_worst10_offloading_jo_by_group_date2, \
     get_worst10_offloading_hndset_by_group_date2, \
-    get_offloading_trend_by_group_date2
+    get_offloading_trend_by_group_date2, \
+    get_offloading_trend_item_by_group_date
 
 router = APIRouter()
 
@@ -39,6 +40,13 @@ async def get_offloading_kpi_day(group:str="", date:str="20220502", db: SessionL
 async def get_worst_offloading_dong(limit: int = 10, code:str=None, group:str="", start_date: str = "20220821", end_date: str = None, db: SessionLocal = Depends(get_db)):
     worst_offloading_dong = get_worst10_offloading_dong_by_group_date(db=db, code=code, group=group, start_date=start_date, end_date=end_date, limit=limit)
     return worst_offloading_dong
+
+@router.get("/trend-item-day", response_model=List[schemas.OffloadingTrendItemOutput])
+async def get_offloading_trend_item_daily(code:str=None, group:str="",
+                                start_date: str = "20220901", end_date: str = None, db: SessionLocal = Depends(get_db)):
+    offloading_trend_days = get_offloading_trend_item_by_group_date(db=db, code=code, group=group,
+                                                     start_date=start_date, end_date=end_date)
+    return offloading_trend_days
 
 ############################
 @router.get("/worst", response_model=List[schemas.OffloadingBtsOutput])

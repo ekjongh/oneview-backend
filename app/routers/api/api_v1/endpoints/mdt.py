@@ -8,7 +8,8 @@ from app.routers.api.deps import get_db
 from app.crud.mdt import get_mdt_trend_by_group_date, \
     get_worst10_mdt_bts_by_group_date, \
     get_mdt_trend_by_group_date2, \
-    get_worst10_mdt_bts_by_group_date2
+    get_worst10_mdt_bts_by_group_date2,\
+    get_mdt_trend_item_by_group_date
 
 
 router = APIRouter()
@@ -24,6 +25,11 @@ async def get_mdt_trend_day2(code:str=None, group:str="", start_date: str = "202
 async def get_worst_mdt_bts2(limit: int = 10, code:str=None, group:str="", start_date: str = "20220801", end_date: str = None, db: SessionLocal = Depends(get_db)):
     worst_mdt_bts = get_worst10_mdt_bts_by_group_date2(db=db, code=code, group=group, start_date=start_date, end_date=end_date, limit=limit)
     return worst_mdt_bts
+
+@router.get("/trend-item-day", response_model=List[schemas.MdtTrendItemOutput])
+async def get_mdt_trend_item_day(code:str=None, group:str="", start_date: str = "20220710", end_date: str = None, db: SessionLocal = Depends(get_db)):
+    mdt_trend_days = get_mdt_trend_item_by_group_date(db=db, code=code, group=group, start_date=start_date, end_date=end_date)
+    return mdt_trend_days
 
 ############################
 @router.get("/trend-day", response_model=List[schemas.MdtTrendOutput])

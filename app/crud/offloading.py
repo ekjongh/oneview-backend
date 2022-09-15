@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.errors import exceptions as ex
 from .. import schemas, models
 from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
@@ -221,7 +222,7 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
     )
     return offloading_event
 
-
+# 주요단말(데이터량기준)
 def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(func.nvl(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
@@ -279,7 +280,8 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    #주요단말정렬기준 : 데이터량
+    stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
@@ -372,6 +374,73 @@ def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str
     list_offloading_offloading_dong = list(
         map(lambda x: schemas.OffloadingDongOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_offloading_dong
+
+
+def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, start_date: str = None,
+                                        end_date: str = None):
+    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
+    g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
+    g5_off_ratio = func.round(g5_off_ratio, 4).label("value")
+
+    # 선택 조건
+    if code == "제조사":
+        code_val = models.Offloading_Bts.mkng_cmpn_nm.label("code")
+    elif code == "센터":
+        code_val = models.Offloading_Bts.biz_hq_nm.label("code")
+    elif code == "팀":
+        code_val = models.Offloading_Bts.oper_team_nm.label("code")
+    elif code == "조":
+        code_val = models.Offloading_Bts.area_jo_nm.label("code")
+    elif code == "시도":
+        code_val = models.Offloading_Bts.sido_nm.label("code")
+    elif code == "시군구":
+        code_val = models.Offloading_Bts.gun_gu_nm.label("code")
+    elif code == "읍면동":
+        code_val = models.Offloading_Bts.eup_myun_dong_nm.label("code")
+    else:
+        raise ex.SqlFailureEx
+
+    entities = [
+        code_val,
+        models.Offloading_Bts.base_date.label("date"),
+    ]
+    entities_groupby = [
+        g5_off_ratio
+    ]
+
+    stmt = select(*entities, *entities_groupby)
+
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
+
+    # code의 값목록 : 삼성|노키아
+    if code_val != '' and group != '':
+        txt_l = group.split("|")
+        stmt = stmt.where(code_val.in_(txt_l))
+
+    stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    query = db.execute(stmt)
+    query_result = query.all()
+
+    code_set = set([r[0] for r in query_result])
+    list_items = []
+    for code in code_set:
+        t_l = [schemas.OffloadingTrendOutput(date=r[1], value=r[2]) for r in query_result if r[0] == code]
+        list_items.append(schemas.OffloadingTrendItemOutput(title=code, data=t_l))
+    return list_items
 
 
 # def get_offloading_compare_by_group_date(db: Session, group: str, date:str=None):

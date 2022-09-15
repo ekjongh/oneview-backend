@@ -428,9 +428,11 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
 
 def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, group:str=None,
                                 start_date: str = None, end_date: str = None):
-
     voc_cnt = func.sum(func.nvl(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.nvl(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
+
+    stmt_sbscr = select(models.Subscr.base_date, sbscr_cnt)
+    stmt_voc = select(models.VocList.base_date, voc_cnt)
 
     # 선택 조건
     if code == "제조사":
@@ -477,37 +479,34 @@ def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, 
         stmt_sbscr = stmt_sbscr.where(code_val_sbscr.in_(txt_l))
         stmt_voc = stmt_voc.where(code_val_voc.in_(txt_l))
 
-    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date, code_val_sbscr).subquery()
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date, code_val_sbscr).having(sbscr_cnt > 0).subquery()
     stmt_voc = stmt_voc.group_by(models.VocList.base_date, code_val_voc).subquery()
 
-    # 1000가입자당 VOC건수
-    sum_l = []
-    for item in txt_l:
-        sum_l.append(func.round(func.sum(
-            case((stmt_sbscr.c.code == item, stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000), else_=0)
-        ), 4).label(item))
-
-    # stmt_sbscr = select(models.Subscr.base_date, *sum_sbscr_l)
-    # stmt_voc = select(models.VocList.base_date, *sum_voc_l)
-
     stmt = select(
-        stmt_sbscr.c.base_date.label("date"),
-        *sum_l
+        stmt_sbscr.c.code,
+        stmt_sbscr.c.base_date,
+        func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000, 4),
+        stmt_voc.c.voc_cnt,
+        stmt_sbscr.c.sbscr_cnt
     ).outerjoin(
         stmt_voc,
-        (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
-    ).group_by(stmt_sbscr.c.base_date)
+        (stmt_voc.c.base_date == stmt_sbscr.c.base_date and stmt_voc.c.code == stmt_sbscr.c.code)
+    ).order_by(stmt_voc.c.code,
+               stmt_sbscr.c.base_date)
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
-    print(query_keys)
+    code_set = set([r[0] for r in query_result])
+    list_items = []
+    for code in code_set:
+        t_l = [schemas.VocTrendOutput(date=r[1], value=r[2]) for r in query_result if r[0] == code]
+        list_items.append(schemas.VocTrendItemOutput(title=code, data=t_l))
 
-    list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
-    return list_voc_trend
+    return list_items
 
 ######################################
 def get_worst10_bts_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,

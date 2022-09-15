@@ -1,11 +1,10 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
 
 from ..db.base_class import KBase
 
 
-class Subscr(KBase):
-    __tablename__ = "sbstr"
+class DataCnt(KBase):
+    __tablename__ = "data_cnt"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -19,6 +18,11 @@ class Subscr(KBase):
     gun_gu_nm = Column(String(100), primary_key=True)
     eup_myun_dong_nm = Column(String(100))
     anals_3_prod_level_nm = Column(String(100), primary_key=True)
-    hndset_pet_nm = Column(String(100), primary_key=True)
-    sa_5g_suprt_div_nm = Column(String(100))
-    bprod_maint_sbscr_cascnt = Column(Integer)
+    g3d_upld_data_qnt = Column(Integer)
+    ld_downl_data_qnt = Column(Integer)
+    g3d_downl_data_qnt = Column(Integer)
+    g5d_upld_data_qnt = Column(Integer)
+    sru_usagecountdl = Column(Integer)
+    g5d_downl_data_qnt = Column(Integer)
+    ld_upld_data_qnt = Column(Integer)
+    sru_usagecountul = Column(Integer)

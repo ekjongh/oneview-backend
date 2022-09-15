@@ -10,3 +10,4 @@ from .mdt import Mdt
 from .user_dashboard_config import UserDashboardConfig
 from .subscr import Subscr
 from .rrc import Rrc
+from .data_cnt import DataCnt

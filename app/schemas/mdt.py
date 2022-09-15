@@ -27,3 +27,7 @@ class MdtBtsOutput(BaseModel):
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
+
+class MdtTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[MdtTrendOutput]
