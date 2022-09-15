@@ -12,7 +12,6 @@ class OffloadingTrendOutput(BaseModel):
     date: Union[str, None]
     value: Union[float, None]
 
-
 class OffloadingEventOutput(BaseModel):
     title: Union[str, None]
     score: Union[float, None]
@@ -61,3 +60,7 @@ class OffloadingDongOutput(BaseModel):
     # sum_5g_data: Union[float, None]
     # sum_sru_data: Union[float, None]
     # sum_total_data: Union[float, None]
+
+class OffloadingTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[OffloadingTrendOutput]

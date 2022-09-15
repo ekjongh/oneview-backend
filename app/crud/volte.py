@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.errors import exceptions as ex
 from .. import schemas, models
 from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
@@ -6,8 +7,7 @@ from datetime import datetime, timedelta
 
 def get_worst10_volte_bts_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
                                         start_date: str=None, end_date: str=None, limit: int=10):
-    # 5G VOLTE 절단율 worst 10 기지국
-    # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
+    # 5G VOLTE 절단호 worst 10 기지국
     sum_try = func.sum(func.nvl(models.Volte_Fail_Bts.try_cacnt, 0.0)).label("sum_try")
     sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("sum_suc")
     # sum_fail = func.sum(func.nvl(models.Volte_Fail_Bts.fail_cacnt, 0.0)).label("sum_fail")
@@ -288,11 +288,82 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
     )
     return volte_event
 
+def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, group:str=None,
+                                  start_date: str=None, end_date: str=None):
+    sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("sum_suc")
+    sum_cut = func.sum(func.nvl(models.Volte_Fail_Bts.fail_cacnt, 0.0)).label("sum_cut")
+    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
+    cut_ratio = func.round(cut_ratio, 4)
+    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_rate")
+
+    fc_373_cnt = func.sum(func.nvl(models.Volte_Fail_Bts.fc373_cnt, 0.0)).label("fc_373")
+    fc_9563_cnt = func.sum(func.nvl(models.Volte_Fail_Bts.fc9563_cnt, 0.0)).label("fc_9563")
+
+    # 선택 조건
+    if code == "제조사":
+        code_val = models.Volte_Fail_Bts.mkng_cmpn_nm.label("code")
+    elif code == "센터":
+        code_val = models.Volte_Fail_Bts.biz_hq_nm.label("code")
+    elif code == "팀":
+        code_val = models.Volte_Fail_Bts.oper_team_nm.label("code")
+    elif code == "조":
+        code_val = models.Volte_Fail_Bts.area_jo_nm.label("code")
+    elif code == "시도":
+        code_val = models.Volte_Fail_Bts.sido_nm.label("code")
+    elif code == "시군구":
+        code_val = models.Volte_Fail_Bts.gun_gu_nm.label("code")
+    elif code == "읍면동":
+        code_val = models.Volte_Fail_Bts.eup_myun_dong_nm.label("code")
+    else:
+        raise ex.SqlFailureEx
+
+    entities_cut = [
+        code_val,
+        models.Volte_Fail_Bts.base_date.label("date"),
+    ]
+    entities_groupby_cut = [
+        cut_ratio,
+        fc_373_cnt,
+        fc_9563_cnt
+    ]
+
+    stmt_cut = select(*entities_cut, *entities_groupby_cut)
+
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt_cut = stmt_cut.where(between(models.Volte_Fail_Bts.base_date, start_date, end_date))
+
+    # 상품 조건
+    if prod and prod != "전체":
+        stmt_cut = stmt_cut.where(models.Volte_Fail_Bts.anals_3_prod_level_nm == prod)
+
+    # code의 값목록 : 삼성|노키아
+    print(code_val)
+    if code_val != '' and group != '':
+        txt_l = group.split("|")
+        stmt_cut = stmt_cut.where(code_val.in_(txt_l))
+
+    stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.Volte_Fail_Bts.base_date.asc())
+
+    print(stmt_cut.compile(compile_kwargs={"literal_binds": True}))
+
+    query_cut = db.execute(stmt_cut)
+    query_result_cut = query_cut.all()
+    query_keys_cut = query_cut.keys()
+
+    code_set = set([r[0] for r in query_result_cut])
+    list_items = []
+    for code in code_set:
+        t_l = [schemas.VolteTrendOutput(date=r[1], cut_rate=r[2], fc_373=r[3], fc_9563=r[4]) for r in query_result_cut if r[0] == code]
+        list_items.append(schemas.VolteTrendItemOutput(title=code, data=t_l))
+    return list_items
 
 ############################
 def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
-    # 5G VOLTE 절단율 worst 10 기지국
+    # 5G VOLTE 절단호기준 worst 10 기지국 :
     # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
     sum_try = func.sum(func.nvl(models.Volte_Fail_Bts.try_cacnt, 0.0)).label("sum_try")
     sum_suc = func.sum(func.nvl(models.Volte_Fail_Bts.comp_cacnt, 0.0)).label("sum_suc")

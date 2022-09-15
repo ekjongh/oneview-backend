@@ -35,3 +35,8 @@ class VolteEventOutput(BaseModel):
     title: Union[str, None]
     score: Union[float, None]
     score_ref: Union[float, None]
+
+
+class VolteTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[VolteTrendOutput]
