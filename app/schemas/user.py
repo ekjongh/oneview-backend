@@ -111,3 +111,11 @@ class User(UserBase):
 
 class UserInDB(UserInDBBase):
     hashed_password: str
+
+
+class UserEnc(BaseModel):
+    USER_ID: Union[str, None]
+    CLIENT_IP: Union[str, None]
+    # username: Union[str, None]
+    # email: Union[str, None]
+    # phone: Union[str, None]
