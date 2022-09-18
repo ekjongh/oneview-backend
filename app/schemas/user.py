@@ -114,8 +114,9 @@ class UserInDB(UserInDBBase):
 
 
 class UserEnc(BaseModel):
-    USER_ID: Union[str, None]
-    CLIENT_IP: Union[str, None]
+    VOC_USER_ID: Union[str, None]
+    VOC_CLIENT_IP: Union[str, None]
+    VOC_ORG_NM: Union[str, None]
     # username: Union[str, None]
     # email: Union[str, None]
     # phone: Union[str, None]

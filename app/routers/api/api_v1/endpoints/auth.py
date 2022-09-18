@@ -109,9 +109,9 @@ async def refresh(Authorize: AuthJWT = Depends()):
 
 
 # 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
-@router.post('/jwt/login2')
-async def login2(request:Request, response:Response, USER_ID: str=Form(...), CLIENT_IP:str=Form(...), db: Session = Depends(get_db)):
-    print(USER_ID, CLIENT_IP)
+@router.post('/jwt/auth')
+async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db)):
+    print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
     ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
     authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
     classpath = 'D:\Programdata\jdk-18.0.1.1\lib\kt_crypto-1.0.jar'
@@ -125,15 +125,12 @@ async def login2(request:Request, response:Response, USER_ID: str=Form(...), CLI
 
     jpkg = jpype.JPackage('crypto')
     test = jpkg.Crypto()
-    dec_client_ip = test.decript(CLIENT_IP, "euc-kr")
+    dec_client_ip = test.decript(VOC_CLIENT_IP, "euc-kr")
 
     print("decip",dec_client_ip)
 
-    if (ip == dec_client_ip) or (1==1) :
-        headers = {"Authorization_header":'some_key'}
-        print("header")
-        response.set_cookie(key="Authorization_cookie4", value="some_key")
-        r = RedirectResponse(url="/api/v1/jwt/login3", headers=headers, status_code=status.HTTP_303_SEE_OTHER)
+    if ip == dec_client_ip:
+        r = RedirectResponse(url="/api/v1/jwt/login3", status_code=status.HTTP_303_SEE_OTHER)
         r.set_cookie(key="Authorization_cookie5", value="some_key", httponly=True) # ok
         return r
     else:
@@ -144,9 +141,6 @@ async def login2(request:Request, response:Response, USER_ID: str=Form(...), CLI
 
 @router.get('/jwt/login3')
 async def login3(request:Request, response:Response,  db: Session = Depends(get_db)):
-    print("111")
     authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else "_"
-    print("authkey" , authkey)
 
-    response.set_cookie(key="test4", value="1111")
     return {"aaa":authkey}
