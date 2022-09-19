@@ -19,3 +19,11 @@ class OrgCode(Base):
     area_jo_nm = Column(String(100))
     biz_hq_nm = Column(String(100))
     oper_team_nm = Column(String(100))
+
+class MenuCode(Base):
+    __tablename__ = "code_menu"
+
+    menu1 = Column(String(100), primary_key=True)
+    menu2 = Column(String(100))
+    menu3 = Column(String(200))
+    menu4 = Column(String(200))

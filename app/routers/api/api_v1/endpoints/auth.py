@@ -114,7 +114,7 @@ async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...),
     print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
     ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
     authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
-    classpath = 'kt_crypto-1.0.jar'
+    classpath = 'D://oneview/app/routers/api/api_v1/endpoints/kt_crypto-1.0.jar'
 
     print(jpype.getDefaultJVMPath())
     if not jpype.isJVMStarted():

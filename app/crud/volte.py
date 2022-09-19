@@ -47,19 +47,19 @@ def get_worst10_volte_bts_by_group_date2(db: Session, prod:str=None, code:str=No
         stmt = stmt.where(models.Volte_Fail_Bts.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Volte_Fail_Bts.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Volte_Fail_Bts.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Volte_Fail_Bts.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Volte_Fail_Bts.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Volte_Fail_Bts.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Volte_Fail_Bts.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Volte_Fail_Bts.eup_myun_dong_nm
     else:
         code_val = None
@@ -115,17 +115,17 @@ def get_worst10_volte_hndset_by_group_date2(db: Session, prod:str=None, code:str
         stmt = stmt.where(models.Volte_Fail_Hndset.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Volte_Fail_Hndset.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Volte_Fail_Hndset.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Volte_Fail_Hndset.oper_team_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Volte_Fail_Hndset.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Volte_Fail_Hndset.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Volte_Fail_Hndset.eup_myun_dong_nm
     else:
         code_val = None
@@ -184,19 +184,19 @@ def get_volte_trend_by_group_date2(db: Session, prod:str=None, code:str=None, gr
         stmt_cut = stmt_cut.where(models.Volte_Fail_Bts.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Volte_Fail_Bts.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Volte_Fail_Bts.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Volte_Fail_Bts.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Volte_Fail_Bts.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Volte_Fail_Bts.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Volte_Fail_Bts.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Volte_Fail_Bts.eup_myun_dong_nm
     else:
         code_val = None
@@ -300,19 +300,19 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
     fc_9563_cnt = func.sum(func.nvl(models.Volte_Fail_Bts.fc9563_cnt, 0.0)).label("fc_9563")
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Volte_Fail_Bts.mkng_cmpn_nm.label("code")
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Volte_Fail_Bts.biz_hq_nm.label("code")
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Volte_Fail_Bts.oper_team_nm.label("code")
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Volte_Fail_Bts.area_jo_nm.label("code")
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Volte_Fail_Bts.sido_nm.label("code")
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Volte_Fail_Bts.gun_gu_nm.label("code")
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Volte_Fail_Bts.eup_myun_dong_nm.label("code")
     else:
         raise ex.SqlFailureEx

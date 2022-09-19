@@ -40,19 +40,19 @@ def get_worst10_bts_by_group_date2(db: Session, prod:str=None, code:str=None, gr
         stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사" :
+    if code == "제조사별" :
         code_val = models.VocList.mkng_cmpn_nm
-    elif code == "센터" :
+    elif code == "센터별" :
         code_val = models.VocList.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.VocList.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.VocList.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.VocList.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.VocList.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.VocList.eup_myun_dong_nm
     else:
         code_val = None
@@ -103,19 +103,19 @@ def get_worst10_hndset_by_group_date2(db: Session, prod:str=None, code:str=None,
         stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.VocList.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.VocList.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.VocList.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.VocList.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.VocList.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.VocList.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.VocList.eup_myun_dong_nm
     else:
         code_val = None
@@ -207,22 +207,22 @@ def get_voc_trend_by_group_date2(db: Session, prod:str=None, code:str=None, grou
         stmt_voc = stmt_voc.where(models.VocList.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val_sbscr = models.Subscr.mkng_cmpn_nm
         code_val_voc = models.VocList.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val_sbscr = models.Subscr.biz_hq_nm
         code_val_voc = models.VocList.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val_sbscr = models.Subscr.oper_team_nm
         code_val_voc = models.VocList.oper_team_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val_sbscr = models.Subscr.sido_nm
         code_val_voc = models.VocList.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val_sbscr = models.Subscr.gun_gu_nm
         code_val_voc = models.VocList.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val_sbscr = models.Subscr.eup_myun_dong_nm
         code_val_voc = models.VocList.eup_myun_dong_nm
     else:
@@ -283,19 +283,19 @@ def get_voc_event_by_group_date(db: Session, prod:str=None, code:str=None, group
         stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.VocList.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.VocList.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.VocList.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.VocList.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.VocList.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.VocList.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.VocList.eup_myun_dong_nm
     else:
         code_val = None
@@ -435,22 +435,22 @@ def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, 
     stmt_voc = select(models.VocList.base_date, voc_cnt)
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val_sbscr = models.Subscr.mkng_cmpn_nm.label("code")
         code_val_voc = models.VocList.mkng_cmpn_nm.label("code")
-    elif code == "센터":
+    elif code == "센터별":
         code_val_sbscr = models.Subscr.biz_hq_nm.label("code")
         code_val_voc = models.VocList.biz_hq_nm.label("code")
-    elif code == "팀":
+    elif code == "팀별":
         code_val_sbscr = models.Subscr.oper_team_nm.label("code")
         code_val_voc = models.VocList.oper_team_nm.label("code")
-    elif code == "시도":
+    elif code == "시도별":
         code_val_sbscr = models.Subscr.sido_nm.label("code")
         code_val_voc = models.VocList.sido_nm.label("code")
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val_sbscr = models.Subscr.gun_gu_nm.label("code")
         code_val_voc = models.VocList.gun_gu_nm.label("code")
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val_sbscr = models.Subscr.eup_myun_dong_nm.label("code")
         code_val_voc = models.VocList.eup_myun_dong_nm.label("code")
     else:

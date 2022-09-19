@@ -25,3 +25,13 @@ class OrgCodeOutput(BaseModel):
     biz_hq_nm: Union[str, None]
     oper_team_nms: List[OperTeamCode]=[]
 
+
+class SubMenuCode(BaseModel):
+    name: Union[str, None]
+    prods: List[str] = []
+    filters: List[str] = []
+
+
+class MenuCodeOutput(BaseModel):
+    name: Union[str, None]
+    menus: List[SubMenuCode]
