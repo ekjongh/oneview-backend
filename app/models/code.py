@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from ..db.base_class import Base
 
 class AddrCode(Base):
-    __tablename__ = "addr"
+    __tablename__ = "code_addr"
 
     sido_nm = Column(String(100), primary_key=True)
     gun_gu_nm = Column(String(100))
@@ -12,7 +12,7 @@ class AddrCode(Base):
 
 
 class OrgCode(Base):
-    __tablename__ = "org"
+    __tablename__ = "code_org"
 
     area_center_nm = Column(String(100), primary_key=True)
     area_team_nm = Column(String(100))

@@ -25,7 +25,7 @@ c = conf()
 conf_dict = c.__dict__
 
 # DB 초기화
-init_db(SessionLocal())
+# init_db(SessionLocal())
 # 미들웨어 추가.
 origins = [
     "http://localhost:8080",
@@ -46,7 +46,7 @@ origins = [
     "http://10.214.168.57:8080",
 ]
 
-app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
+# app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
