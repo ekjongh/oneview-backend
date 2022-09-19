@@ -10,8 +10,12 @@ from app.crud.blacklist import create_blacklist
 from app.crud.user import get_user_by_id, create_user
 from app.routers.api.deps import get_db, get_current_active_user, get_current_user
 from app.schemas import UserCreate, TokenCreate
-from app.schemas.user import User, UserBase
+from app.schemas.user import User, UserBase, UserEnc
 
+## 인증테스트
+import jpype
+from fastapi import Form, Request, Response, status
+from starlette.responses import RedirectResponse
 
 router = APIRouter()
 
@@ -100,3 +104,40 @@ async def refresh(Authorize: AuthJWT = Depends()):
     current_user = Authorize.get_jwt_subject()
     new_access_token = Authorize.create_access_token(subject=current_user, expires_time=timedelta(minutes=60))
     return {"access": new_access_token}
+
+
+
+
+# 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
+@router.post('/jwt/auth')
+async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db)):
+    print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
+    ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
+    authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
+    classpath = 'kt_crypto-1.0.jar'
+
+    print(jpype.getDefaultJVMPath())
+    if not jpype.isJVMStarted():
+        jpype.startJVM(
+            jpype.getDefaultJVMPath(),
+            "-Djava.class.path={classpath}".format(classpath=classpath),
+            convertStrings=True,
+        )
+
+    jpkg = jpype.JPackage('crypto')
+    test = jpkg.Crypto()
+    dec_client_ip = test.decript(VOC_CLIENT_IP, "euc-kr")
+    dec_user_id = test.decript(VOC_USER_ID, "euc-kr")
+    dec_org_nm = test.decript(VOC_ORG_NM, "euc-kr")
+
+    print("decip",dec_client_ip)
+
+    if ip == dec_client_ip:
+        r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
+        r.set_cookie(key="Authorization_client_ip", value=dec_client_ip, httponly=True) # ok
+        r.set_cookie(key="Authorization_user_id", value=dec_user_id, httponly=True) # ok
+        r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True) # ok
+        return r
+    else:
+        raise HTTPException(status_code=401,detail="not allowed")
+    return

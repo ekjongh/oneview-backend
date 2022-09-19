@@ -111,3 +111,12 @@ class User(UserBase):
 
 class UserInDB(UserInDBBase):
     hashed_password: str
+
+
+class UserEnc(BaseModel):
+    VOC_USER_ID: Union[str, None]
+    VOC_CLIENT_IP: Union[str, None]
+    VOC_ORG_NM: Union[str, None]
+    # username: Union[str, None]
+    # email: Union[str, None]
+    # phone: Union[str, None]
