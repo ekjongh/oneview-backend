@@ -117,30 +117,27 @@ async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...),
     classpath = 'kt_crypto-1.0.jar'
 
     print(jpype.getDefaultJVMPath())
-    jpype.startJVM(
-        jpype.getDefaultJVMPath(),
-        "-Djava.class.path={classpath}".format(classpath=classpath),
-        convertStrings=True,
-    )
+    if not jpype.isJVMStarted():
+        jpype.startJVM(
+            jpype.getDefaultJVMPath(),
+            "-Djava.class.path={classpath}".format(classpath=classpath),
+            convertStrings=True,
+        )
 
     jpkg = jpype.JPackage('crypto')
     test = jpkg.Crypto()
     dec_client_ip = test.decript(VOC_CLIENT_IP, "euc-kr")
+    dec_user_id = test.decript(VOC_USER_ID, "euc-kr")
+    dec_org_nm = test.decript(VOC_ORG_NM, "euc-kr")
 
     print("decip",dec_client_ip)
 
     if ip == dec_client_ip:
         r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
-        r.set_cookie(key="Authorization_cookie5", value=dec_client_ip, httponly=True) # ok
+        r.set_cookie(key="Authorization_client_ip", value=dec_client_ip, httponly=True) # ok
+        r.set_cookie(key="Authorization_user_id", value=dec_user_id, httponly=True) # ok
+        r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True) # ok
         return r
     else:
         raise HTTPException(status_code=401,detail="not allowed")
-
     return
-
-
-@router.get('/jwt/login3')
-async def login3(request:Request, response:Response,  db: Session = Depends(get_db)):
-    authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else "_"
-
-    return {"aaa":authkey}
