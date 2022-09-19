@@ -114,7 +114,7 @@ async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...),
     print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
     ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
     authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
-    classpath = 'D:\Programdata\jdk-18.0.1.1\lib\kt_crypto-1.0.jar'
+    classpath = 'kt_crypto-1.0.jar'
 
     print(jpype.getDefaultJVMPath())
     jpype.startJVM(
@@ -130,8 +130,8 @@ async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...),
     print("decip",dec_client_ip)
 
     if ip == dec_client_ip:
-        r = RedirectResponse(url="/api/v1/jwt/login3", status_code=status.HTTP_303_SEE_OTHER)
-        r.set_cookie(key="Authorization_cookie5", value="some_key", httponly=True) # ok
+        r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
+        r.set_cookie(key="Authorization_cookie5", value=dec_client_ip, httponly=True) # ok
         return r
     else:
         raise HTTPException(status_code=401,detail="not allowed")
