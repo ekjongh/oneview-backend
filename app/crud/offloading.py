@@ -45,19 +45,19 @@ def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, 
         stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Offloading_Bts.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Offloading_Bts.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Offloading_Bts.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Offloading_Bts.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Offloading_Bts.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Offloading_Bts.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Offloading_Bts.eup_myun_dong_nm
     else:
         code_val = None
@@ -112,19 +112,19 @@ def get_offloading_trend_by_group_date2(db: Session, code:str, group: str, start
         stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Offloading_Bts.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Offloading_Bts.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Offloading_Bts.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Offloading_Bts.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Offloading_Bts.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Offloading_Bts.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Offloading_Bts.eup_myun_dong_nm
     else:
         code_val = None
@@ -260,17 +260,17 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
         stmt = stmt.where(between(models.Offloading_Hndset.base_date, start_date, end_date))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Offloading_Hndset.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Offloading_Hndset.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Offloading_Hndset.oper_team_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Offloading_Hndset.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Offloading_Hndset.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Offloading_Hndset.eup_myun_dong_nm
     else:
         code_val = None
@@ -338,19 +338,19 @@ def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str
         stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Offloading_Bts.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Offloading_Bts.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Offloading_Bts.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Offloading_Bts.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Offloading_Bts.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Offloading_Bts.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Offloading_Bts.eup_myun_dong_nm
     else:
         code_val = None
@@ -391,19 +391,19 @@ def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, 
     g5_off_ratio = func.round(g5_off_ratio, 4).label("value")
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Offloading_Bts.mkng_cmpn_nm.label("code")
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Offloading_Bts.biz_hq_nm.label("code")
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Offloading_Bts.oper_team_nm.label("code")
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Offloading_Bts.area_jo_nm.label("code")
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Offloading_Bts.sido_nm.label("code")
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Offloading_Bts.gun_gu_nm.label("code")
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Offloading_Bts.eup_myun_dong_nm.label("code")
     else:
         raise ex.SqlFailureEx

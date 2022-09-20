@@ -39,17 +39,17 @@ def get_datacnt_compare_by_prod(db: Session, code: str, group: str, start_date: 
     stmt = stmt.where(models.DataCnt.base_date.in_([start_date, lastweek]))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.DataCnt.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.DataCnt.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.DataCnt.oper_team_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.DataCnt.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.DataCnt.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.DataCnt.eup_myun_dong_nm
     else:
         code_val = None
