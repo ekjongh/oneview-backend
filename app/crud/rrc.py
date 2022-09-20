@@ -29,19 +29,19 @@ def get_rrc_trend_by_group_date2(db: Session, code:str, group:str, start_date:st
         stmt = stmt.where(between(models.Rrc.base_date, start_date, end_date))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Rrc.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Rrc.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Rrc.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Rrc.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Rrc.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Rrc.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Rrc.eup_myun_dong_nm
     else:
         code_val = None
@@ -92,19 +92,19 @@ def get_worst10_rrc_bts_by_group_date2(db: Session, code:str, group: str, start_
         stmt = stmt.where(between(models.Rrc.base_date, start_date, end_date))
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Rrc.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Rrc.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Rrc.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Rrc.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Rrc.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Rrc.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Rrc.eup_myun_dong_nm
     else:
         code_val = None
@@ -135,19 +135,19 @@ def get_rrc_trend_item_by_group_date(db: Session, code:str, group:str, start_dat
     prbusage_mean = func.round(func.avg(models.Rrc.prbusage), 4).label("prbusage_mean")
 
     # 선택 조건
-    if code == "제조사":
+    if code == "제조사별":
         code_val = models.Rrc.mkng_cmpn_nm
-    elif code == "센터":
+    elif code == "센터별":
         code_val = models.Rrc.biz_hq_nm
-    elif code == "팀":
+    elif code == "팀별":
         code_val = models.Rrc.oper_team_nm
-    elif code == "조":
+    elif code == "조별":
         code_val = models.Rrc.area_jo_nm
-    elif code == "시도":
+    elif code == "시도별":
         code_val = models.Rrc.sido_nm
-    elif code == "시군구":
+    elif code == "시군구별":
         code_val = models.Rrc.gun_gu_nm
-    elif code == "읍면동":
+    elif code == "읍면동별":
         code_val = models.Rrc.eup_myun_dong_nm
     else:
         raise ex.SqlFailureEx

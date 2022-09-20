@@ -25,7 +25,7 @@ c = conf()
 conf_dict = c.__dict__
 
 # DB 초기화
-init_db(SessionLocal())
+# init_db(SessionLocal())
 # 미들웨어 추가.
 origins = [
     "http://localhost:8080",
