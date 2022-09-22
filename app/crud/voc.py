@@ -170,12 +170,14 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
     
     if group.endswith("센터"):
         stmt = stmt.where(models.VocList.biz_hq_nm == group)
-    elif group.endswith("팀") or group.endswith("부"):
+    if group.endswith("팀") or group.endswith("부"):
         stmt = stmt.where(models.VocList.oper_team_nm == group)
-    elif group.endswith("조"):
+    if group.endswith("조"):
         stmt = stmt.where(models.VocList.area_jo_nm == group)
-    else:
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+    # elif group == "":
+    #     stmt = stmt
+    # else:
+    #     stmt = stmt.where(models.VocList.area_jo_nm == group)
 
     query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
@@ -410,7 +412,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
     stmt_bts = select(*entities_bts, *entities_bts_groupby)
     ref_day = (datetime.strptime(voc_user_info.base_date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
 
-    stmt_bts = stmt_bts.where(between(models.VocSpec.base_date, ref_day, voc_user_info.base_date))
+    # stmt_bts = stmt_bts.where(between(models.VocSpec.base_date, ref_day, voc_user_info.base_date))
     stmt_bts = stmt_bts.where(models.VocSpec.svc_cont_id == voc_user_info.svc_cont_id)
     stmt_bts = stmt_bts.group_by(*entities_bts).order_by(sum_volte_self_fail_cacnt.desc())
 

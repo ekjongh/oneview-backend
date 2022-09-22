@@ -122,8 +122,3 @@ async def delete_dashboard_config_by_id(id: str, db: SessionLocal = Depends(get_
     board_configs = delete_dashboard_config(id=id, db=db)
     result = dashboard_model_to_schema(board_configs)
     return result
-
-@router.post("/test")
-async def test(user: UserCreate):
-    print(user.user_id, " 들어옴...")
-    return RedirectResponse("http://localhost:8080", status_code=303)

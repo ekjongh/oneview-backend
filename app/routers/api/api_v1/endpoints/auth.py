@@ -16,6 +16,8 @@ from app.schemas.user import User, UserBase, UserEnc
 import jpype
 from fastapi import Form, Request, Response, status
 from starlette.responses import RedirectResponse
+from app.utils import java
+from app.errors.exceptions import AccessEx
 
 router = APIRouter()
 
@@ -110,34 +112,25 @@ async def refresh(Authorize: AuthJWT = Depends()):
 
 # 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
 @router.post('/jwt/auth')
-async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db)):
+def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), Authorize: AuthJWT = Depends()):
     print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
-    ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
-    authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
-    classpath = 'D://oneview/app/routers/api/api_v1/endpoints/kt_crypto-1.0.jar'
+    client_ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
+    # authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
+    user_id_decoded = java.decode_value(VOC_USER_ID)
+    client_ip_decoded = java.decode_value(VOC_USER_ID)
+    # org_nm_decoded = java.decode_value(VOC_USER_ID)
 
-    print(jpype.getDefaultJVMPath())
-    if not jpype.isJVMStarted():
-        jpype.startJVM(
-            jpype.getDefaultJVMPath(),
-            "-Djava.class.path={classpath}".format(classpath=classpath),
-            convertStrings=True,
-        )
 
-    jpkg = jpype.JPackage('crypto')
-    test = jpkg.Crypto()
-    dec_client_ip = test.decript(VOC_CLIENT_IP, "euc-kr")
-    dec_user_id = test.decript(VOC_USER_ID, "euc-kr")
-    dec_org_nm = test.decript(VOC_ORG_NM, "euc-kr")
+    print("user_id_decoded: ",user_id_decoded)
 
-    print("decip",dec_client_ip)
-
-    if ip == dec_client_ip:
-        r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
-        r.set_cookie(key="Authorization_client_ip", value=dec_client_ip, httponly=True) # ok
-        r.set_cookie(key="Authorization_user_id", value=dec_user_id, httponly=True) # ok
-        r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True) # ok
-        return r
-    else:
-        raise HTTPException(status_code=401,detail="not allowed")
-    return
+    # if client_ip != client_ip_decoded:
+    #     return AccessEx()
+    access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
+    refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
+    r = RedirectResponse(url="/#/map", status_code=status.HTTP_303_SEE_OTHER)
+    # r.set_cookie(key="Authorization_client_ip", value=user_id_decoded, httponly=True) # ok
+    # r.set_cookie(key="Authorization_user_id", value=client_ip_decoded, httponly=True) # ok
+    r.set_cookie(key="access_token", value=access_token, httponly=True)  # ok
+    r.set_cookie(key="refresh_token", value=refresh_token, httponly=True)  # ok
+    # r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True) # ok
+    return r
