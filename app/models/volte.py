@@ -42,7 +42,7 @@ class VolteFc(KBase):
 
 
 class Volte_Fail_Bts(KBase):
-    __tablename__ = "volte_fail_bts"
+    __tablename__ = "VOLTE_FAIL_BTS"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -73,7 +73,7 @@ class Volte_Fail_Bts(KBase):
     fc8210_cnt = Column(Integer)
 
 class Volte_Fail_Hndset(KBase):
-    __tablename__ = "volte_fail_hndset"
+    __tablename__ = "VOLTE_FAIL_HNDSET"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

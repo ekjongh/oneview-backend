@@ -11,5 +11,5 @@ class EventsBtsComment(Base):
 
     owner_bts_id = Column(String(100), ForeignKey("events_bts.id"))
     bts = relationship("EventsBts", back_populates="events_bts_comment")
-    owner_user_id = Column(String(100), ForeignKey("users.user_id"))
+    owner_user_id = Column(String(100), ForeignKey("USERS.user_id"))
     owner = relationship("User", back_populates="events_bts_comment")

@@ -5,7 +5,7 @@ from ..db.base_class import KBase
 
 
 class Subscr(KBase):
-    __tablename__ = "sbstr"
+    __tablename__ = "SBSTR"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

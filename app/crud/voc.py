@@ -175,7 +175,7 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str=None, en
     elif group.endswith("조"):
         stmt = stmt.where(models.VocList.area_jo_nm == group)
     else:
-        stmt = stmt.where(models.VocList.area_jo_nm == group)
+        pass
 
     query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
@@ -235,7 +235,7 @@ def get_voc_trend_by_group_date2(db: Session, prod:str=None, code:str=None, grou
         stmt_sbscr = stmt_sbscr.where(code_val_sbscr.in_(txt_l))
         stmt_voc = stmt_voc.where(code_val_voc.in_(txt_l))
 
-    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).order_by(models.Subscr.base_date.asc()).subquery()
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).having(sbscr_cnt>0).order_by(models.Subscr.base_date.asc()).subquery()
     stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
 
     stmt = select(
@@ -410,10 +410,10 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str= "", limit: int = 1000):
     stmt_bts = select(*entities_bts, *entities_bts_groupby)
     ref_day = (datetime.strptime(voc_user_info.base_date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
 
-    stmt_bts = stmt_bts.where(between(models.VocSpec.base_date, ref_day, voc_user_info.base_date))
+    #stmt_bts = stmt_bts.where(between(models.VocSpec.base_date, ref_day, voc_user_info.base_date))
     stmt_bts = stmt_bts.where(models.VocSpec.svc_cont_id == voc_user_info.svc_cont_id)
     stmt_bts = stmt_bts.group_by(*entities_bts).order_by(sum_volte_self_fail_cacnt.desc())
-
+    print(query)
     query = db.execute(stmt_bts)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
@@ -646,7 +646,7 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None,
         stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
         stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
 
-    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).order_by(models.Subscr.base_date.asc()).subquery()
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).having(sbscr_cnt>0).order_by(models.Subscr.base_date.asc()).subquery()
     stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
 
     stmt = select(
@@ -656,6 +656,8 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None,
                 stmt_voc,
                 (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
             )
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
     query = db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()

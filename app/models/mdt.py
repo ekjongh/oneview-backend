@@ -5,7 +5,7 @@ from ..db.base_class import KBase
 
 
 class Mdt(KBase):
-    __tablename__ = "mdt"
+    __tablename__ = "MDT"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

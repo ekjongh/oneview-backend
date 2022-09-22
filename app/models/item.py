@@ -9,5 +9,5 @@ class Item(Base):
     id = Column(String(100), primary_key=True)
     title = Column(String(20))
     description = Column(String(20))
-    owner_id = Column(String(100), ForeignKey("users.user_id"))
+    owner_id = Column(String(100), ForeignKey("USERS.user_id"))
     owner = relationship("User", back_populates="items")

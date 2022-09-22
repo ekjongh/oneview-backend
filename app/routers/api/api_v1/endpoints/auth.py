@@ -114,7 +114,7 @@ async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...),
     print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
     ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
     authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
-    classpath = 'D://oneview/app/routers/api/api_v1/endpoints/kt_crypto-1.0.jar'
+    classpath = 'D://oneview/app/modules/kt_crypto-1.0.jar'
 
     print(jpype.getDefaultJVMPath())
     if not jpype.isJVMStarted():
@@ -128,16 +128,23 @@ async def login2(request:Request, response:Response, VOC_USER_ID: str=Form(...),
     test = jpkg.Crypto()
     dec_client_ip = test.decript(VOC_CLIENT_IP, "euc-kr")
     dec_user_id = test.decript(VOC_USER_ID, "euc-kr")
-    dec_org_nm = test.decript(VOC_ORG_NM, "euc-kr")
+    dec_org_nm = test.decript(VOC_ORG_NM, "euc-kr").encode("utf-8")
 
-    print("decip",dec_client_ip)
+    print("org_nm",dec_org_nm)
 
-    if ip == dec_client_ip:
-        r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
-        r.set_cookie(key="Authorization_client_ip", value=dec_client_ip, httponly=True) # ok
-        r.set_cookie(key="Authorization_user_id", value=dec_user_id, httponly=True) # ok
-        r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True) # ok
-        return r
-    else:
-        raise HTTPException(status_code=401,detail="not allowed")
-    return
+    r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
+    r.set_cookie(key="Authorization_client_ip", value=dec_client_ip, httponly=True)  # ok
+    r.set_cookie(key="Authorization_user_id", value=dec_user_id, httponly=True)  # ok
+    # r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True)  # ok
+    return r
+
+
+    # if ip == dec_client_ip:
+    #     r = RedirectResponse(url="/authtest.html", status_code=status.HTTP_303_SEE_OTHER)
+    #     r.set_cookie(key="Authorization_client_ip", value=dec_client_ip, httponly=True) # ok
+    #     r.set_cookie(key="Authorization_user_id", value=dec_user_id, httponly=True) # ok
+    #     r.set_cookie(key="Authorization_org_nm", value=dec_org_nm, httponly=True) # ok
+    #     return r
+    # else:
+    #     raise HTTPException(status_code=401,detail="not allowed")
+    # return

@@ -85,20 +85,20 @@ def get_menu_code_all(db: Session):
         models.MenuCode.menu3,
         models.MenuCode.menu4,
     ]
+    print("111")
     stmt = select(*entities)
-
+    print(stmt)
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
     query = db.execute(stmt)
     query_result = query.fetchall()
     query_keys = query.keys()
-
-    menu1_set = set([r[0] for r in query_result])
+    menu1_set = list(dict.fromkeys([r[0] for r in query_result]))
     list_menu = []
     for nm in menu1_set:
         list_submenu = [
             schemas.SubMenuCode(name=r[1],prods=r[2].split("|"),filters=r[3].split("|"))
             for r in query_result if r[0] == nm
         ]
-        print(list_submenu)
         list_menu.append(schemas.MenuCodeOutput(name=nm, menus=list_submenu))
 
     return list_menu

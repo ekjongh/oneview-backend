@@ -5,7 +5,7 @@ from ..db.base_class import KBase
 
 
 class Rrc(KBase):
-    __tablename__ = "rrc"
+    __tablename__ = "RRC"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

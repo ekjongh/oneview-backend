@@ -6,7 +6,7 @@ from ..db.base_class import KBase
 
 
 class Offloading_Bts(KBase):
-    __tablename__ = "offloading_bts"
+    __tablename__ = "OFFLOADING_BTS"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -37,7 +37,7 @@ class Offloading_Bts(KBase):
 
 
 class Offloading_Hndset(KBase):
-    __tablename__ = "offloading_hndset"
+    __tablename__ = "OFFLOADING_HNDSET"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

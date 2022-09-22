@@ -5,7 +5,7 @@ from ..db.base_class import KBase
 
 
 class VocList(KBase):
-    __tablename__ = "voc"
+    __tablename__ = "VOC"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -54,7 +54,7 @@ class VocList(KBase):
 
 
 class VocSpec(KBase):
-    __tablename__ = "voc_spec"
+    __tablename__ = "VOC_SPEC"
 
     base_date = Column(String(100), primary_key=True)
     svc_cont_id = Column(String(100), primary_key=True)
