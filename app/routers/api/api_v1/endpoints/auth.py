@@ -10,7 +10,7 @@ from app.crud.blacklist import create_blacklist
 from app.crud.user import get_user_by_id, create_user
 from app.routers.api.deps import get_db, get_current_active_user, get_current_user
 from app.schemas import UserCreate, TokenCreate
-from app.schemas.user import User, UserBase, UserEnc
+from app.schemas.user import User, UserBase, UserEnc, UserCreate
 
 ## 인증테스트
 import jpype
@@ -112,19 +112,25 @@ async def refresh(Authorize: AuthJWT = Depends()):
 
 # 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
 @router.post('/jwt/auth')
-def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), Authorize: AuthJWT = Depends()):
+def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db),Authorize: AuthJWT = Depends()):
     print(VOC_USER_ID, VOC_CLIENT_IP, VOC_ORG_NM)
     client_ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
-    # authkey = request.headers["Authorization"] if "Authorization" in request.headers.keys() else ""
     user_id_decoded = java.decode_value(VOC_USER_ID)
     client_ip_decoded = java.decode_value(VOC_USER_ID)
     # org_nm_decoded = java.decode_value(VOC_USER_ID)
 
-
     print("user_id_decoded: ",user_id_decoded)
 
-    # if client_ip != client_ip_decoded:
-    #     return AccessEx()
+    login_user = get_user_by_id(db, user_id_decoded)
+    if not login_user:
+        register_user = UserCreate()
+        user = create_user(db, register_user)
+        # raise HTTPException(status_code=401, detail="Bad user id")
+
+    access_token = Authorize.create_access_token(subject=user.user_id, expires_time=timedelta(minutes=60))
+    refresh_token = Authorize.create_refresh_token(subject=user.user_id, expires_time=timedelta(days=1))
+
+
     access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
     r = RedirectResponse(url="/#/map", status_code=status.HTTP_303_SEE_OTHER)
