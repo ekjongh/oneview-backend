@@ -20,13 +20,13 @@ load_dotenv()
 FIRST_SUPERUSER_ID = os.environ.get("FIRST_SUPERUSER_ID")
 FIRST_SUPERUSER_NAME = os.environ.get("FIRST_SUPERUSER_NAME")
 FIRST_SUPERUSER_EMAIL = os.environ.get("FIRST_SUPERUSER_EMAIL")
-FIRST_SUPERUSER_PW = os.environ.get("FIRST_SUPERUSER_PW")
+# FIRST_SUPERUSER_PW = os.environ.get("FIRST_SUPERUSER_PW")
 
 def init_db(db: Session) -> None:
     # Tables should be created with Alembic migrations
     # But if you don't want to use migrations, create
     # the tables un-commenting the next line
-    #Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
     if FIRST_SUPERUSER_ID:
         superuser = get_user_by_id(db=db, user_id=FIRST_SUPERUSER_ID)  # 2
@@ -35,7 +35,7 @@ def init_db(db: Session) -> None:
                 user_id=FIRST_SUPERUSER_ID,
                 username=FIRST_SUPERUSER_NAME,
                 email=FIRST_SUPERUSER_EMAIL,
-                password=FIRST_SUPERUSER_PW,
+                # password=FIRST_SUPERUSER_PW,
                 # email=FIRST_SUPERUSER_EMAIL,
                 # username=FIRST_SUPERUSER_NAME,
                 # is_superuser=True,

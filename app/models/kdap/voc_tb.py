@@ -2,7 +2,7 @@ from this import d
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..db.base_class import KBase
+from app.db.base_class import KBase
 
 
 # class Voc(KBase):

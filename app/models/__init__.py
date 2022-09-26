@@ -1,14 +1,8 @@
-from .user import User
-from .item import Item
-from .blacklist import Blacklist
+from app.models.internel.user import User
+# from .item import Item
+# from .blacklist import Blacklist
 # from .voc_tb import Voc
-from .bts_info import Bts
-from .voc_list import VocList, VocSpec
-from .volte import Volte, VolteFc, Volte_Fail_Bts, Volte_Fail_Hndset
-from .offloading import Offloading_Bts, Offloading_Hndset   # Offloading,
-from .mdt import Mdt
-from .user_dashboard_config import UserDashboardConfig
-from .subscr import Subscr
-from .rrc import Rrc
-from .data_cnt import DataCnt
-from .code import AddrCode, OrgCode, MenuCode
+from app.models.kdap.volte import Volte, VolteFc, Volte_Fail_Bts, Volte_Fail_Hndset
+from app.models.kdap.offloading import Offloading_Bts, Offloading_Hndset   # Offloading,
+from app.models.kdap.mdt import Mdt
+from app.models.kdap.data_cnt import DataCnt
