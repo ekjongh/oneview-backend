@@ -7,8 +7,7 @@ if not jpype.isJVMStarted():
         convertStrings=True,
     )
 
-def decode_value(input):
+def decode_value(input, key="euc-kr"):
     jpkg = jpype.JPackage('crypto')
     crypto = jpkg.Crypto()
-    output = crypto.decript(input, "euc-kr")
-    return output
+    return crypto.decript(input, key)

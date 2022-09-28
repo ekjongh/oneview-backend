@@ -41,6 +41,10 @@ def init_db(db: Session) -> None:
                 # is_superuser=True,
             )
             create_superuser(db, user_in)
+            logger.info(
+                "Creating superuser Success. User with email "
+                f"{FIRST_SUPERUSER_ID} created. "
+            )
         else:
             logger.warning(
                 "Skipping creating superuser. User with email "

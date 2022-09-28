@@ -1,11 +1,11 @@
-from html import entities
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.errors import exceptions as ex
 from app import schemas
 from sqlalchemy import func, select, between, case, and_
 from datetime import datetime, timedelta
 
-from .. import models
+from app import models
 
 
 def get_worst10_bts_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
@@ -455,8 +455,8 @@ def get_voc_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, 
     elif code == "읍면동별":
         code_val_sbscr = models.Subscr.eup_myun_dong_nm.label("code")
         code_val_voc = models.VocList.eup_myun_dong_nm.label("code")
-    else:
-        raise ex.SqlFailureEx
+    # else:
+    #     raise HTTPException(status_code=404, detail="code param is not field")
 
     stmt_sbscr = select(models.Subscr.base_date, code_val_sbscr, sbscr_cnt)
     stmt_voc = select(models.VocList.base_date, code_val_voc, voc_cnt)
