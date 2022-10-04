@@ -4,44 +4,28 @@ from sqlalchemy.orm import relationship
 from ..db.base_class import KBase
 
 
-class Volte(KBase):
-    __tablename__ = "dashboard_volte_dd"
 
-    base_ym = Column(String(2000))
-    base_date = Column(String(2000), primary_key=True)
-    equip_cd = Column(String(2000), primary_key=True)
-    equip_nm = Column(String(2000))
-    bts_biz_hq_cd = Column(String(2000))
-    bts_biz_hq_nm = Column(String(2000))
-    oper_team_nm = Column(String(2000))
-    area_hq_nm = Column(String(2000))
-    area_center_nm = Column(String(2000))
-    area_jo_nm = Column(String(2000))
-    area_team_nm = Column(String(2000))
-    wjxbfs1 = Column(Integer)
-    wjxbfs2 = Column(Integer)
-    wjxbfs3 = Column(Integer)
-    wjxbfs4 = Column(Integer)
-    sido_nm = Column(String(2000))
-    eup_myun_dong_nm = Column(String(2000))
-    gun_gu_nm = Column(String(2000))
-    bj_nm = Column(String(2000))
+class VolteFailOrg(KBase):
+    __tablename__ = "VOLTE_FAIL_ORG"
 
-class VolteFc(KBase):
-    __tablename__ = "dashboard_volte_fc"
+    base_date = Column(String(100), primary_key=True)
+    mkng_cmpn_nm = Column(String(100))
+    area_jo_nm = Column(String(100))
+    sido_nm = Column(String(100))
+    gun_gu_nm = Column(String(100))
+    eup_myun_dong_nm = Column(String(100))
+    anals_3_prod_level_nm = Column(String(100))
+    try_cacnt = Column(Integer)
+    comp_cacnt = Column(Integer)
+    fail_cacnt = Column(Integer)
+    fc373_cnt = Column(Integer)
+    fc374_cnt = Column(Integer)
+    fc9563_cnt = Column(Integer)
+    fc8501_cnt = Column(Integer)
+    fc417_cnt = Column(Integer)
+    fc8210_cnt = Column(Integer)
 
-    base_date = Column(String(2000), primary_key=True)
-    area_hq_nm = Column(String(2000))
-    area_center_nm = Column(String(2000))
-    area_jo_nm = Column(String(2000))
-    area_team_nm = Column(String(2000), primary_key=True)
-    adm_dong = Column(String(2000), primary_key=True)
-    oper_team_nm = Column(String(2000))
-    fc = Column(String(2000), primary_key=True)
-    wjxbfs1 = Column(Integer)
-
-
-class Volte_Fail_Bts(KBase):
+class VolteFailBts(KBase):
     __tablename__ = "VOLTE_FAIL_BTS"
 
     base_ym = Column(String(100))
@@ -72,7 +56,7 @@ class Volte_Fail_Bts(KBase):
     fc417_cnt = Column(Integer)
     fc8210_cnt = Column(Integer)
 
-class Volte_Fail_Hndset(KBase):
+class VolteFailHndset(KBase):
     __tablename__ = "VOLTE_FAIL_HNDSET"
 
     base_ym = Column(String(100))

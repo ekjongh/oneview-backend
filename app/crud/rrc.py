@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 
 def get_rrc_trend_by_group_date2(db: Session, code:str, group:str, start_date:str = None, end_date: str = None):
-    sum_rrc_try = func.sum(func.nvl(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.nvl(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
     prbusage_mean = func.round(func.avg(models.Rrc.prbusage), 4).label("prbusage_mean")
 
@@ -63,8 +63,8 @@ def get_rrc_trend_by_group_date2(db: Session, code:str, group:str, start_date:st
 
 def get_worst10_rrc_bts_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
-    sum_rrc_try = func.sum(func.nvl(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.nvl(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
     prbusage_mean = func.round(func.avg(models.Rrc.prbusage), 4).label("prbusage_mean")
 
@@ -114,14 +114,16 @@ def get_worst10_rrc_bts_by_group_date2(db: Session, code:str, group: str, start_
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc()).subquery()
+    # stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc()).subquery()
+    stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.rrc_rate.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -129,8 +131,8 @@ def get_worst10_rrc_bts_by_group_date2(db: Session, code:str, group: str, start_
     return list_worst_rrc_bts
 
 def get_rrc_trend_item_by_group_date(db: Session, code:str, group:str, start_date:str = None, end_date: str = None):
-    sum_rrc_try = func.sum(func.nvl(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.nvl(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
     prbusage_mean = func.round(func.avg(models.Rrc.prbusage), 4).label("prbusage_mean")
 
@@ -191,8 +193,8 @@ def get_rrc_trend_item_by_group_date(db: Session, code:str, group:str, start_dat
 
 ###########################
 def get_rrc_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
-    sum_rrc_try = func.sum(func.nvl(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.nvl(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
     prbusage_mean = func.round(func.avg(models.Rrc.prbusage), 4).label("prbusage_mean")
 
@@ -237,8 +239,8 @@ def get_rrc_trend_by_group_date(db: Session, group: str, start_date: str = None,
 
 def get_worst10_rrc_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
-    sum_rrc_try = func.sum(func.nvl(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.nvl(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
     prbusage_mean = func.round(func.avg(models.Rrc.prbusage), 4).label("prbusage_mean")
 
@@ -274,14 +276,16 @@ def get_worst10_rrc_bts_by_group_date(db: Session, group: str, start_date: str =
     else:
         stmt = stmt.where(models.Rrc.area_jo_nm == group)
 
-    stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc()).subquery()
+    # stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc()).subquery()
+    stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.rrc_rate.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

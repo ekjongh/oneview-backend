@@ -11,12 +11,12 @@ def get_datacnt_compare_by_prod(db: Session, code: str, group: str, start_date: 
 
     lastweek = (datetime.strptime(start_date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
 
-    sum_5g_data = (func.nvl(models.DataCnt.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.DataCnt.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_3g_data = (func.nvl(models.DataCnt.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.DataCnt.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = (func.nvl(models.DataCnt.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.DataCnt.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = (func.ifnull(models.DataCnt.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.DataCnt.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_3g_data = (func.ifnull(models.DataCnt.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.DataCnt.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = (func.ifnull(models.DataCnt.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.DataCnt.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
 
 

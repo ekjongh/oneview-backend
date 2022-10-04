@@ -5,14 +5,14 @@ from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
 
 def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, start_date: str=None, end_date: str=None, limit: int=10):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt , 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt , 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl , 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul , 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt , 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt , 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt , 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt , 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt , 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt , 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl , 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul , 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt , 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt , 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt , 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt , 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -67,14 +67,16 @@ def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, 
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).having(g5_off_ratio>0).order_by(g5_off_ratio.asc()).subquery()
+    # stmt = stmt.group_by(*entities).having(g5_off_ratio>0).order_by(g5_off_ratio.asc()).subquery()
+    stmt = stmt.group_by(*entities).having(g5_off_ratio>0).order_by(g5_off_ratio.asc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -83,14 +85,14 @@ def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, 
 
 
 def get_offloading_trend_by_group_date2(db: Session, code:str, group: str, start_date: str=None, end_date: str=None):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt,0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt,0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -136,6 +138,8 @@ def get_offloading_trend_by_group_date2(db: Session, code:str, group: str, start
 
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
 
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
     query = db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
@@ -151,14 +155,14 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
     ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
     in_cond = [ref_day, today]
 
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -225,14 +229,14 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
 # 주요단말(데이터량기준)
 def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
-                func.nvl(models.Offloading_Hndset.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum( func.nvl(models.Offloading_Hndset.sru_usagecountdl, 0.0) +
-                 func.nvl(models.Offloading_Hndset.sru_usagecountul,0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum( func.nvl(models.Offloading_Hndset.g3d_upld_data_qnt, 0.0) +
-                 func.nvl(models.Offloading_Hndset.g3d_downl_data_qnt,0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Hndset.ld_downl_data_qnt, 0.0) +
-                 func.nvl(models.Offloading_Hndset.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
+                func.ifnull(models.Offloading_Hndset.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum( func.ifnull(models.Offloading_Hndset.sru_usagecountdl, 0.0) +
+                 func.ifnull(models.Offloading_Hndset.sru_usagecountul,0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum( func.ifnull(models.Offloading_Hndset.g3d_upld_data_qnt, 0.0) +
+                 func.ifnull(models.Offloading_Hndset.g3d_downl_data_qnt,0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Hndset.ld_downl_data_qnt, 0.0) +
+                 func.ifnull(models.Offloading_Hndset.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -281,14 +285,16 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
         stmt = stmt.where(code_val.in_(txt_l))
 
     #주요단말정렬기준 : 데이터량
-    stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
+    # stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
+    stmt = stmt.group_by(*entities).order_by(sum_total_data.asc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -298,14 +304,14 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
 
 def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str, start_date: str = None,
                                             end_date: str = None, limit: int = 10):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -360,14 +366,16 @@ def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -378,14 +386,14 @@ def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str
 
 def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, start_date: str = None,
                                         end_date: str = None):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4).label("value")
@@ -444,9 +452,9 @@ def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, 
 
 
 # def get_offloading_compare_by_group_date(db: Session, group: str, date:str=None):
-#     sum_5g_data = func.sum(func.nvl(models.Offloading.g5_total_data_qnt, 0.0))
-#     sum_sru_data = func.sum(func.nvl(models.Offloading.sru_total_data_qnt, 0.0))
-#     sum_total_data = func.sum(func.nvl(models.Offloading.total_data_qnt, 0.0))
+#     sum_5g_data = func.sum(func.ifnull(models.Offloading.g5_total_data_qnt, 0.0))
+#     sum_sru_data = func.sum(func.ifnull(models.Offloading.sru_total_data_qnt, 0.0))
+#     sum_total_data = func.sum(func.ifnull(models.Offloading.total_data_qnt, 0.0))
 #     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
 #     g5_off_ratio = func.round(g5_off_ratio, 4)
 #     g5_off_ratio = func.coalesce(g5_off_ratio, 0.0).label("g5_off_ratio")
@@ -478,14 +486,14 @@ def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, 
 #############################################
 def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -526,14 +534,16 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
     else:
         stmt = stmt.where(models.Offloading_Bts.area_jo_nm == group)
 
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -543,14 +553,14 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
 
 
 def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum(func.nvl(models.Offloading_Bts.sru_usagecountdl, 0.0) +
-                            func.nvl(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum(func.nvl(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
+                            func.ifnull(models.Offloading_Bts.sru_usagecountul, 0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum(func.ifnull(models.Offloading_Bts.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.Offloading_Bts.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Bts.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.Offloading_Bts.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -591,14 +601,14 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str 
 
 def get_worst10_offloading_hndset_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
-    sum_5g_data = func.sum(func.nvl(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
-                func.nvl(models.Offloading_Hndset.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_sru_data = func.sum( func.nvl(models.Offloading_Hndset.sru_usagecountdl, 0.0) +
-                 func.nvl(models.Offloading_Hndset.sru_usagecountul,0.0)).label("sum_sru_data")
-    sum_3g_data = func.sum( func.nvl(models.Offloading_Hndset.g3d_upld_data_qnt, 0.0) +
-                 func.nvl(models.Offloading_Hndset.g3d_downl_data_qnt,0.0)).label("sum_3g_data")
-    sum_lte_data = func.sum(func.nvl(models.Offloading_Hndset.ld_downl_data_qnt, 0.0) +
-                 func.nvl(models.Offloading_Hndset.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = func.sum(func.ifnull(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
+                func.ifnull(models.Offloading_Hndset.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_sru_data = func.sum( func.ifnull(models.Offloading_Hndset.sru_usagecountdl, 0.0) +
+                 func.ifnull(models.Offloading_Hndset.sru_usagecountul,0.0)).label("sum_sru_data")
+    sum_3g_data = func.sum( func.ifnull(models.Offloading_Hndset.g3d_upld_data_qnt, 0.0) +
+                 func.ifnull(models.Offloading_Hndset.g3d_downl_data_qnt,0.0)).label("sum_3g_data")
+    sum_lte_data = func.sum(func.ifnull(models.Offloading_Hndset.ld_downl_data_qnt, 0.0) +
+                 func.ifnull(models.Offloading_Hndset.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
     g5_off_ratio = (sum_5g_data + sum_sru_data) / (sum_total_data + 1e-6) * 100
     g5_off_ratio = func.round(g5_off_ratio, 4)
@@ -632,14 +642,16 @@ def get_worst10_offloading_hndset_by_group_date(db: Session, group: str, start_d
     else:
         stmt = stmt.where(models.Offloading_Hndset.oper_team_nm == group)
 
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

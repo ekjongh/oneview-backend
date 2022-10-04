@@ -6,27 +6,27 @@ from datetime import datetime, timedelta
 
 
 def get_mdt_trend_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None):
-    sum_rsrp_m105d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m105d_cnt, 0.0))
-    sum_rsrp_m110d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m110d_cnt, 0.0))
-    sum_rsrp_cnt = func.sum(func.nvl(models.Mdt.rsrp_cnt, 0.0))
-    sum_rsrp_value = func.sum(func.nvl(models.Mdt.rsrp_sum, 0.0))
+    sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
+    sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
+    sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
+    sum_rsrp_value = func.sum(func.ifnull(models.Mdt.rsrp_sum, 0.0))
 
-    sum_rsrq_m15d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m15d_cnt, 0.0))
-    sum_rsrq_m17d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m17d_cnt, 0.0))
-    sum_rsrq_cnt = func.sum(func.nvl(models.Mdt.rsrq_cnt, 0.0))
-    sum_rsrq_value = func.sum(func.nvl(models.Mdt.rsrq_sum, 0.0))
+    sum_rsrq_m15d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m15d_cnt, 0.0))
+    sum_rsrq_m17d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m17d_cnt, 0.0))
+    sum_rsrq_cnt = func.sum(func.ifnull(models.Mdt.rsrq_cnt, 0.0))
+    sum_rsrq_value = func.sum(func.ifnull(models.Mdt.rsrq_sum, 0.0))
 
-    sum_rip_maxd_cnt = func.sum(func.nvl(models.Mdt.new_rip_maxd_cnt, 0.0))
-    sum_rip_cnt = func.sum(func.nvl(models.Mdt.rip_cnt, 0.0))
-    sum_rip_value = func.sum(func.nvl(models.Mdt.rip_sum, 0.0))
+    sum_rip_maxd_cnt = func.sum(func.ifnull(models.Mdt.new_rip_maxd_cnt, 0.0))
+    sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
+    sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.nvl(models.Mdt.new_phr_m3d_cnt , 0.0))
-    sum_new_phr_mind_cnt_cnt = func.sum(func.nvl(models.Mdt.new_phr_mind_cnt, 0.0))
-    sum_phr_cnt = func.sum(func.nvl(models.Mdt.phr_cnt, 0.0))
-    sum_phr_value = func.sum(func.nvl(models.Mdt.phr_sum, 0.0))
+    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
+    sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
+    sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
 
-    sum_nr_rsrp_cnt = func.sum(func.nvl(models.Mdt.nr_rsrp_cnt, 0.0))
-    sum_nr_rsrp_value = func.sum(func.nvl(models.Mdt.nr_rsrp_sum, 0.0))
+    sum_nr_rsrp_cnt = func.sum(func.ifnull(models.Mdt.nr_rsrp_cnt, 0.0))
+    sum_nr_rsrp_value = func.sum(func.ifnull(models.Mdt.nr_rsrp_sum, 0.0))
 
     rsrp_bad_rate = (sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt) / (sum_rsrp_cnt + 1e-6) * 100
     rsrp_bad_rate = func.round(rsrp_bad_rate, 4)
@@ -116,27 +116,27 @@ def get_mdt_trend_by_group_date2(db: Session, code:str, group: str, start_date: 
 
 def get_worst10_mdt_bts_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
-    sum_rsrp_m105d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m105d_cnt, 0.0))
-    sum_rsrp_m110d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m110d_cnt, 0.0))
-    sum_rsrp_cnt = func.sum(func.nvl(models.Mdt.rsrp_cnt, 0.0))
-    sum_rsrp_value = func.sum(func.nvl(models.Mdt.rsrp_sum, 0.0))
+    sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
+    sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
+    sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
+    sum_rsrp_value = func.sum(func.ifnull(models.Mdt.rsrp_sum, 0.0))
 
-    sum_rsrq_m15d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m15d_cnt, 0.0))
-    sum_rsrq_m17d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m17d_cnt, 0.0))
-    sum_rsrq_cnt = func.sum(func.nvl(models.Mdt.rsrq_cnt, 0.0))
-    sum_rsrq_value = func.sum(func.nvl(models.Mdt.rsrq_sum, 0.0))
+    sum_rsrq_m15d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m15d_cnt, 0.0))
+    sum_rsrq_m17d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m17d_cnt, 0.0))
+    sum_rsrq_cnt = func.sum(func.ifnull(models.Mdt.rsrq_cnt, 0.0))
+    sum_rsrq_value = func.sum(func.ifnull(models.Mdt.rsrq_sum, 0.0))
 
-    sum_rip_maxd_cnt = func.sum(func.nvl(models.Mdt.new_rip_maxd_cnt, 0.0))
-    sum_rip_cnt = func.sum(func.nvl(models.Mdt.rip_cnt, 0.0))
-    sum_rip_value = func.sum(func.nvl(models.Mdt.rip_sum, 0.0))
+    sum_rip_maxd_cnt = func.sum(func.ifnull(models.Mdt.new_rip_maxd_cnt, 0.0))
+    sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
+    sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.nvl(models.Mdt.new_phr_m3d_cnt , 0.0))
-    sum_new_phr_mind_cnt_cnt = func.sum(func.nvl(models.Mdt.new_phr_mind_cnt, 0.0))
-    sum_phr_cnt = func.sum(func.nvl(models.Mdt.phr_cnt, 0.0))
-    sum_phr_value = func.sum(func.nvl(models.Mdt.phr_sum, 0.0))
+    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
+    sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
+    sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
 
-    sum_nr_rsrp_cnt = func.sum(func.nvl(models.Mdt.nr_rsrp_cnt, 0.0))
-    sum_nr_rsrp_value = func.sum(func.nvl(models.Mdt.nr_rsrp_sum, 0.0))
+    sum_nr_rsrp_cnt = func.sum(func.ifnull(models.Mdt.nr_rsrp_cnt, 0.0))
+    sum_nr_rsrp_value = func.sum(func.ifnull(models.Mdt.nr_rsrp_sum, 0.0))
 
     rsrp_bad_rate = (sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt) / (sum_rsrp_cnt + 1e-6) * 100
     rsrp_bad_rate = func.round(rsrp_bad_rate, 4)
@@ -217,14 +217,16 @@ def get_worst10_mdt_bts_by_group_date2(db: Session, code:str, group: str, start_
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
+    # stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
+    stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.rsrp_bad_rate.desc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -232,27 +234,27 @@ def get_worst10_mdt_bts_by_group_date2(db: Session, code:str, group: str, start_
     return list_worst_mdt_bts
 
 def get_mdt_trend_item_by_group_date(db: Session, code:str, group: str, start_date: str = None, end_date: str = None):
-    sum_rsrp_m105d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m105d_cnt, 0.0))
-    sum_rsrp_m110d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m110d_cnt, 0.0))
-    sum_rsrp_cnt = func.sum(func.nvl(models.Mdt.rsrp_cnt, 0.0))
-    sum_rsrp_value = func.sum(func.nvl(models.Mdt.rsrp_sum, 0.0))
+    sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
+    sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
+    sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
+    sum_rsrp_value = func.sum(func.ifnull(models.Mdt.rsrp_sum, 0.0))
 
-    sum_rsrq_m15d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m15d_cnt, 0.0))
-    sum_rsrq_m17d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m17d_cnt, 0.0))
-    sum_rsrq_cnt = func.sum(func.nvl(models.Mdt.rsrq_cnt, 0.0))
-    sum_rsrq_value = func.sum(func.nvl(models.Mdt.rsrq_sum, 0.0))
+    sum_rsrq_m15d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m15d_cnt, 0.0))
+    sum_rsrq_m17d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m17d_cnt, 0.0))
+    sum_rsrq_cnt = func.sum(func.ifnull(models.Mdt.rsrq_cnt, 0.0))
+    sum_rsrq_value = func.sum(func.ifnull(models.Mdt.rsrq_sum, 0.0))
 
-    sum_rip_maxd_cnt = func.sum(func.nvl(models.Mdt.new_rip_maxd_cnt, 0.0))
-    sum_rip_cnt = func.sum(func.nvl(models.Mdt.rip_cnt, 0.0))
-    sum_rip_value = func.sum(func.nvl(models.Mdt.rip_sum, 0.0))
+    sum_rip_maxd_cnt = func.sum(func.ifnull(models.Mdt.new_rip_maxd_cnt, 0.0))
+    sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
+    sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.nvl(models.Mdt.new_phr_m3d_cnt , 0.0))
-    sum_new_phr_mind_cnt_cnt = func.sum(func.nvl(models.Mdt.new_phr_mind_cnt, 0.0))
-    sum_phr_cnt = func.sum(func.nvl(models.Mdt.phr_cnt, 0.0))
-    sum_phr_value = func.sum(func.nvl(models.Mdt.phr_sum, 0.0))
+    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
+    sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
+    sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
 
-    sum_nr_rsrp_cnt = func.sum(func.nvl(models.Mdt.nr_rsrp_cnt, 0.0))
-    sum_nr_rsrp_value = func.sum(func.nvl(models.Mdt.nr_rsrp_sum, 0.0))
+    sum_nr_rsrp_cnt = func.sum(func.ifnull(models.Mdt.nr_rsrp_cnt, 0.0))
+    sum_nr_rsrp_value = func.sum(func.ifnull(models.Mdt.nr_rsrp_sum, 0.0))
 
     rsrp_bad_rate = (sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt) / (sum_rsrp_cnt + 1e-6) * 100
     rsrp_bad_rate = func.round(rsrp_bad_rate, 4)
@@ -346,27 +348,27 @@ def get_mdt_trend_item_by_group_date(db: Session, code:str, group: str, start_da
 
 ################################
 def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
-    sum_rsrp_m105d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m105d_cnt, 0.0))
-    sum_rsrp_m110d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m110d_cnt, 0.0))
-    sum_rsrp_cnt = func.sum(func.nvl(models.Mdt.rsrp_cnt, 0.0))
-    sum_rsrp_value = func.sum(func.nvl(models.Mdt.rsrp_sum, 0.0))
+    sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
+    sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
+    sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
+    sum_rsrp_value = func.sum(func.ifnull(models.Mdt.rsrp_sum, 0.0))
 
-    sum_rsrq_m15d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m15d_cnt, 0.0))
-    sum_rsrq_m17d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m17d_cnt, 0.0))
-    sum_rsrq_cnt = func.sum(func.nvl(models.Mdt.rsrq_cnt, 0.0))
-    sum_rsrq_value = func.sum(func.nvl(models.Mdt.rsrq_sum, 0.0))
+    sum_rsrq_m15d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m15d_cnt, 0.0))
+    sum_rsrq_m17d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m17d_cnt, 0.0))
+    sum_rsrq_cnt = func.sum(func.ifnull(models.Mdt.rsrq_cnt, 0.0))
+    sum_rsrq_value = func.sum(func.ifnull(models.Mdt.rsrq_sum, 0.0))
 
-    sum_rip_maxd_cnt = func.sum(func.nvl(models.Mdt.new_rip_maxd_cnt, 0.0))
-    sum_rip_cnt = func.sum(func.nvl(models.Mdt.rip_cnt, 0.0))
-    sum_rip_value = func.sum(func.nvl(models.Mdt.rip_sum, 0.0))
+    sum_rip_maxd_cnt = func.sum(func.ifnull(models.Mdt.new_rip_maxd_cnt, 0.0))
+    sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
+    sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.nvl(models.Mdt.new_phr_m3d_cnt , 0.0))
-    sum_new_phr_mind_cnt_cnt = func.sum(func.nvl(models.Mdt.new_phr_mind_cnt, 0.0))
-    sum_phr_cnt = func.sum(func.nvl(models.Mdt.phr_cnt, 0.0))
-    sum_phr_value = func.sum(func.nvl(models.Mdt.phr_sum, 0.0))
+    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
+    sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
+    sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
 
-    sum_nr_rsrp_cnt = func.sum(func.nvl(models.Mdt.nr_rsrp_cnt, 0.0))
-    sum_nr_rsrp_value = func.sum(func.nvl(models.Mdt.nr_rsrp_sum, 0.0))
+    sum_nr_rsrp_cnt = func.sum(func.ifnull(models.Mdt.nr_rsrp_cnt, 0.0))
+    sum_nr_rsrp_value = func.sum(func.ifnull(models.Mdt.nr_rsrp_sum, 0.0))
 
     rsrp_bad_rate = (sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt) / (sum_rsrp_cnt + 1e-6) * 100
     rsrp_bad_rate = func.round(rsrp_bad_rate, 4)
@@ -444,27 +446,27 @@ def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None,
 
 def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
-    sum_rsrp_m105d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m105d_cnt, 0.0))
-    sum_rsrp_m110d_cnt = func.sum(func.nvl(models.Mdt.rsrp_m110d_cnt, 0.0))
-    sum_rsrp_cnt = func.sum(func.nvl(models.Mdt.rsrp_cnt, 0.0))
-    sum_rsrp_value = func.sum(func.nvl(models.Mdt.rsrp_sum, 0.0))
+    sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
+    sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
+    sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
+    sum_rsrp_value = func.sum(func.ifnull(models.Mdt.rsrp_sum, 0.0))
 
-    sum_rsrq_m15d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m15d_cnt, 0.0))
-    sum_rsrq_m17d_cnt = func.sum(func.nvl(models.Mdt.rsrq_m17d_cnt, 0.0))
-    sum_rsrq_cnt = func.sum(func.nvl(models.Mdt.rsrq_cnt, 0.0))
-    sum_rsrq_value = func.sum(func.nvl(models.Mdt.rsrq_sum, 0.0))
+    sum_rsrq_m15d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m15d_cnt, 0.0))
+    sum_rsrq_m17d_cnt = func.sum(func.ifnull(models.Mdt.rsrq_m17d_cnt, 0.0))
+    sum_rsrq_cnt = func.sum(func.ifnull(models.Mdt.rsrq_cnt, 0.0))
+    sum_rsrq_value = func.sum(func.ifnull(models.Mdt.rsrq_sum, 0.0))
 
-    sum_rip_maxd_cnt = func.sum(func.nvl(models.Mdt.new_rip_maxd_cnt, 0.0))
-    sum_rip_cnt = func.sum(func.nvl(models.Mdt.rip_cnt, 0.0))
-    sum_rip_value = func.sum(func.nvl(models.Mdt.rip_sum, 0.0))
+    sum_rip_maxd_cnt = func.sum(func.ifnull(models.Mdt.new_rip_maxd_cnt, 0.0))
+    sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
+    sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.nvl(models.Mdt.new_phr_m3d_cnt , 0.0))
-    sum_new_phr_mind_cnt_cnt = func.sum(func.nvl(models.Mdt.new_phr_mind_cnt, 0.0))
-    sum_phr_cnt = func.sum(func.nvl(models.Mdt.phr_cnt, 0.0))
-    sum_phr_value = func.sum(func.nvl(models.Mdt.phr_sum, 0.0))
+    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
+    sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
+    sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
 
-    sum_nr_rsrp_cnt = func.sum(func.nvl(models.Mdt.nr_rsrp_cnt, 0.0))
-    sum_nr_rsrp_value = func.sum(func.nvl(models.Mdt.nr_rsrp_sum, 0.0))
+    sum_nr_rsrp_cnt = func.sum(func.ifnull(models.Mdt.nr_rsrp_cnt, 0.0))
+    sum_nr_rsrp_value = func.sum(func.ifnull(models.Mdt.nr_rsrp_sum, 0.0))
 
     rsrp_bad_rate = (sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt) / (sum_rsrp_cnt + 1e-6) * 100
     rsrp_bad_rate = func.round(rsrp_bad_rate, 4)
@@ -533,14 +535,16 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
     else:
         stmt = stmt.where(models.Mdt.area_jo_nm == group)
 
-    stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
+    # stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
+    stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc())
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.rsrp_bad_rate.desc()).label("RANK"),
         *stmt.c
     ])
 
-    query = db.execute(stmt_rk)
+    # query = db.execute(stmt_rk)
+    query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

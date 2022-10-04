@@ -22,3 +22,26 @@ class Subscr(KBase):
     hndset_pet_nm = Column(String(100), primary_key=True)
     sa_5g_suprt_div_nm = Column(String(100))
     bprod_maint_sbscr_cascnt = Column(Integer)
+
+
+class SubscrOrg(KBase):
+    __tablename__ = "SBSTR_ORG"
+
+    base_date = Column(String(100), primary_key=True)
+    mkng_cmpn_nm = Column(String(100))
+    oper_team_nm = Column(String(100))
+    sido_nm = Column(String(100))
+    gun_gu_nm = Column(String(100))
+    eup_myun_dong_nm = Column(String(100))
+    anals_3_prod_level_nm = Column(String(100))
+    bprod_maint_sbscr_cascnt = Column(Integer)
+
+
+class SubscrMkng(KBase):
+    __tablename__ = "SBSTR_MKNG"
+
+    base_date = Column(String(100), primary_key=True)
+    mkng_cmpn_nm = Column(String(100))
+    anals_3_prod_level_nm = Column(String(100))
+    bprod_maint_sbscr_cascnt = Column(Integer)
+
