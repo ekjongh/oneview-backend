@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 
-from ..db.base_class import KBase
+from app.db.base_class import KBase
 
 
 class DataCnt(KBase):

@@ -1,11 +1,11 @@
-# from html import entities
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.errors import exceptions as ex
 from app import schemas
-from sqlalchemy import func, select, between, case, and_, Column
+from sqlalchemy import func, select, between, case, and_
 from datetime import datetime, timedelta
 
-from .. import models
+from app import models
 
 
 def get_worst10_bts_by_group_date2(db: Session, prod: str = None, code: str = None, group: str = None,
@@ -178,8 +178,8 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str = None, 
         stmt = stmt.where(models.VocList.oper_team_nm == group)
     elif group.endswith("조"):
         stmt = stmt.where(models.VocList.area_jo_nm == group)
-    else:
-        pass
+    # else:
+    #     pass
 
     query = db.execute(stmt)
     query_result = query.fetchmany(size=limit)

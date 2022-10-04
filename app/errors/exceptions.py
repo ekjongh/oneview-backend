@@ -77,6 +77,15 @@ class TokenDecodeEx(APIException):
             ex=ex,
         )
 
+class AccessEx(APIException):
+    def __init__(self, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_400,
+            msg=f"비정상적인 접근입니다.",
+            detail="Access method is not appropriate.",
+            code=f"{StatusCode.HTTP_400}{'2'.zfill(4)}",
+            ex=ex,
+        )
 
 class NoKeyMatchEx(APIException):
     def __init__(self, ex: Exception = None):

@@ -41,7 +41,7 @@ async def access_control(request: Request, call_next):
     request.state.user_agent = request.headers["user-agent"] if "user-agent" in request.headers.keys() else "None"
     request.state.ip = ip.split(",")[0] if "," in ip else ip
     headers = request.headers
-    # cookies = request.cookies
+    # cookies = request.cookiesTokenDecodeEx
 
     url = request.url.path
     # if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
