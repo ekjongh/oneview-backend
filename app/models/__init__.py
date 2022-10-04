@@ -8,6 +8,6 @@ from app.models.kdap.offloading import Offloading_Bts, Offloading_Hndset   # Off
 from app.models.kdap.mdt import Mdt
 from app.models.kdap.data_cnt import DataCnt
 from app.models.kdap.voc_list import VocList, VocSpec
-from app.models.kdap.code import AddrCode, OrgCode, MenuCode
+from app.models.kdap.model_code import AddrCode, OrgCode, MenuCode
 from app.models.kdap.rrc import Rrc
 from app.models.kdap.subscr import Subscr, SubscrOrg

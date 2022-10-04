@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.errors import exceptions as ex
 from app import schemas
-from sqlalchemy import func, select, between, case, and_
+from sqlalchemy import func, select, between, case, and_, Column
 from datetime import datetime, timedelta
 
 from app import models
@@ -214,25 +214,25 @@ def get_voc_trend_by_group_date2(db: Session, prod: str = None, code: str = None
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.mkng_cmpn_nm.in_(txt_l))
         stmt_voc = stmt_voc.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.code.OrgCode.oper_team_nm).where(models.code.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(stmt_where))
         stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(txt_l))
         stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.code.AddrCode.eup_myun_dong_nm).where(models.code.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.eup_myun_dong_nm.in_(stmt_where))
         stmt_voc = stmt_voc.where(models.VocList.sido_nm.in_(txt_l))
     elif code == "시군구별":
-        stmt_where = select(models.code.AddrCode.eup_myun_dong_nm).where(models.code.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.eup_myun_dong_nm.in_(stmt_where))
         stmt_voc = stmt_voc.where(models.VocList.gun_gu_nm.in_(txt_l))
     elif code == "읍면동별":
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.eup_myun_dong_nm.in_(txt_l))
         stmt_voc = stmt_voc.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
     else:
-        stmt_where = select(models.code.OrgCode.oper_team_nm)
+        stmt_where = select(models.OrgCode.oper_team_nm)
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(stmt_where))
 
     # 상품 조건
@@ -475,9 +475,9 @@ def get_voc_trend_item_by_group_date(db: Session, prod: str = None, code: str = 
         voc_sel_nm = models.VocList.mkng_cmpn_nm  # voc 테이블 select 변수
 
     elif code == "센터별":
-        code_tbl_nm = models.code.OrgCode
-        code_sel_nm = models.code.OrgCode.oper_team_nm
-        code_where_nm = models.code.OrgCode.biz_hq_nm
+        code_tbl_nm = models.OrgCode
+        code_sel_nm = models.OrgCode.oper_team_nm
+        code_where_nm = models.OrgCode.biz_hq_nm
 
         sbscr_sel_nm = models.SubscrOrg.oper_team_nm
         voc_sel_nm = models.VocList.biz_hq_nm  # voc 테이블 select 변수
@@ -485,16 +485,16 @@ def get_voc_trend_item_by_group_date(db: Session, prod: str = None, code: str = 
         sbscr_sel_nm = models.SubscrOrg.oper_team_nm
         voc_sel_nm = models.VocList.oper_team_nm  # voc 테이블 select 변수
     elif code == "시도별":
-        code_tbl_nm = models.code.AddrCode
-        code_sel_nm = models.code.AddrCode.eup_myun_dong_nm
-        code_where_nm = models.code.AddrCode.sido_nm
+        code_tbl_nm = models.AddrCode
+        code_sel_nm = models.AddrCode.eup_myun_dong_nm
+        code_where_nm = models.AddrCode.sido_nm
 
         sbscr_sel_nm = models.SubscrOrg.eup_myun_dong_nm
         voc_sel_nm = models.VocList.sido_nm  # voc 테이블 select 변수
     elif code == "시군구별":
-        code_tbl_nm = models.code.AddrCode
-        code_sel_nm = models.code.AddrCode.eup_myun_dong_nm
-        code_where_nm = models.code.AddrCode.gun_gu_nm
+        code_tbl_nm = models.AddrCode
+        code_sel_nm = models.AddrCode.eup_myun_dong_nm
+        code_where_nm = models.AddrCode.gun_gu_nm
 
         sbscr_sel_nm = models.SubscrOrg.eup_myun_dong_nm
         voc_sel_nm = models.VocList.gun_gu_nm  # voc 테이블 select 변수
@@ -685,53 +685,51 @@ def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date:
 
 
 def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
-    # 1000가입자당 5G VOC건수
+    # 1000가입자당  VOC건수
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
-    sbscr_cnt = func.sum(func.ifnull(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
+    sbscr_cnt = func.sum(func.ifnull(models.SubscrOrg.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
 
-    stmt_sbscr = select(
-            models.Subscr.base_date,
-            sbscr_cnt
-        ).where(
-            models.Subscr.anals_3_prod_level_nm == '5G'
-        )
-    stmt_voc = select(
-            models.VocList.base_date,
-            voc_cnt
-        ).where(
-            models.VocList.anals_3_prod_level_nm == '5G'
-        )
+    stmt_sbscr = select(models.SubscrOrg.base_date, sbscr_cnt)
+    stmt_voc = select(models.VocList.base_date, voc_cnt)
 
+    # 기간
     if not end_date:
         end_date = start_date
 
     if start_date:
-        stmt_sbscr = stmt_sbscr.where(between(models.Subscr.base_date, start_date, end_date))
+        stmt_sbscr = stmt_sbscr.where(between(models.SubscrOrg.base_date, start_date, end_date))
         stmt_voc = stmt_voc.where(between(models.VocList.base_date, start_date, end_date))
 
-    if group.endswith("센터"):
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.biz_hq_nm == group)
-        stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm == group)
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
-        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
-    else:
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm == group)
-        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm == group)
+    txt_l = []
+    if group != "":
+        txt_l = group.split("|")
 
-    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).having(sbscr_cnt > 0).\
-        order_by(models.Subscr.base_date.asc()).subquery()
+    # 선택 조건
+
+    if group.endswith("센터"):
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(stmt_where))
+        stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
+    elif group.endswith("팀") or group.endswith("부"):
+        stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
+    else:
+        stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
+
+    stmt_sbscr = stmt_sbscr.group_by(models.SubscrOrg.base_date).having(sbscr_cnt > 0). \
+        order_by(models.SubscrOrg.base_date.asc()).subquery()
     stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
 
     stmt = select(
-            stmt_sbscr.c.base_date.label("date"),
-            func.ifnull(func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000.0, 4), 0.0).label("value"),
-            ).outerjoin(
-                stmt_voc,
-                (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
-            )
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+        stmt_sbscr.c.base_date.label("date"),
+        func.ifnull(func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000.0, 4), 0.0).label("value"),
+    ).outerjoin(
+        stmt_voc,
+        (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
+    )
 
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
     query = db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()

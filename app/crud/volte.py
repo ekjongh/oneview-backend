@@ -193,18 +193,18 @@ def get_volte_trend_by_group_date2(db: Session, prod:str=None, code:str=None, gr
     if code == "제조사별":
         stmt_cut = stmt_cut.where(models.VolteFailOrg.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.code.OrgCode.area_jo_nm).where(models.code.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(stmt_where))
     elif code == "팀별":
-        stmt_where = select(models.code.OrgCode.area_jo_nm).where(models.code.OrgCode.oper_team_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(stmt_where))
     elif code == "조별":
         stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.code.AddrCode.eup_myun_dong_nm).where(models.code.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFailOrg.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.code.AddrCode.eup_myun_dong_nm).where(models.code.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFailOrg.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt_cut = stmt_cut.where(models.VolteFailOrg.eup_myun_dong_nm.in_(txt_l))
@@ -337,29 +337,29 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
         stmt_sel_nm = models.VolteFailOrg.mkng_cmpn_nm
 
     elif code == "센터별":
-        code_tbl_nm = models.code.OrgCode
-        code_sel_nm = models.code.OrgCode.area_jo_nm
-        code_where_nm = models.code.OrgCode.biz_hq_nm
+        code_tbl_nm = models.OrgCode
+        code_sel_nm = models.OrgCode.area_jo_nm
+        code_where_nm = models.OrgCode.biz_hq_nm
 
         stmt_sel_nm = models.VolteFailOrg.area_jo_nm
     elif code == "팀별":
-        code_tbl_nm = models.code.OrgCode
-        code_sel_nm = models.code.OrgCode.area_jo_nm
-        code_where_nm = models.code.OrgCode.oper_team_nm
+        code_tbl_nm = models.OrgCode
+        code_sel_nm = models.OrgCode.area_jo_nm
+        code_where_nm = models.OrgCode.oper_team_nm
 
         stmt_sel_nm = models.VolteFailOrg.area_jo_nm
     elif code == "조별":
         stmt_sel_nm = models.VolteFailOrg.area_jo_nm
     elif code == "시도별":
-        code_tbl_nm = models.code.AddrCode
-        code_sel_nm = models.code.AddrCode.eup_myun_dong_nm
-        code_where_nm = models.code.AddrCode.sido_nm
+        code_tbl_nm = models.AddrCode
+        code_sel_nm = models.AddrCode.eup_myun_dong_nm
+        code_where_nm = models.AddrCode.sido_nm
 
         stmt_sel_nm = models.VolteFailOrg.eup_myun_dong_nm
     elif code == "시군구별":
-        code_tbl_nm = models.code.AddrCode
-        code_sel_nm = models.code.AddrCode.eup_myun_dong_nm
-        code_where_nm = models.code.AddrCode.gun_gu_nm
+        code_tbl_nm = models.AddrCode
+        code_sel_nm = models.AddrCode.eup_myun_dong_nm
+        code_where_nm = models.AddrCode.gun_gu_nm
 
         stmt_sel_nm = models.VolteFailOrg.eup_myun_dong_nm
     elif code == "읍면동별":
@@ -398,7 +398,9 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
         stmt = select(
             st_in.c.base_date,
             code_where_nm.label("code"),
-            func.sum(st_in.c.sbscr_cnt).label("sbscr_cnt")
+            func.sum(st_in.c.cut_rate).label("cut_rate"),
+            func.sum(st_in.c.fc_373).label("fc_373"),
+            func.sum(st_in.c.fc_9563).label("fc_9563"),
         ).outerjoin(
             code_tbl_nm,
             code_sel_nm == st_in.c.code
@@ -407,7 +409,7 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
             code_where_nm
         )
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = db.execute(stmt)
     query_result_cut = query_cut.all()
