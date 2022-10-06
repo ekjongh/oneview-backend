@@ -84,7 +84,7 @@ async def get_voc_trend_item_daily(prod:str=None, code:str=None, group:str="",st
     return voc_trend_days
 
 
-# # 주기지국 Worst TOP 10
+#  주기지국 Worst TOP 10
 # @router.get("/", response_model=List[schemas.JoinVoc])
 # async def get_vocs_by_main_bts(limit: int = 10, team: str = None, date: str = None, db: SessionLocal = Depends(get_db)):
 #     vocs = get_vocs(db=db, team=team, date=date, limit=limit)
