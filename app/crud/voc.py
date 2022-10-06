@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors import exceptions as ex
 from app import schemas
 from sqlalchemy import func, select, between, case, and_, Column
@@ -8,7 +9,7 @@ from datetime import datetime, timedelta
 from app import models
 
 
-def get_worst10_bts_by_group_date2(db: Session, prod: str = None, code: str = None, group: str = None,
+async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                    start_date: str = None, end_date: str = None, limit: int = 10):
     # 기지국별 VOC Worst TOP 10
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
@@ -70,7 +71,7 @@ def get_worst10_bts_by_group_date2(db: Session, prod: str = None, code: str = No
     # ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -78,7 +79,7 @@ def get_worst10_bts_by_group_date2(db: Session, prod: str = None, code: str = No
     return list_worst_voc_bts
 
 
-def get_worst10_hndset_by_group_date2(db: Session, prod: str = None, code: str = None, group: str = None,
+async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                       start_date: str = None, end_date: str = None, limit: int = 10):
     # 단말별 품질 VOC Worst TOP10
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
@@ -135,7 +136,7 @@ def get_worst10_hndset_by_group_date2(db: Session, prod: str = None, code: str =
     # ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -143,7 +144,7 @@ def get_worst10_hndset_by_group_date2(db: Session, prod: str = None, code: str =
     return list_worst_voc_hndset
 
 
-def get_voc_list_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_voc_list_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                limit: int = 1000):
     entities = [
         models.VocList.base_date,       # label("기준년원일"),
@@ -181,14 +182,14 @@ def get_voc_list_by_group_date(db: Session, group: str, start_date: str = None, 
     # else:
     #     pass
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
     list_voc_list = list(map(lambda x: schemas.VocListOutput(**dict(zip(query_keys, x))), query_result))
     return list_voc_list
 
 
-def get_voc_trend_by_group_date2(db: Session, prod: str = None, code: str = None, group: str = None,
+async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                  start_date: str = None, end_date: str = None):
     # 1000가입자당  VOC건수
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
@@ -252,8 +253,8 @@ def get_voc_trend_by_group_date2(db: Session, prod: str = None, code: str = None
                 (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
             )
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
-    query = db.execute(stmt)
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -261,7 +262,7 @@ def get_voc_trend_by_group_date2(db: Session, prod: str = None, code: str = None
     return list_voc_trend
 
 
-def get_voc_event_by_group_date(db: Session, prod: str = None, code: str = None, group: str = "", date: str = None):
+async def get_voc_event_by_group_date(db: AsyncSession, prod: str = None, code: str = None, group: str = "", date: str = None):
     # today = datetime.today().strftime("%Y%m%d")
     # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
 
@@ -311,7 +312,7 @@ def get_voc_event_by_group_date(db: Session, prod: str = None, code: str = None,
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.first()
     # result = list(zip(*query_result))
 
@@ -323,7 +324,7 @@ def get_voc_event_by_group_date(db: Session, prod: str = None, code: str = None,
     return voc_event
 
 
-def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str = "", limit: int = 1000):
+async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: int = 1000):
     # 1. voc상세
     juso = models.VocList.trobl_rgn_broad_sido_nm + ' ' \
            + models.VocList.trobl_rgn_sgg_nm + ' ' \
@@ -364,7 +365,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str = "", limit: int = 1000)
     ]
     stmt_voc = select(*entities_voc).where(models.VocList.sr_tt_rcp_no == sr_tt_rcp_no)
 
-    query = db.execute(stmt_voc)
+    query = await db.execute(stmt_voc)
     query_result = query.first()
     query_keys = query.keys()
 
@@ -421,7 +422,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str = "", limit: int = 1000)
     stmt_bts = stmt_bts.where(models.VocSpec.svc_cont_id == voc_user_info.svc_cont_id)
     stmt_bts = stmt_bts.group_by(*entities_bts).order_by(sum_volte_self_fail_cacnt.desc())
     print(query)
-    query = db.execute(stmt_bts)
+    query = await db.execute(stmt_bts)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
     print(stmt_bts)
@@ -433,7 +434,7 @@ def get_voc_spec_by_srno(db: Session, sr_tt_rcp_no: str = "", limit: int = 1000)
     )
 
 
-def get_voc_trend_item_by_group_date(db: Session, prod: str = None, code: str = None, group: str = None,
+async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                      start_date: str = None, end_date: str = None):
     code_tbl_nm = None
     code_sel_nm = Column()  # code테이블 select()
@@ -565,7 +566,7 @@ def get_voc_trend_item_by_group_date(db: Session, prod: str = None, code: str = 
 
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     # query_keys = query.keys()
 
@@ -579,7 +580,7 @@ def get_voc_trend_item_by_group_date(db: Session, prod: str = None, code: str = 
 
 
 ######################################
-def get_worst10_bts_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,
+async def get_worst10_bts_by_group_date(db: AsyncSession, group: str = None, start_date: str = None, end_date: str = None,
                                   limit: int = 10):
     # 기지국별 5G품질 VOC Worst TOP 10
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
@@ -626,7 +627,7 @@ def get_worst10_bts_by_group_date(db: Session, group: str = None, start_date: st
     # ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -634,7 +635,7 @@ def get_worst10_bts_by_group_date(db: Session, group: str = None, start_date: st
     return list_worst_voc_bts
 
 
-def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date: str = None, end_date: str = None,
+async def get_worst10_hndset_by_group_date(db: AsyncSession, group: str = None, start_date: str = None, end_date: str = None,
                                      limit: int = 10):
     # 단말별 5G품질 VOC Worst TOP10
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
@@ -676,7 +677,7 @@ def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date:
     # ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -684,7 +685,7 @@ def get_worst10_hndset_by_group_date(db: Session, group: str = None, start_date:
     return list_worst_voc_hndset
 
 
-def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
+async def get_voc_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
     # 1000가입자당  VOC건수
     voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.ifnull(models.SubscrOrg.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
@@ -729,8 +730,62 @@ def get_voc_trend_by_group_date(db: Session, group: str, start_date: str = None,
         (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
     )
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
-    query = db.execute(stmt)
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    query = await db.execute(stmt)
+    query_result = query.all()
+    query_keys = query.keys()
+
+    list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
+    return list_voc_trend
+
+
+async def get_voc_trend_by_group_date_bk(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
+    # 1000가입자당  VOC건수
+    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
+    sbscr_cnt = func.sum(func.ifnull(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
+
+    stmt_sbscr = select(models.Subscr.base_date, sbscr_cnt)
+    stmt_voc = select(models.VocList.base_date, voc_cnt)
+
+    # 기간
+    if not end_date:
+        end_date = start_date
+
+    if start_date:
+        stmt_sbscr = stmt_sbscr.where(between(models.Subscr.base_date, start_date, end_date))
+        stmt_voc = stmt_voc.where(between(models.VocList.base_date, start_date, end_date))
+
+    txt_l = []
+    if group != "":
+        txt_l = group.split("|")
+
+    # 선택 조건
+
+    if group.endswith("센터"):
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
+    elif group.endswith("팀") or group.endswith("부"):
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
+    else:
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
+
+    stmt_sbscr = stmt_sbscr.group_by(models.Subscr.base_date).having(sbscr_cnt > 0). \
+        order_by(models.Subscr.base_date.asc()).subquery()
+    stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc()).subquery()
+
+    stmt = select(
+        stmt_sbscr.c.base_date.label("date"),
+        func.ifnull(func.round(stmt_voc.c.voc_cnt / stmt_sbscr.c.sbscr_cnt * 1000.0, 4), 0.0).label("value"),
+    ).outerjoin(
+        stmt_voc,
+        (stmt_voc.c.base_date == stmt_sbscr.c.base_date)
+    )
+
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 

@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncEngine,AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import conf
@@ -10,9 +11,9 @@ SQLALCHEMY_DATABASE_URL = config.DB_URL
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 # cx_Oracle.makedsn("localhost", 49161, sid="xe")
 
-engine = create_engine(
+engine = create_async_engine(
+# engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-
     # connect_args={"check_same_thread": False}
     # connect_args={
     #     "encoding": "UTF-8",
@@ -22,5 +23,5 @@ engine = create_engine(
     # },
     # max_identifier_length=30,
 )
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, class_=AsyncSession, bind=engine)
 print("DB Connections Success!")

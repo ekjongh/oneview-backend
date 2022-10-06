@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors import exceptions as ex
 from .. import schemas, models
 from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
 
-def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, start_date: str=None, end_date: str=None, limit: int=10):
+async def get_worst10_offloading_jo_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str=None, end_date: str=None, limit: int=10):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt , 0.0) +
                            func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt , 0.0)).label("sum_5g_data")
     sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl , 0.0) +
@@ -76,7 +77,7 @@ def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, 
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -84,7 +85,7 @@ def get_worst10_offloading_jo_by_group_date2(db: Session, code:str, group: str, 
     return list_offloading_offloading_bts
 
 
-def get_offloading_trend_by_group_date2(db: Session, code:str, group: str, start_date: str=None, end_date: str=None):
+async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str=None, end_date: str=None):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
                            func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt,0.0)).label("sum_5g_data")
     sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
@@ -113,41 +114,45 @@ def get_offloading_trend_by_group_date2(db: Session, code:str, group: str, start
     if start_date:
         stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     # 선택 조건
     if code == "제조사별":
-        code_val = models.Offloading_Bts.mkng_cmpn_nm
+        stmt = stmt.where(models.Offloading_Bts.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        code_val = models.Offloading_Bts.biz_hq_nm
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
     elif code == "팀별":
-        code_val = models.Offloading_Bts.oper_team_nm
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
     elif code == "조별":
-        code_val = models.Offloading_Bts.area_jo_nm
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
     elif code == "시도별":
-        code_val = models.Offloading_Bts.sido_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        code_val = models.Offloading_Bts.gun_gu_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
-        code_val = models.Offloading_Bts.eup_myun_dong_nm
+        stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(txt_l))
     else:
-        code_val = None
-
-    # code의 값목록 : 삼성|노키아
-    if code_val and group:
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(txt_l))
 
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
     list_offloading_trend = list(map(lambda x: schemas.OffloadingTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_trend
 
-def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None):
+async def get_offloading_event_by_group_date(db: AsyncSession, group: str="", date:str=None):
     # today = datetime.today().strftime("%Y%m%d")
     # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
 
@@ -194,7 +199,7 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
         stmt = select([*entities, *entities_groupby], models.Offloading_Bts.base_date.in_(in_cond)). \
             group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
     try:
-        query = db.execute(stmt)
+        query = await db.execute(stmt)
         query_result = query.all()
         query_keys = query.keys()
         result = list(zip(*query_result))
@@ -227,7 +232,7 @@ def get_offloading_event_by_group_date(db: Session, group: str="", date:str=None
     return offloading_event
 
 # 주요단말(데이터량기준)
-def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
                 func.ifnull(models.Offloading_Hndset.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
@@ -294,7 +299,7 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -302,7 +307,7 @@ def get_worst10_offloading_hndset_by_group_date2(db: Session, code:str, group: s
         map(lambda x: schemas.OffloadingHndsetOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_offloading_bts
 
-def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str, start_date: str = None,
+async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str, group: str, start_date: str = None,
                                             end_date: str = None, limit: int = 10):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
                            func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
@@ -375,7 +380,7 @@ def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -384,7 +389,7 @@ def get_worst10_offloading_dong_by_group_date(db: Session, code: str, group: str
     return list_offloading_offloading_dong
 
 
-def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, start_date: str = None,
+async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, group: str, start_date: str = None,
                                         end_date: str = None):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
                            func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
@@ -440,7 +445,7 @@ def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, 
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
 
     code_set = set([r[0] for r in query_result])
@@ -484,7 +489,7 @@ def get_offloading_trend_item_by_group_date(db: Session, code: str, group: str, 
 
 
 #############################################
-def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_offloading_jo_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
                            func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
@@ -543,7 +548,7 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -552,7 +557,7 @@ def get_worst10_offloading_jo_by_group_date(db: Session, group: str, start_date:
     return list_offloading_offloading_bts
 
 
-def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
+async def get_offloading_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
                            func.ifnull(models.Offloading_Bts.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
     sum_sru_data = func.sum(func.ifnull(models.Offloading_Bts.sru_usagecountdl, 0.0) +
@@ -581,25 +586,33 @@ def get_offloading_trend_by_group_date(db: Session, group: str, start_date: str 
     if start_date:
         stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     if group.endswith("센터"):
-        stmt = stmt.where(models.Offloading_Bts.biz_hq_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
     elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.Offloading_Bts.oper_team_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
     elif group.endswith("조"):
-        stmt = stmt.where(models.Offloading_Bts.area_jo_nm == group)
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
     else:
-        stmt = stmt.where(models.Offloading_Bts.area_jo_nm == group)
+        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
 
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
     list_offloading_trend = list(map(lambda x: schemas.OffloadingTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_trend
 
-def get_worst10_offloading_hndset_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_offloading_hndset_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Hndset.g5d_upld_data_qnt, 0.0) +
                 func.ifnull(models.Offloading_Hndset.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
@@ -649,9 +662,10 @@ def get_worst10_offloading_hndset_by_group_date(db: Session, group: str, start_d
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

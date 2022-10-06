@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors import exceptions as ex
 from .. import schemas, models
 from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
 
 
-def get_mdt_trend_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None):
+async def get_mdt_trend_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None):
     sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
     sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
     sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
@@ -106,7 +107,7 @@ def get_mdt_trend_by_group_date2(db: Session, code:str, group: str, start_date: 
 
     stmt = stmt.group_by(*entities).order_by(models.Mdt.base_date.asc())
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -114,7 +115,7 @@ def get_mdt_trend_by_group_date2(db: Session, code:str, group: str, start_date: 
     return list_mdt_trend
 
 
-def get_worst10_mdt_bts_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
     sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
     sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
@@ -226,14 +227,14 @@ def get_worst10_mdt_bts_by_group_date2(db: Session, code:str, group: str, start_
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
     list_worst_mdt_bts = list(map(lambda x: schemas.MdtBtsOutput(**dict(zip(query_keys, x))), query_result))
     return list_worst_mdt_bts
 
-def get_mdt_trend_item_by_group_date(db: Session, code:str, group: str, start_date: str = None, end_date: str = None):
+async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None):
     sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
     sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
     sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
@@ -334,7 +335,7 @@ def get_mdt_trend_item_by_group_date(db: Session, code:str, group: str, start_da
 
     stmt = stmt.group_by(*entities).order_by(models.Mdt.base_date.asc())
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -347,7 +348,7 @@ def get_mdt_trend_item_by_group_date(db: Session, code:str, group: str, start_da
     return list_items
 
 ################################
-def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
+async def get_mdt_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
     sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
     sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
     sum_rsrp_cnt = func.sum(func.ifnull(models.Mdt.rsrp_cnt, 0.0))
@@ -436,7 +437,7 @@ def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None,
 
     stmt = stmt.group_by(*entities).order_by(models.Mdt.base_date.asc())
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -444,7 +445,7 @@ def get_mdt_trend_by_group_date(db: Session, group: str, start_date: str = None,
     return list_mdt_trend
 
 
-def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_mdt_bts_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
     sum_rsrp_m105d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m105d_cnt, 0.0))
     sum_rsrp_m110d_cnt = func.sum(func.ifnull(models.Mdt.rsrp_m110d_cnt, 0.0))
@@ -544,7 +545,9 @@ def get_worst10_mdt_bts_by_group_date(db: Session, group: str, start_date: str =
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

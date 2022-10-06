@@ -26,7 +26,7 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[UserOutput])
 async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = get_users(db, skip=skip, limit=limit)
+    users = await get_users(db, skip=skip, limit=limit)
     print("USERS MODEL: ", users[0].__dict__)
     users_out = list(map(lambda model:UserOutput(**model.__dict__), users))
     return users_out
@@ -45,7 +45,7 @@ async def update_my_config(user:User = Depends(get_current_user)):
 
 @router.get("/{id}", response_model=UserOutput)
 async def read_user_by_id(id: str, db: Session = Depends(get_db)):
-    db_user = get_user_by_id(db, user_id=id)
+    db_user = await get_user_by_id(db, user_id=id)
     if db_user is None:
         raise ex.NotFoundUserEx
     print("db_user: ", db_user.__dict__)

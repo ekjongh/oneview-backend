@@ -15,7 +15,7 @@ import json
 #     return user
 
 
-def get_user_by_id(db: Session, user_id: str):
+async def get_user_by_id(db: Session, user_id: str):
     user = db.query(models.User).filter(models.User.user_id == user_id).first()
     if user:
         user = user_model_to_schema(user)
@@ -29,7 +29,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return users
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+async def create_user(db: Session, user: schemas.UserCreate):
 
     db_user = models.User(user_id=user.user_id,
                           board_modules=json.dumps(list()))

@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors import exceptions as ex
 from .. import schemas, models
 from sqlalchemy import func, select, between, case, Column, and_
 from datetime import datetime, timedelta
 
 
-def get_worst10_volte_bts_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
+async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, code:str=None, group:str=None,
                                         start_date: str=None, end_date: str=None, limit: int=10):
     # 5G VOLTE 절단호 worst 10 기지국
     sum_try = func.sum(func.ifnull(models.VolteFailBts.try_cacnt, 0.0)).label("sum_try")
@@ -42,49 +43,54 @@ def get_worst10_volte_bts_by_group_date2(db: Session, prod:str=None, code:str=No
     if start_date:
         stmt = stmt.where(between(models.VolteFailBts.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
+    # 선택 조건
+    if code == "제조사별":
+        stmt = stmt.where(models.VolteFailBts.mkng_cmpn_nm.in_(txt_l))
+    elif code == "센터별":
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+    elif code == "팀별":
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+    elif code == "조별":
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
+    elif code == "시도별":
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(stmt_where))
+    elif code == "시군구별":
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(stmt_where))
+    elif code == "읍면동별":
+        stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(txt_l))
+    else:
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
+
     # 상품 조건
     if prod and prod != "전체":
         stmt = stmt.where(models.VolteFailBts.anals_3_prod_level_nm == prod)
 
-    # 선택 조건
-    if code == "제조사별":
-        code_val = models.VolteFailBts.mkng_cmpn_nm
-    elif code == "센터별":
-        code_val = models.VolteFailBts.biz_hq_nm
-    elif code == "팀별":
-        code_val = models.VolteFailBts.oper_team_nm
-    elif code == "조별":
-        code_val = models.VolteFailBts.area_jo_nm
-    elif code == "시도별":
-        code_val = models.VolteFailBts.sido_nm
-    elif code == "시군구별":
-        code_val = models.VolteFailBts.gun_gu_nm
-    elif code == "읍면동별":
-        code_val = models.VolteFailBts.eup_myun_dong_nm
-    else:
-        code_val = None
-
-    # code의 값목록 : 삼성|노키아
-    if code_val and group:
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
-
     # stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc())
+    stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc()).limit(limit)
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
         *stmt.c
     ])
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
-    query_result = query.fetchmany(size=limit)
+    query = await db.execute(stmt)
+    query_result = query.fetchall()
     query_keys = query.keys()
 
     list_worst_volte_bts = list(map(lambda x: schemas.VolteBtsOutput(**dict(zip(query_keys, x))), query_result))
     return list_worst_volte_bts
 
 
-def get_worst10_volte_hndset_by_group_date2(db: Session, prod:str=None, code:str=None, group: str=None,
+async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=None, code:str=None, group: str=None,
                                            start_date: str = None, end_date: str=None, limit: int = 10):
     # VOLTE 절단율 worst 10 단말기
     sum_try = func.sum(func.ifnull(models.VolteFailHndset.try_cacnt, 0.0)).label("sum_try")
@@ -116,26 +122,30 @@ def get_worst10_volte_hndset_by_group_date2(db: Session, prod:str=None, code:str
     if prod and prod != "전체":
         stmt = stmt.where(models.VolteFailHndset.anals_3_prod_level_nm == prod)
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     # 선택 조건
     if code == "제조사별":
-        code_val = models.VolteFailHndset.mkng_cmpn_nm
+        stmt = stmt.where(models.VolteFailHndset.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        code_val = models.VolteFailHndset.biz_hq_nm
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
-        code_val = models.VolteFailHndset.oper_team_nm
+        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
     elif code == "시도별":
-        code_val = models.VolteFailHndset.sido_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        code_val = models.VolteFailHndset.gun_gu_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
-        code_val = models.VolteFailHndset.eup_myun_dong_nm
+        stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(txt_l))
     else:
-        code_val = None
+        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
 
-    # code의 값목록 : 삼성|노키아
-    if code_val and group:
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).subquery()
     stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc())
@@ -146,7 +156,7 @@ def get_worst10_volte_hndset_by_group_date2(db: Session, prod:str=None, code:str
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     print(stmt_rk)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
@@ -155,7 +165,7 @@ def get_worst10_volte_hndset_by_group_date2(db: Session, prod:str=None, code:str
     return list_worst_volte_hndset
 
 
-def get_volte_trend_by_group_date2(db: Session, prod:str=None, code:str=None, group:str=None,
+async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:str=None, group:str=None,
                                   start_date: str=None, end_date: str=None):
     sum_suc = func.sum(func.ifnull(models.VolteFailOrg.comp_cacnt, 0.0)).label("sum_suc")
     sum_cut = func.sum(func.ifnull(models.VolteFailOrg.fail_cacnt, 0.0)).label("sum_cut")
@@ -219,7 +229,7 @@ def get_volte_trend_by_group_date2(db: Session, prod:str=None, code:str=None, gr
 
     print(stmt_cut.compile(compile_kwargs={"literal_binds": True}))
 
-    query_cut = db.execute(stmt_cut)
+    query_cut = await db.execute(stmt_cut)
     query_result_cut = query_cut.all()
     query_keys_cut = query_cut.keys()
 
@@ -227,7 +237,7 @@ def get_volte_trend_by_group_date2(db: Session, prod:str=None, code:str=None, gr
     return list_volte_trend
 
 
-def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
+async def get_volte_event_by_group_date(db: AsyncSession, group: str="", date:str=None):
     # today = datetime.today().strftime("%Y%m%d")
     # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
 
@@ -267,7 +277,7 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
         stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
             group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
     try:
-        query = db.execute(stmt)
+        query = await db.execute(stmt)
         query_result = query.all()
         query_keys = query.keys()
         result = list(zip(*query_result))
@@ -298,7 +308,7 @@ def get_volte_event_by_group_date(db: Session, group: str="", date:str=None):
     )
     return volte_event
 
-def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None, group:str=None,
+async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, code:str=None, group:str=None,
                                   start_date: str=None, end_date: str=None):
     code_tbl_nm = None
     code_sel_nm = Column()  # code테이블 select()
@@ -411,7 +421,7 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
 
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query_cut = db.execute(stmt)
+    query_cut = await db.execute(stmt)
     query_result_cut = query_cut.all()
     query_keys_cut = query_cut.keys()
 
@@ -423,7 +433,7 @@ def get_volte_trend_item_by_group_date(db: Session, prod:str=None, code:str=None
     return list_items
 
 ############################
-def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_volte_bts_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
     # 5G VOLTE 절단호기준 worst 10 기지국 :
     # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
@@ -460,14 +470,21 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
     if start_date:
         stmt = stmt.where(between(models.VolteFailBts.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     if group.endswith("센터"):
-        stmt = stmt.where(models.VolteFailBts.biz_hq_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
     elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VolteFailBts.oper_team_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
     elif group.endswith("조"):
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm == group)
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
     else:
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm == group)
+        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).subquery()
     stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc())
@@ -476,7 +493,7 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
         *stmt.c
     ])
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
@@ -484,7 +501,7 @@ def get_worst10_volte_bts_by_group_date(db: Session, group: str, start_date: str
     return list_worst_volte_bts
 
 
-def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_volte_hndset_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                            limit: int = 10):
     # 5G VOLTE 절단율 worst 10 단말기
     sum_try = func.sum(func.ifnull(models.VolteFailHndset.try_cacnt, 0.0)).label("sum_try")
@@ -512,12 +529,18 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
     if start_date:
         stmt = stmt.where(between(models.VolteFailHndset.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     if group.endswith("센터"):
-        stmt = stmt.where(models.VolteFailHndset.biz_hq_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailHndset.area_jo_nm.in_(stmt_where))
     elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VolteFailHndset.oper_team_nm == group)
+        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
     else:
-        stmt = stmt.where(models.VolteFailHndset.oper_team_nm == group)
+        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).subquery()
     stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc())
@@ -528,7 +551,7 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     print(stmt_rk)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
@@ -537,18 +560,18 @@ def get_worst10_volte_hndset_by_group_date(db: Session, group: str, start_date: 
     return list_worst_volte_hndset
 
 
-def get_volte_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
-    sum_suc = func.sum(func.ifnull(models.VolteFailBts.comp_cacnt, 0.0)).label("sum_suc")
-    sum_cut = func.sum(func.ifnull(models.VolteFailBts.fail_cacnt, 0.0)).label("sum_cut")
+async def get_volte_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
+    sum_suc = func.sum(func.ifnull(models.VolteFailOrg.comp_cacnt, 0.0)).label("sum_suc")
+    sum_cut = func.sum(func.ifnull(models.VolteFailOrg.fail_cacnt, 0.0)).label("sum_cut")
     cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
     cut_ratio = func.round(cut_ratio, 4)
     cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_rate")
 
-    fc_373_cnt = func.sum(func.ifnull(models.VolteFailBts.fc373_cnt, 0.0)).label("fc_373")
-    fc_9563_cnt = func.sum(func.ifnull(models.VolteFailBts.fc9563_cnt, 0.0)).label("fc_9563")
+    fc_373_cnt = func.sum(func.ifnull(models.VolteFailOrg.fc373_cnt, 0.0)).label("fc_373")
+    fc_9563_cnt = func.sum(func.ifnull(models.VolteFailOrg.fc9563_cnt, 0.0)).label("fc_9563")
 
     entities_cut = [
-        models.VolteFailBts.base_date.label("date"),
+        models.VolteFailOrg.base_date.label("date"),
     ]
     entities_groupby_cut = [
         cut_ratio,
@@ -556,26 +579,34 @@ def get_volte_trend_by_group_date(db: Session, group: str, start_date: str = Non
         fc_9563_cnt
     ]
 
-    stmt_cut = select(*entities_cut, *entities_groupby_cut).where(models.VolteFailBts.anals_3_prod_level_nm == '5G')
+    stmt_cut = select(*entities_cut, *entities_groupby_cut).where(models.VolteFailOrg.anals_3_prod_level_nm == '5G')
 
     if not end_date:
         end_date = start_date
 
     if start_date:
-        stmt_cut = stmt_cut.where(between(models.VolteFailBts.base_date, start_date, end_date))
+        stmt_cut = stmt_cut.where(between(models.VolteFailOrg.base_date, start_date, end_date))
+
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
 
     if group.endswith("센터"):
-        stmt_cut = stmt_cut.where(models.VolteFailBts.biz_hq_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(stmt_where))
     elif group.endswith("팀") or group.endswith("부"):
-        stmt_cut = stmt_cut.where(models.VolteFailBts.oper_team_nm == group)
+        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(stmt_where))
     elif group.endswith("조"):
-        stmt_cut = stmt_cut.where(models.VolteFailBts.area_jo_nm == group)
+        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
     else:
-        stmt_cut = stmt_cut.where(models.VolteFailBts.area_jo_nm == group)
+        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
 
-    stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.VolteFailBts.base_date.asc())
+    stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.VolteFailOrg.base_date.asc())
 
-    query_cut = db.execute(stmt_cut)
+    query_cut = await db.execute(stmt_cut)
     query_result_cut = query_cut.all()
     query_keys_cut = query_cut.keys()
 

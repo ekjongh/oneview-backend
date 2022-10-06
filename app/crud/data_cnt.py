@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas, models
 from sqlalchemy import func, select, between, case,literal
 from datetime import datetime, timedelta
 
 
 
-def get_datacnt_compare_by_prod(db: Session, code: str, group: str, start_date: str = '20220901', limit: int = 10):
+async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20220901', limit: int = 10):
     if not start_date:
         start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
 
@@ -62,7 +63,7 @@ def get_datacnt_compare_by_prod(db: Session, code: str, group: str, start_date: 
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc())
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

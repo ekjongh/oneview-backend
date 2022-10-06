@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas, models
 from sqlalchemy import func, select, between, case
 from datetime import datetime, timedelta
 
 
-def get_rrc_trend_by_group_date2(db: Session, code:str, group:str, start_date:str = None, end_date: str = None):
+async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, start_date:str = None, end_date: str = None):
     sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
     sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
@@ -53,7 +54,7 @@ def get_rrc_trend_by_group_date2(db: Session, code:str, group:str, start_date:st
 
     stmt = stmt.group_by(*entities).order_by(models.Rrc.base_date.asc())
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -61,7 +62,7 @@ def get_rrc_trend_by_group_date2(db: Session, code:str, group:str, start_date:st
     return list_rrc_trend
 
 
-def get_worst10_rrc_bts_by_group_date2(db: Session, code:str, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
     sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
     sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
@@ -123,14 +124,14 @@ def get_worst10_rrc_bts_by_group_date2(db: Session, code:str, group: str, start_
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 
     list_worst_rrc_bts = list(map(lambda x: schemas.RrcBtsOutput(**dict(zip(query_keys, x))), query_result))
     return list_worst_rrc_bts
 
-def get_rrc_trend_item_by_group_date(db: Session, code:str, group:str, start_date:str = None, end_date: str = None):
+async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str, start_date:str = None, end_date: str = None):
     sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
     sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
@@ -179,7 +180,7 @@ def get_rrc_trend_item_by_group_date(db: Session, code:str, group:str, start_dat
 
     stmt = stmt.group_by(*entities).order_by(models.Rrc.base_date.asc())
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -192,7 +193,7 @@ def get_rrc_trend_item_by_group_date(db: Session, code:str, group:str, start_dat
     return list_items
 
 ###########################
-def get_rrc_trend_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None):
+async def get_rrc_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
     sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
     sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
@@ -229,7 +230,7 @@ def get_rrc_trend_by_group_date(db: Session, group: str, start_date: str = None,
 
     stmt = stmt.group_by(*entities).order_by(models.Rrc.base_date.asc())
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -237,7 +238,7 @@ def get_rrc_trend_by_group_date(db: Session, group: str, start_date: str = None,
     return list_rrc_trend
 
 
-def get_worst10_rrc_bts_by_group_date(db: Session, group: str, start_date: str = None, end_date: str = None,
+async def get_worst10_rrc_bts_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                         limit: int = 10):
     sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrcattempt, 0.0)).label("rrc_try")
     sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_success, 0.0)).label("rrc_suc")
@@ -285,7 +286,7 @@ def get_worst10_rrc_bts_by_group_date(db: Session, group: str, start_date: str =
     ])
 
     # query = db.execute(stmt_rk)
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

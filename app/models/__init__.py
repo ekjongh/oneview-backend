@@ -10,4 +10,4 @@ from app.models.kdap.data_cnt import DataCnt
 from app.models.kdap.voc_list import VocList, VocSpec
 from app.models.kdap.model_code import AddrCode, OrgCode, MenuCode
 from app.models.kdap.rrc import Rrc
-from app.models.kdap.subscr import Subscr, SubscrOrg
+from app.models.kdap.subscr import Subscr, SubscrOrg, SubscrHndset
