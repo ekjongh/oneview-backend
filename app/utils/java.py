@@ -1,5 +1,9 @@
 import jpype
-classpath = 'modules/kt_crypto-1.0.jar'
+from app.core.config import conf
+
+config = conf()
+classpath = config.BASE_DIR + '/app/modules/kt_crypto-1.0.jar'
+print(classpath)
 if not jpype.isJVMStarted():
     jpype.startJVM(
         jpype.getDefaultJVMPath(),
