@@ -19,8 +19,8 @@ async def get_rrc_trend_day2(code:str=None, group:str="", start_date: str = "202
 
 
 @router.get("/worst2", response_model=List[schemas.RrcBtsOutput])
-async def get_worst_rrc_bts2(limit: int = 10, code:str=None, group:str="", start_date: str = "20220821", end_date: str = None, db: SessionLocal = Depends(get_db)):
-    worst_rrc_bts = await get_worst10_rrc_bts_by_group_date2(db=db, code=code, group=group, start_date=start_date, end_date=end_date, limit=limit)
+async def get_worst_rrc_bts2(limit: int = 10, code:str=None, group:str="", prod:str="RRC실패율", start_date: str = "20220821", end_date: str = None, db: SessionLocal = Depends(get_db)):
+    worst_rrc_bts = await get_worst10_rrc_bts_by_group_date2(db=db, code=code, group=group, prod=prod, start_date=start_date, end_date=end_date, limit=limit)
     return worst_rrc_bts
 
 

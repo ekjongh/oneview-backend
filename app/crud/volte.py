@@ -80,7 +80,7 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
         *stmt.c
     ])
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
     query_result = query.fetchall()
@@ -148,7 +148,7 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
 
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc())
+    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).limit(limit)
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
@@ -158,7 +158,7 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
     print(stmt_rk)
-    query_result = query.fetchmany(size=limit)
+    query_result = query.fetchall()
     query_keys = query.keys()
 
     list_worst_volte_hndset = list(map(lambda x: schemas.VolteHndsetOutput(**dict(zip(query_keys, x))), query_result))
@@ -219,7 +219,7 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
     elif code == "읍면동별":
         stmt_cut = stmt_cut.where(models.VolteFailOrg.eup_myun_dong_nm.in_(txt_l))
     else:
-        code_val = None
+        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
 
     # 상품 조건
     if prod and prod != "전체":
@@ -237,77 +237,6 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
     return list_volte_trend
 
 
-async def get_volte_event_by_group_date(db: AsyncSession, group: str="", date:str=None):
-    # today = datetime.today().strftime("%Y%m%d")
-    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
-
-    today = date
-    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
-    in_cond = [ref_day, today]
-
-    sum_suc = func.sum(func.ifnull(models.VolteFailBts.comp_cacnt, 0.0))
-    sum_cut = func.sum(func.ifnull(models.VolteFailBts.fail_cacnt, 0.0))
-    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
-    cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
-
-    entities = [
-        models.VolteFailBts.base_date,
-        # models.VolteFailBts.area_jo_nm
-    ]
-    entities_groupby = [
-        cut_ratio
-    ]
-
-    if group.endswith("센터"):
-        select_group = models.VolteFailBts.biz_hq_nm
-    elif group.endswith("팀") or group.endswith("부"):
-        select_group = models.VolteFailBts.oper_team_nm
-    elif group.endswith("조"):
-        select_group = models.VolteFailBts.area_jo_nm
-    else:
-        select_group = None
-
-    if select_group:
-        entities.append(select_group)
-        stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
-            group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
-        stmt = stmt.where(select_group == group)
-    else:
-        stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
-            group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
-    try:
-        query = await db.execute(stmt)
-        query_result = query.all()
-        query_keys = query.keys()
-        result = list(zip(*query_result))
-        values = result[-1]
-        dates = result[0]
-    except:
-        return None
-    # print("date: ", in_cond)
-    # print("resut: ", result)
-    # print("keys: ", query_keys)
-    # print(dict(zip(query_keys, result)))
-
-    if len(values) == 1:
-        if today in dates:
-            score = values[0]
-            score_ref = 0
-        else:
-            score = 0
-            score_ref = values[0]
-    else:
-        score = values[1]
-        score_ref = values[0]
-
-    volte_event = schemas.VolteEventOutput(
-        title = "VoLTE 절단율(전일대비)",
-        score = score,
-        score_ref = score_ref,
-    )
-    return volte_event
-
 async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, code:str=None, group:str=None,
                                   start_date: str=None, end_date: str=None):
     code_tbl_nm = None
@@ -319,9 +248,7 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
 
     sum_suc = func.sum(func.ifnull(models.VolteFailOrg.comp_cacnt, 0.0)).label("sum_suc")
     sum_cut = func.sum(func.ifnull(models.VolteFailOrg.fail_cacnt, 0.0)).label("sum_cut")
-    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
-    cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_rate")
+    cut_ratio = func.round(sum_cut / (sum_suc + 1e-6) * 100, 4).label("cut_rate")
 
     fc_373_cnt = func.sum(func.ifnull(models.VolteFailOrg.fc373_cnt, 0.0)).label("fc_373")
     fc_9563_cnt = func.sum(func.ifnull(models.VolteFailOrg.fc9563_cnt, 0.0)).label("fc_9563")
@@ -382,15 +309,14 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         stmt_where_and.append(stmt_sel_nm.in_(where_ins))
 
         stmt = select(
-            models.SubscrOrg.base_date,
             stmt_sel_nm.label("code"),
+            models.VolteFailOrg.base_date.label("date"),
             cut_ratio,
             fc_373_cnt,
             fc_9563_cnt,
         ).where(
             and_(*stmt_where_and)
         ).group_by(models.VolteFailOrg.base_date, stmt_sel_nm)
-
     else:  # code table 사용시
         stmt_wh = select(code_sel_nm).distinct().where(code_where_nm.in_(where_ins))
         stmt_where_and.append(stmt_sel_nm.in_(stmt_wh))
@@ -398,7 +324,8 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         st_in = select(
             models.VolteFailOrg.base_date,
             stmt_sel_nm.label("code"),
-            cut_ratio,
+            sum_cut,
+            sum_suc,
             fc_373_cnt,
             fc_9563_cnt,
         ).where(
@@ -406,9 +333,9 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         ).group_by(models.VolteFailOrg.base_date, stmt_sel_nm)
 
         stmt = select(
-            st_in.c.base_date,
             code_where_nm.label("code"),
-            func.sum(st_in.c.cut_rate).label("cut_rate"),
+            st_in.c.base_date.label("date"),
+            func.round(func.sum(st_in.c.sum_cut) / (func.sum(st_in.c.sum_suc) + 1e-6) * 100, 4).label("cut_rate"),
             func.sum(st_in.c.fc_373).label("fc_373"),
             func.sum(st_in.c.fc_9563).label("fc_9563"),
         ).outerjoin(
@@ -418,8 +345,6 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
             st_in.c.base_date,
             code_where_nm
         )
-
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = await db.execute(stmt)
     query_result_cut = query_cut.all()
@@ -613,3 +538,73 @@ async def get_volte_trend_by_group_date(db: AsyncSession, group: str, start_date
     list_volte_trend = list(map(lambda x: schemas.VolteTrendOutput(**dict(zip(query_keys_cut, x))), query_result_cut))
     return list_volte_trend
 
+async def get_volte_event_by_group_date(db: AsyncSession, group: str="", date:str=None):
+    # today = datetime.today().strftime("%Y%m%d")
+    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+
+    today = date
+    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
+    in_cond = [ref_day, today]
+
+    sum_suc = func.sum(func.ifnull(models.VolteFailBts.comp_cacnt, 0.0))
+    sum_cut = func.sum(func.ifnull(models.VolteFailBts.fail_cacnt, 0.0))
+    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
+    cut_ratio = func.round(cut_ratio, 4)
+    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
+
+    entities = [
+        models.VolteFailBts.base_date,
+        # models.VolteFailBts.area_jo_nm
+    ]
+    entities_groupby = [
+        cut_ratio
+    ]
+
+    if group.endswith("센터"):
+        select_group = models.VolteFailBts.biz_hq_nm
+    elif group.endswith("팀") or group.endswith("부"):
+        select_group = models.VolteFailBts.oper_team_nm
+    elif group.endswith("조"):
+        select_group = models.VolteFailBts.area_jo_nm
+    else:
+        select_group = None
+
+    if select_group:
+        entities.append(select_group)
+        stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
+            group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
+        stmt = stmt.where(select_group == group)
+    else:
+        stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
+            group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
+    try:
+        query = await db.execute(stmt)
+        query_result = query.all()
+        query_keys = query.keys()
+        result = list(zip(*query_result))
+        values = result[-1]
+        dates = result[0]
+    except:
+        return None
+    # print("date: ", in_cond)
+    # print("resut: ", result)
+    # print("keys: ", query_keys)
+    # print(dict(zip(query_keys, result)))
+
+    if len(values) == 1:
+        if today in dates:
+            score = values[0]
+            score_ref = 0
+        else:
+            score = 0
+            score_ref = values[0]
+    else:
+        score = values[1]
+        score_ref = values[0]
+
+    volte_event = schemas.VolteEventOutput(
+        title = "VoLTE 절단율(전일대비)",
+        score = score,
+        score_ref = score_ref,
+    )
+    return volte_event

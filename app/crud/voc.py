@@ -63,7 +63,7 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
-    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc())
+    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
 
     # stmt_rk = select([
     #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('RANK'),
@@ -72,7 +72,7 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
 
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
-    query_result = query.fetchmany(size=limit)
+    query_result = query.fetchall()
     query_keys = query.keys()
 
     list_worst_voc_bts = list(map(lambda x: schemas.VocBtsOutput(**dict(zip(query_keys, x))), query_result))
@@ -128,7 +128,7 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
         stmt = stmt.where(code_val.in_(txt_l))
 
     # stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).subquery()
-    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc())
+    stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
 
     # stmt_rk = select([
     #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label("RANK"),
@@ -137,7 +137,7 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
 
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
-    query_result = query.fetchmany(size=limit)
+    query_result = query.fetchall()
     query_keys = query.keys()
 
     list_worst_voc_hndset = list(map(lambda x: schemas.VocHndsetOutput(**dict(zip(query_keys, x))), query_result))
@@ -260,68 +260,6 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
 
     list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_voc_trend
-
-
-async def get_voc_event_by_group_date(db: AsyncSession, prod: str = None, code: str = None, group: str = "", date: str = None):
-    # today = datetime.today().strftime("%Y%m%d")
-    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
-
-    today = date
-    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
-    in_cond = [ref_day, today]
-
-    sum_cnt = func.sum(
-        case((models.VocList.base_date == today, models.VocList.sr_tt_rcp_no_cnt), else_=0)
-    ).label("score")
-    sum_cnt_ref = func.sum(
-        case((models.VocList.base_date == ref_day, models.VocList.sr_tt_rcp_no_cnt), else_=0)
-    ).label("score_ref")
-
-    entities = []
-    entities_groupby = [
-        sum_cnt,
-        sum_cnt_ref,
-    ]
-
-    stmt = select(*entities, *entities_groupby)
-
-    # 상품 조건
-    if prod and prod != "전체":
-        stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
-
-    # 선택 조건
-    if code == "제조사별":
-        code_val = models.VocList.mkng_cmpn_nm
-    elif code == "센터별":
-        code_val = models.VocList.biz_hq_nm
-    elif code == "팀별":
-        code_val = models.VocList.oper_team_nm
-    elif code == "조별":
-        code_val = models.VocList.area_jo_nm
-    elif code == "시도별":
-        code_val = models.VocList.sido_nm
-    elif code == "시군구별":
-        code_val = models.VocList.gun_gu_nm
-    elif code == "읍면동별":
-        code_val = models.VocList.eup_myun_dong_nm
-    else:
-        code_val = None
-
-    # code의 값목록 : 삼성|노키아
-    if code_val and group:
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
-
-    query = await db.execute(stmt)
-    query_result = query.first()
-    # result = list(zip(*query_result))
-
-    voc_event = schemas.VocEventOutput(
-        title="품질VOC 발생건수(전일대비)",
-        score=query_result[0],
-        score_ref=query_result[1],
-    )
-    return voc_event
 
 
 async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: int = 1000):
@@ -450,8 +388,6 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
     voc_cnt = func.sum(models.VocList.sr_tt_rcp_no_cnt).label("voc_cnt")
     sbscr_cnt = func.sum(models.SubscrOrg.bprod_maint_sbscr_cascnt).label("sbscr_cnt")
 
-    #########################################
-
     # 기간
     if not start_date:
         start_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
@@ -510,8 +446,8 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
         sbscr_where_and.append(sbscr_sel_nm.in_(where_ins))
 
         st_sbscr = select(
-            models.SubscrOrg.base_date,
             sbscr_sel_nm.label("code"),
+            models.SubscrOrg.base_date,
             sbscr_cnt
         ).where(
             and_(*sbscr_where_and)
@@ -522,16 +458,16 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
         sbscr_where_and.append(sbscr_sel_nm.in_(st_sbscr_wh))
 
         st_in_sbscr = select(
-            models.SubscrOrg.base_date,
             sbscr_sel_nm.label("code"),
+            models.SubscrOrg.base_date,
             sbscr_cnt
         ).where(
             and_(*sbscr_where_and)
         ).group_by(models.SubscrOrg.base_date, sbscr_sel_nm)
 
         st_sbscr = select(
-            st_in_sbscr.c.base_date,
             code_where_nm.label("code"),
+            st_in_sbscr.c.base_date,
             func.sum(st_in_sbscr.c.sbscr_cnt).label("sbscr_cnt")
         ).outerjoin(
             code_tbl_nm,
@@ -791,3 +727,64 @@ async def get_voc_trend_by_group_date_bk(db: AsyncSession, group: str, start_dat
 
     list_voc_trend = list(map(lambda x: schemas.VocTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_voc_trend
+
+async def get_voc_event_by_group_date(db: AsyncSession, prod: str = None, code: str = None, group: str = "", date: str = None):
+    # today = datetime.today().strftime("%Y%m%d")
+    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+
+    today = date
+    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
+    in_cond = [ref_day, today]
+
+    sum_cnt = func.sum(
+        case((models.VocList.base_date == today, models.VocList.sr_tt_rcp_no_cnt), else_=0)
+    ).label("score")
+    sum_cnt_ref = func.sum(
+        case((models.VocList.base_date == ref_day, models.VocList.sr_tt_rcp_no_cnt), else_=0)
+    ).label("score_ref")
+
+    entities = []
+    entities_groupby = [
+        sum_cnt,
+        sum_cnt_ref,
+    ]
+
+    stmt = select(*entities, *entities_groupby)
+
+    # 상품 조건
+    if prod and prod != "전체":
+        stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
+
+    # 선택 조건
+    if code == "제조사별":
+        code_val = models.VocList.mkng_cmpn_nm
+    elif code == "센터별":
+        code_val = models.VocList.biz_hq_nm
+    elif code == "팀별":
+        code_val = models.VocList.oper_team_nm
+    elif code == "조별":
+        code_val = models.VocList.area_jo_nm
+    elif code == "시도별":
+        code_val = models.VocList.sido_nm
+    elif code == "시군구별":
+        code_val = models.VocList.gun_gu_nm
+    elif code == "읍면동별":
+        code_val = models.VocList.eup_myun_dong_nm
+    else:
+        code_val = None
+
+    # code의 값목록 : 삼성|노키아
+    if code_val and group:
+        txt_l = group.split("|")
+        stmt = stmt.where(code_val.in_(txt_l))
+
+    query = await db.execute(stmt)
+    query_result = query.first()
+    # result = list(zip(*query_result))
+
+    voc_event = schemas.VocEventOutput(
+        title="품질VOC 발생건수(전일대비)",
+        score=query_result[0],
+        score_ref=query_result[1],
+    )
+    return voc_event
