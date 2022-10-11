@@ -4,7 +4,7 @@ from app.db.base_class import KBase
 
 
 class DataCnt(KBase):
-    __tablename__ = "DATA_CNT"
+    __tablename__ = "SUM_DAT_CNT"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

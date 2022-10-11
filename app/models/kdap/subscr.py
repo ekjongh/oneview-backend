@@ -5,7 +5,7 @@ from app.db.base_class import KBase
 
 
 class Subscr(KBase):
-    __tablename__ = "SBSTR"
+    __tablename__ = "SUM_SBSTR_CNT"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -25,7 +25,7 @@ class Subscr(KBase):
 
 
 class SubscrOrg(KBase):
-    __tablename__ = "SBSTR_ORG"
+    __tablename__ = "SUM_SBSTR_CNT_ORG"
 
     base_date = Column(String(100), primary_key=True)
     mkng_cmpn_nm = Column(String(100))
@@ -38,7 +38,7 @@ class SubscrOrg(KBase):
 
 
 class SubscrHndset(KBase):
-    __tablename__ = "SBSTR_HNDSET"
+    __tablename__ = "SUM_SBSTR_CNT_HNDSET"
 
     base_date = Column(String(100), primary_key=True)
     mkng_cmpn_nm = Column(String(100))

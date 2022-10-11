@@ -5,7 +5,7 @@ from app.db.base_class import KBase
 
 
 class VocList(KBase):
-    __tablename__ = "VOC"
+    __tablename__ = "SUM_VOC_TXN"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -54,7 +54,7 @@ class VocList(KBase):
 
 
 class VocSpec(KBase):
-    __tablename__ = "VOC_SPEC"
+    __tablename__ = "SUM_VOC_DTL_TXN"
 
     base_date = Column(String(100), primary_key=True)
     svc_cont_id = Column(String(100), primary_key=True)
@@ -82,7 +82,7 @@ class VocSpec(KBase):
     new_rip_maxd_cnt = Column(Integer)
     rip_cnt = Column(Integer)
     rip_sum = Column(Integer)
-    new_phr_m3d_cnt = Column(Integer)
+    # new_phr_m3d_cnt = Column(Integer)
     new_phr_mind_cnt = Column(Integer)
     phr_cnt = Column(Integer)
     phr_sum = Column(Integer)
