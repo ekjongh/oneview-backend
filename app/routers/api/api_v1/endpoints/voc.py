@@ -106,6 +106,6 @@ async def get_worst_hndset(limit: int = 10, group:str="", start_date: str = "202
 
 @router.get("/trend-day", response_model=List[schemas.VocTrendOutput])
 async def get_voc_trend_daily(group:str="", start_date: str = "20220501", end_date: str = None, db: SessionLocal = Depends(get_db)):
-    voc_trend_days = await get_voc_trend_by_group_date_bk(db=db, group=group, start_date=start_date, end_date=end_date)
+    voc_trend_days = await get_voc_trend_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date)
     return voc_trend_days
 
