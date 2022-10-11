@@ -7,8 +7,11 @@ class AddrCode(Base):
     __tablename__ = "CODE_ADDR"
 
     sido_nm = Column(String(100))
+    sido_cd = Column(String(100))
     gun_gu_nm = Column(String(100))
-    eup_myun_dong_nm  = Column(String(100), primary_key=True)
+    gun_gu_cd = Column(String(100))
+    eup_myun_dong_nm  = Column(String(100))
+    eup_myun_dong_cd  = Column(String(100), primary_key=True)
 
 
 class OrgCode(Base):

@@ -254,7 +254,7 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
             st_in.c.base_date,
             code_where_nm
         )
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.all()
