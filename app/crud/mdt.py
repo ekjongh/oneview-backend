@@ -21,7 +21,7 @@ async def get_mdt_trend_by_group_date2(db: AsyncSession, code:str, group: str, s
     sum_rip_cnt = func.sum(models.Mdt.rip_cnt)
     sum_rip_value = func.sum(models.Mdt.rip_sum)
 
-    sum_new_phr_m3d_cnt = func.sum(models.Mdt.new_phr_m3d_cnt)
+    # sum_new_phr_m3d_cnt = func.sum(models.Mdt.new_phr_m3d_cnt)
     sum_new_phr_mind_cnt_cnt = func.sum(models.Mdt.new_phr_mind_cnt)
     sum_phr_cnt = func.sum(models.Mdt.phr_cnt)
     sum_phr_value = func.sum(models.Mdt.phr_sum)
@@ -38,7 +38,8 @@ async def get_mdt_trend_by_group_date2(db: AsyncSession, code:str, group: str, s
     rip_bad_rate = func.round((sum_rip_maxd_cnt) / (sum_rip_cnt + 1e-6) * 100, 4).label("rip_bad_rate")
     rip_mean = func.round((sum_rip_value / (sum_rip_cnt + 1e-6)),4).label("rip_mean")
 
-    phr_bad_rate = func.round((sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4).label("phr_bad_rate")
+    # phr_bad_rate = func.round((sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4).label("phr_bad_rate")
+    phr_bad_rate = func.round((sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4).label("phr_bad_rate")
     phr_mean = func.round((sum_phr_value / (sum_phr_cnt + 1e-6)),4).label("phr_mean")
 
     nr_rsrp_mean = func.round((sum_nr_rsrp_value / (sum_nr_rsrp_cnt + 1e-6)),4).label("nr_rsrp_mean")
@@ -119,7 +120,7 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
     sum_rip_cnt = func.sum(models.Mdt.rip_cnt)
     sum_rip_value = func.sum(models.Mdt.rip_sum)
 
-    sum_new_phr_m3d_cnt = func.sum(models.Mdt.new_phr_m3d_cnt)
+    # sum_new_phr_m3d_cnt = func.sum(models.Mdt.new_phr_m3d_cnt)
     sum_new_phr_mind_cnt_cnt = func.sum(models.Mdt.new_phr_mind_cnt)
     sum_phr_cnt = func.sum(models.Mdt.phr_cnt)
     sum_phr_value = func.sum(models.Mdt.phr_sum)
@@ -138,7 +139,9 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
     rip_bad_rate = func.round((sum_rip_maxd_cnt) / (sum_rip_cnt + 1e-6) * 100, 4).label("rip_bad_rate")
     rip_mean = func.round((sum_rip_value / (sum_rip_cnt + 1e-6)),4).label("rip_mean")
 
-    phr_bad_rate = func.round((sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4).\
+    # phr_bad_rate = func.round((sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4).\
+    #     label("phr_bad_rate")
+    phr_bad_rate = func.round((sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4).\
         label("phr_bad_rate")
     phr_mean = func.round((sum_phr_value / (sum_phr_cnt + 1e-6)),4).label("phr_mean")
 
@@ -236,7 +239,7 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
     sum_rip_cnt = func.sum(models.Mdt.rip_cnt)
     sum_rip_value = func.sum(models.Mdt.rip_sum)
 
-    sum_new_phr_m3d_cnt = func.sum(models.Mdt.new_phr_m3d_cnt)
+    # sum_new_phr_m3d_cnt = func.sum(models.Mdt.new_phr_m3d_cnt)
     sum_new_phr_mind_cnt_cnt = func.sum(models.Mdt.new_phr_mind_cnt)
     sum_phr_cnt = func.sum(models.Mdt.phr_cnt)
     sum_phr_value = func.sum(models.Mdt.phr_sum)
@@ -255,7 +258,9 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
     rip_bad_rate = func.round((sum_rip_maxd_cnt) / (sum_rip_cnt + 1e-6) * 100, 4).label("rip_bad_rate")
     rip_mean = func.round((sum_rip_value / (sum_rip_cnt + 1e-6)), 4).label("rip_mean")
 
-    phr_bad_rate = func.round((sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4). \
+    # phr_bad_rate = func.round((sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4). \
+    #     label("phr_bad_rate")
+    phr_bad_rate = func.round((sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100, 4). \
         label("phr_bad_rate")
     phr_mean = func.round((sum_phr_value / (sum_phr_cnt + 1e-6)), 4).label("phr_mean")
 
@@ -346,7 +351,7 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
             sum_rip_maxd_cnt.label("sum_rip_maxd_cnt"),
             sum_rip_cnt.label("sum_rip_cnt"),
             sum_rip_value.label("sum_rip_value"),
-            sum_new_phr_m3d_cnt.label("sum_new_phr_m3d_cnt"),
+            # sum_new_phr_m3d_cnt.label("sum_new_phr_m3d_cnt"),
             sum_new_phr_mind_cnt_cnt.label("sum_new_phr_mind_cnt_cnt"),
             sum_phr_cnt.label("sum_phr_cnt"),
             sum_phr_value.label("sum_phr_value"),
@@ -371,7 +376,9 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
                        (func.sum(st_in.c.sum_rip_cnt) + 1e-6) * 100, 4).label("rip_bad_rate"),
             func.round((func.sum(st_in.c.sum_rip_value) /
                         (func.sum(st_in.c.sum_rip_cnt) + 1e-6)), 4).label("rip_mean"),
-            func.round((func.sum(st_in.c.sum_new_phr_m3d_cnt) + func.sum(st_in.c.sum_new_phr_mind_cnt_cnt)) /
+            # func.round((func.sum(st_in.c.sum_new_phr_m3d_cnt) + func.sum(st_in.c.sum_new_phr_mind_cnt_cnt)) /
+            #            (func.sum(st_in.c.sum_phr_cnt) + 1e-6) * 100, 4).label("phr_bad_rate"),
+            func.round(func.sum(st_in.c.sum_new_phr_mind_cnt_cnt) /
                        (func.sum(st_in.c.sum_phr_cnt) + 1e-6) * 100, 4).label("phr_bad_rate"),
             func.round((func.sum(st_in.c.sum_phr_value) /
                         (func.sum(st_in.c.sum_phr_cnt) + 1e-6)), 4).label("phr_mean"),
@@ -414,7 +421,7 @@ async def get_mdt_trend_by_group_date(db: AsyncSession, group: str, start_date: 
     sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
     sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    # sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
     sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
     sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
     sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
@@ -443,7 +450,8 @@ async def get_mdt_trend_by_group_date(db: AsyncSession, group: str, start_date: 
     rip_mean = func.round(rip_mean, 4)
     rip_mean = func.coalesce(rip_mean, 0.0).label("rip_mean")
 
-    phr_bad_rate = (sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100
+    # phr_bad_rate = (sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100
+    phr_bad_rate = (sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100
     phr_bad_rate = func.round(rsrq_bad_rate, 4)
     phr_bad_rate = func.coalesce(rsrq_bad_rate, 0.0).label("phr_bad_rate")
     phr_mean = (sum_phr_value / (sum_phr_cnt + 1e-6))
@@ -519,7 +527,7 @@ async def get_worst10_mdt_bts_by_group_date(db: AsyncSession, group: str, start_
     sum_rip_cnt = func.sum(func.ifnull(models.Mdt.rip_cnt, 0.0))
     sum_rip_value = func.sum(func.ifnull(models.Mdt.rip_sum, 0.0))
 
-    sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
+    # sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.Mdt.new_phr_m3d_cnt , 0.0))
     sum_new_phr_mind_cnt_cnt = func.sum(func.ifnull(models.Mdt.new_phr_mind_cnt, 0.0))
     sum_phr_cnt = func.sum(func.ifnull(models.Mdt.phr_cnt, 0.0))
     sum_phr_value = func.sum(func.ifnull(models.Mdt.phr_sum, 0.0))
@@ -548,7 +556,8 @@ async def get_worst10_mdt_bts_by_group_date(db: AsyncSession, group: str, start_
     rip_mean = func.round(rip_mean, 4)
     rip_mean = func.coalesce(rip_mean, 0.0).label("rip_mean")
 
-    phr_bad_rate = (sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100
+    # phr_bad_rate = (sum_new_phr_m3d_cnt + sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100
+    phr_bad_rate = (sum_new_phr_mind_cnt_cnt) / (sum_phr_cnt + 1e-6) * 100
     phr_bad_rate = func.round(rsrq_bad_rate, 4)
     phr_bad_rate = func.coalesce(rsrq_bad_rate, 0.0).label("phr_bad_rate")
     phr_mean = (sum_phr_value / (sum_phr_cnt + 1e-6))
