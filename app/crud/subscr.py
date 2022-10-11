@@ -53,8 +53,8 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
         stmt = stmt.where(models.SubscrHndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.SubscrHndset.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.SubscrHndset.oper_team_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc()).limit(limit)
 
@@ -125,8 +125,8 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
         stmt = stmt.where(models.SubscrOrg.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.SubscrOrg.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.SubscrOrg.oper_team_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc()).limit(limit)
 

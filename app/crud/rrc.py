@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.errors import exceptions as ex
 from .. import schemas, models
 from sqlalchemy import func, select, between, case, Column, and_
 from datetime import datetime, timedelta
@@ -53,8 +54,8 @@ async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, st
         stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.Rrc.area_jo_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     stmt = stmt.group_by(*entities).order_by(models.Rrc.base_date.asc())
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
@@ -121,8 +122,8 @@ async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, prod:str, code:st
         stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.Rrc.area_jo_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     #worst 기준(RRC실패율, 트래픽, PRB부하율)
     if prod == "RRC실패율":
@@ -208,7 +209,7 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
     elif code == "읍면동별":
         stmt_sel_nm = models.Rrc.eup_myun_dong_nm
     else:
-        stmt_sel_nm = models.Rrc.area_jo_nm
+        raise ex.SqlFailureEx
 
     # stmt 생성
     if not code_tbl_nm:  # code table 미사용시

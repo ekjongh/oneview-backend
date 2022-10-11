@@ -82,7 +82,7 @@ class VocSpec(KBase):
     new_rip_maxd_cnt = Column(Integer)
     rip_cnt = Column(Integer)
     rip_sum = Column(Integer)
-    # new_phr_m3d_cnt = Column(Integer)
+    new_phr_m3d_cnt = Column(Integer)
     new_phr_mind_cnt = Column(Integer)
     phr_cnt = Column(Integer)
     phr_sum = Column(Integer)

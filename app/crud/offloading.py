@@ -59,8 +59,8 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
         stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
 
@@ -131,8 +131,8 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
         stmt = stmt.where(models.Offloading_Hndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.Offloading_Hndset.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     #주요단말정렬기준 : 데이터량
     # stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
@@ -220,8 +220,8 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
         stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
     stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
@@ -307,7 +307,7 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
     elif code == "읍면동별":
         stmt_sel_nm = models.Offloading_Bts.eup_myun_dong_nm
     else:
-        stmt_sel_nm = models.Offloading_Bts.area_jo_nm
+        raise ex.SqlFailureEx
 
     # stmt 생성
     if not code_tbl_nm:  # code table 미사용시

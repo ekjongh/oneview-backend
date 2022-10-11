@@ -42,8 +42,8 @@ origins = [
     "http://10.214.168.57",
     "http://10.214.168.57:8080",
     "http://10.203.228.81:8080",
-    "http://10.214.168.57",
-    "http://10.214.168.57:8080",
+    "http://10.220.230.193",
+    "http://10.220.230.193:8000",
 ]
 
 # app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)

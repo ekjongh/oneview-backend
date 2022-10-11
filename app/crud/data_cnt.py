@@ -59,8 +59,8 @@ async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, s
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     stmt = stmt.where(models.DataCnt.anals_3_prod_level_nm == "5G")
 

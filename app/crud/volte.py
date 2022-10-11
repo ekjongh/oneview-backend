@@ -67,8 +67,8 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     # 상품 조건
     if prod and prod != "전체":
@@ -143,9 +143,8 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
         stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
-
+    else: # 전국
+        pass
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).subquery()
     stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).limit(limit)
@@ -218,8 +217,8 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
         stmt_cut = stmt_cut.where(models.VolteFailOrg.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt_cut = stmt_cut.where(models.VolteFailOrg.eup_myun_dong_nm.in_(txt_l))
-    else:
-        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
+    else: # 전국
+        pass
 
     # 상품 조건
     if prod and prod != "전체":

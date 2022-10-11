@@ -59,7 +59,7 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
         code_val = None
     
     # code의 값목록 : 삼성|노키아
-    if code_val and group:
+    if code_val != "" and group != "":
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
@@ -123,7 +123,7 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
         code_val = None
 
     # code의 값목록 : 삼성|노키아
-    if code_val and group:
+    if code_val != "" and group !="":
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
@@ -233,8 +233,7 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
         stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.eup_myun_dong_nm.in_(txt_l))
         stmt_voc = stmt_voc.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
     else:
-        stmt_where = select(models.OrgCode.oper_team_nm)
-        stmt_sbscr = stmt_sbscr.where(models.SubscrOrg.oper_team_nm.in_(stmt_where))
+        pass
 
     # 상품 조건
     if prod and prod != "전체":
