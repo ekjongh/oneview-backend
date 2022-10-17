@@ -11,7 +11,7 @@ class UserAuthority(str, enum.Enum):
     classC = "팀원"
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "USERS"
 
     user_id = Column(String(100), primary_key=True, index=False)
     user_name = Column(String(100), default="")

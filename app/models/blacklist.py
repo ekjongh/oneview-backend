@@ -8,5 +8,5 @@ class Blacklist(Base):
 
     id = Column(String(100), primary_key=True)
     token = Column(String(100))
-    owner_id = Column(String(100), ForeignKey("users.user_id"))
+    owner_id = Column(String(100), ForeignKey("USERS.user_id"))
     owner = relationship("User", back_populates="blacklists")
