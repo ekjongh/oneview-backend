@@ -60,6 +60,7 @@ class VocListOutput(BaseModel):
     voc_rcp_txn: Union[str, None]
     voc_actn_txn: Union[str, None]
     tt_trt_sbst: Union[str, None]
+    juso: Union[str, None]
 
 class VocUserInfo(BaseModel):
     sr_tt_rcp_no: Union[str, None]      # VOC접수번호

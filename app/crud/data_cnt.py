@@ -62,7 +62,7 @@ async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, s
     else: # 전국
         pass
 
-    stmt = stmt.where(models.DataCnt.anals_3_prod_level_nm == "5G")
+    # stmt = stmt.where(models.DataCnt.anals_3_prod_level_nm == "5G")
 
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc())
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))

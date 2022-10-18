@@ -146,6 +146,12 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
 
 async def get_voc_list_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
                                limit: int = 1000):
+    juso = models.VocList.trobl_rgn_broad_sido_nm + ' ' \
+           + models.VocList.trobl_rgn_sgg_nm + ' ' \
+           + models.VocList.trobl_rgn_eup_myun_dong_li_nm + ' ' \
+           + models.VocList.trobl_rgn_dtl_sbst
+    juso = juso.label("juso")
+
     entities = [
         models.VocList.base_date,       # label("기준년원일"),
         models.VocList.sr_tt_rcp_no,    # label("VOC접수번호"),
@@ -164,6 +170,7 @@ async def get_voc_list_by_group_date(db: AsyncSession, group: str, start_date: s
         models.VocList.voc_rcp_txn,
         models.VocList.voc_actn_txn,
         models.VocList.tt_trt_sbst,
+        juso,
 
     ]
     stmt = select(*entities)
