@@ -1,21 +1,22 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas, models
 from sqlalchemy import func, select, between, case,literal
 from datetime import datetime, timedelta
 
 
-def get_addr_code_all(db: Session, sido:str=None, gungu:str=None, dong:str=None, limit:int=100):
+async def get_addr_code_all(db: AsyncSession, sido:str=None, gungu:str=None, dong:str=None, limit:int=100):
     # 선택 조건
     if not sido and not gungu and not dong:
         entities = [
-            models.AddrCode.sido_nm.label("cd"),
+            models.AddrCode.sido_cd.label("cd"),
             models.AddrCode.sido_nm.label("val")
         ]
         stmt = select(*entities)
         stmt = stmt.group_by(*entities)
     elif sido and not gungu and not dong:
         entities = [
-            (models.AddrCode.sido_nm+'_'+models.AddrCode.gun_gu_nm).label("cd"),
+            models.AddrCode.gun_gu_cd.label("cd"),
             models.AddrCode.gun_gu_nm.label("val")
         ]
         stmt = select(*entities)
@@ -23,7 +24,7 @@ def get_addr_code_all(db: Session, sido:str=None, gungu:str=None, dong:str=None,
         stmt = stmt.group_by(*entities)
     elif sido and gungu and not dong:
         entities = [
-            (models.AddrCode.sido_nm+'_'+models.AddrCode.gun_gu_nm+'_'+models.AddrCode.eup_myun_dong_nm).label("cd"),
+            models.AddrCode.eup_myun_dong_cd.label("cd"),
             models.AddrCode.eup_myun_dong_nm.label("val")
         ]
         stmt = select(*entities)
@@ -33,16 +34,16 @@ def get_addr_code_all(db: Session, sido:str=None, gungu:str=None, dong:str=None,
         stmt = stmt.group_by(*entities)
     else:
         entities = [
-            models.AddrCode.sido_nm.label("cd"),
+            models.AddrCode.sido_cd.label("cd"),
             models.AddrCode.sido_nm.label("val")
         ]
         stmt = select(*entities)
         stmt = stmt.group_by(*entities)
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
 
-    query = db.execute(stmt)
-    query_result = query.fetchall()
+    query = await db.execute(stmt)
+    query_result = query.all()
     query_keys = query.keys()
 
 
@@ -50,19 +51,20 @@ def get_addr_code_all(db: Session, sido:str=None, gungu:str=None, dong:str=None,
     return list_code
 
 
-def get_org_code_all(db: Session):
+async def get_org_code_all(db: AsyncSession):
     entities = [
         models.OrgCode.biz_hq_nm,
         models.OrgCode.oper_team_nm,
         models.OrgCode.area_jo_nm,
     ]
-    stmt = select(*entities)
-
-    query = db.execute(stmt)
-    query_result = query.fetchall()
+    stmt = select(*entities).order_by(models.OrgCode.seq_no)
+    # print(stmt)
+    query = await db.execute(stmt)
+    query_result = query.all()
     query_keys = query.keys()
 
-    bonbu_set = set([r[0] for r in query_result])
+    # bonbu_set = set([r[0] for r in query_result])
+    bonbu_set = list(dict.fromkeys([r[0] for r in query_result]))
     list_bonbu = []
     for bonbu in bonbu_set:
         team_set = set([r[1] for r in query_result if r[0]==bonbu])
@@ -70,6 +72,7 @@ def get_org_code_all(db: Session):
         for  team in team_set:
             j_l = [r[2] for r in query_result if r[0] == bonbu and r[1] == team]
             list_teams.append(schemas.OperTeamCode(oper_team_nm=team, area_jo_nms=j_l))
+        # print(list_teams)
 
         list_bonbu.append(schemas.OrgCodeOutput(biz_hq_nm=bonbu, oper_team_nms=list_teams))
 
@@ -78,19 +81,17 @@ def get_org_code_all(db: Session):
 
 
 
-def get_menu_code_all(db: Session):
+async def get_menu_code_all(db: AsyncSession):
     entities = [
         models.MenuCode.menu1,
         models.MenuCode.menu2,
         models.MenuCode.menu3,
         models.MenuCode.menu4,
     ]
-    print("111")
     stmt = select(*entities)
-    print(stmt)
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
-    query = db.execute(stmt)
-    query_result = query.fetchall()
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    query = await db.execute(stmt)
+    query_result = query.all()
     query_keys = query.keys()
     menu1_set = list(dict.fromkeys([r[0] for r in query_result]))
     list_menu = []

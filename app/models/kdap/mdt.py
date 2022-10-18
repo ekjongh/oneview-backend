@@ -1,11 +1,11 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..db.base_class import KBase
+from app.db.base_class import KBase
 
 
 class Mdt(KBase):
-    __tablename__ = "MDT"
+    __tablename__ = "SUM_MDT_BAD_RATE"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))

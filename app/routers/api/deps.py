@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, AsyncGenerator
 
 from fastapi import HTTPException, Depends, status
 from fastapi_jwt_auth import AuthJWT
@@ -9,15 +9,15 @@ from app.core import security
 from app.crud.blacklist import get_blacklist
 from app.crud.user import get_user_by_id
 from app.db.session import SessionLocal
-
+from sqlalchemy.ext.asyncio import AsyncSession
 
 #
-def get_db() -> Generator:
+async def get_db() ->  AsyncGenerator[AsyncSession, None]:
     try:
-        db = SessionLocal()
-        yield db
+        async with SessionLocal() as db:
+            yield db
     finally:
-        db.close()
+        await db.close()
 
 
 def get_current_user(

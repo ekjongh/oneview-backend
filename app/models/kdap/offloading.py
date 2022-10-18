@@ -1,12 +1,12 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..db.base_class import KBase
+from app.db.base_class import KBase
 
 
 
 class Offloading_Bts(KBase):
-    __tablename__ = "OFFLOADING_BTS"
+    __tablename__ = "SUM_5G_OFF_LOAD_RATE_BTS"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -37,7 +37,7 @@ class Offloading_Bts(KBase):
 
 
 class Offloading_Hndset(KBase):
-    __tablename__ = "OFFLOADING_HNDSET"
+    __tablename__ = "SUM_5G_OFF_LOAD_RATE_HNDSET"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
