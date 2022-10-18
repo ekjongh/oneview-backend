@@ -1,24 +1,24 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas, models
 from sqlalchemy import func, select, between, case,literal
 from datetime import datetime, timedelta
 
 
 
-def get_datacnt_compare_by_prod(db: Session, code: str, group: str, start_date: str = '20220901', limit: int = 10):
+async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20220901', limit: int = 10):
     if not start_date:
         start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
 
     lastweek = (datetime.strptime(start_date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
 
-    sum_5g_data = (func.nvl(models.DataCnt.g5d_upld_data_qnt, 0.0) +
-                           func.nvl(models.DataCnt.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
-    sum_3g_data = (func.nvl(models.DataCnt.g3d_upld_data_qnt, 0.0) +
-                           func.nvl(models.DataCnt.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
-    sum_lte_data = (func.nvl(models.DataCnt.ld_downl_data_qnt, 0.0) +
-                            func.nvl(models.DataCnt.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
+    sum_5g_data = (func.ifnull(models.DataCnt.g5d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.DataCnt.g5d_downl_data_qnt, 0.0)).label("sum_5g_data")
+    sum_3g_data = (func.ifnull(models.DataCnt.g3d_upld_data_qnt, 0.0) +
+                           func.ifnull(models.DataCnt.g3d_downl_data_qnt, 0.0)).label("sum_3g_data")
+    sum_lte_data = (func.ifnull(models.DataCnt.ld_downl_data_qnt, 0.0) +
+                            func.ifnull(models.DataCnt.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("sum_total_data")
-
 
     sum_cnt = func.sum(case((models.DataCnt.base_date == start_date, sum_total_data)
                             , else_=0)).label("sum_cnt")
@@ -38,31 +38,36 @@ def get_datacnt_compare_by_prod(db: Session, code: str, group: str, start_date: 
     #날짜
     stmt = stmt.where(models.DataCnt.base_date.in_([start_date, lastweek]))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     # 선택 조건
     if code == "제조사별":
-        code_val = models.DataCnt.mkng_cmpn_nm
+        stmt = stmt.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        code_val = models.DataCnt.biz_hq_nm
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
-        code_val = models.DataCnt.oper_team_nm
+        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(txt_l))
     elif code == "시도별":
-        code_val = models.DataCnt.sido_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        code_val = models.DataCnt.gun_gu_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
-        code_val = models.DataCnt.eup_myun_dong_nm
-    else:
-        code_val = None
+        stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(txt_l))
+    else: # 전국
+        pass
 
-    # code의 값목록 : 삼성|노키아
-    if code_val and group:
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
+    # stmt = stmt.where(models.DataCnt.anals_3_prod_level_nm == "5G")
 
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc())
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    query = db.execute(stmt)
+    query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

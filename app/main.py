@@ -25,7 +25,7 @@ c = conf()
 conf_dict = c.__dict__
 
 # DB 초기화
-# init_db(SessionLocal())
+init_db(SessionLocal())
 # 미들웨어 추가.
 origins = [
     "http://localhost:8080",
@@ -42,8 +42,8 @@ origins = [
     "http://10.214.168.57",
     "http://10.214.168.57:8080",
     "http://10.203.228.81:8080",
-    "http://10.214.168.57",
-    "http://10.214.168.57:8080",
+    "http://10.220.230.193",
+    "http://10.220.230.193:8000",
 ]
 
 # app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
@@ -58,10 +58,11 @@ app.add_middleware(
 
 class Settings(BaseModel):
     authjwt_secret_key: str = JWT_SECRET_CODE
-    authjwt_denylist_enabled: bool = True
-    authjwt_denylist_token_checks: set = {"access", "refresh"}
+    # authjwt_denylist_enabled: bool = True
+    # authjwt_denylist_token_checks: set = {"access", "refresh"}
     access_expires = timedelta(minutes=60)
     refresh_expires = timedelta(days=1)
+
 
 
 @AuthJWT.load_config
@@ -76,15 +77,15 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
         content={"detail": exc.message}
     )
 
-@AuthJWT.token_in_denylist_loader
-def check_if_token_in_denylist(decrypted_token):
-    jti = decrypted_token['jti']
-    try:
-        db = SessionLocal()
-        token = get_blacklist(db, jti)
-    except:
-        raise HTTPException(status_code=404, detail="DB Not Con")
-    return not not token
+# @AuthJWT.token_in_denylist_loader
+# def check_if_token_in_denylist(decrypted_token):
+#     jti = decrypted_token['jti']
+#     try:
+#         db = SessionLocal()
+#         token = get_blacklist(db, jti)
+#     except:
+#         raise HTTPException(status_code=404, detail="DB Not Con")
+#     return not not token
 
 app.include_router(api_v1_router)
 # @app.middleware("http")

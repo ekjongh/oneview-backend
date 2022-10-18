@@ -1,11 +1,11 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..db.base_class import KBase
+from app.db.base_class import KBase
 
 
 class VocList(KBase):
-    __tablename__ = "VOC"
+    __tablename__ = "SUM_VOC_TXN"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -54,7 +54,7 @@ class VocList(KBase):
 
 
 class VocSpec(KBase):
-    __tablename__ = "VOC_SPEC"
+    __tablename__ = "SUM_VOC_DTL_TXN"
 
     base_date = Column(String(100), primary_key=True)
     svc_cont_id = Column(String(100), primary_key=True)
