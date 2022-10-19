@@ -1,5 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func, select, between, case,literal
 
 from app.errors import exceptions as ex
 from .. import models, schemas
@@ -15,15 +17,22 @@ import json
 #     return user
 
 
-async def get_user_by_id(db: Session, user_id: str):
-    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+async def get_user_by_id(db: AsyncSession, user_id: str):
+    stmt = select(models.User).filter(models.User.user_id == user_id)
+    query = await db.execute(stmt)
+    user = query.scalar()
     if user:
         user = user_model_to_schema(user)
     return user
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    users = db.query(models.User).offset(skip).limit(limit).all()
+async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
+    stmt = select(models.User).offset(skip).limit(limit)
+    query = await db.execute(stmt)
+    users = query.scalars().all()
+    # print("CRUD>USER.PY GET_USERS: ", users)
+    # print("CRUD>USER.PY GET_USERS> USERS[0]: ", users[0])
+    # print("CRUD>USER.PY GET_USERS> USERS[0]: ", users[0].board_modules)
     if len(users) != 0:
         users = list(map(user_model_to_schema, users))
     return users
@@ -33,9 +42,35 @@ async def create_user(db: Session, user: schemas.UserCreate):
 
     db_user = models.User(user_id=user.user_id,
                           board_modules=json.dumps(list()))
+    entities = [
+        models.OrgUser.LOGIN_ID,
+        models.OrgUser.NAME,
+        models.OrgUser.EX_POSITION_NM,
+        models.OrgUser.EMAIL,
+        models.OrgUser.MOBILE,
+
+    ]
+    stmt = select(*entities).where(models.OrgUser.LOGIN_ID == user.user_id)
+
+    query = await db.execute(stmt)
+    query_result = query.first()
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    if not query_result:
+        raise HTTPException(status_code=401,detail="Bad user id")
+    else :
+        db_user.user_name = query_result["NAME"]
+        db_user.email = query_result["EMAIL"]
+        db_user.phone = query_result["MOBILE"]
+        depts = query_result["EX_POSITION_NM"].split(" ")
+        for i, dept in enumerate(depts):
+            setattr(db_user, f"group_{i+1}", dept)
+            print(f"group_{i+1} : {dept}")
+        # db_user["group_1"] = query_result["EX_POSITION_NM"]
+
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
 

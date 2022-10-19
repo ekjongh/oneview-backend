@@ -62,7 +62,7 @@ class UserInDBBase(UserBase):
         orm_mode = True
 
 
-class UserOutput(BaseModel):
+class UserOutput(UserBase):
     user_id: Union[str, None] = None
     user_name: Union[str, None] = None
     email: Union[str, None] = None

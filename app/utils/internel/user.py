@@ -2,6 +2,9 @@
 import json
 
 def user_model_to_schema(user):
+    # print("USER TYPE: ", type(user[0]))
+    # print("USER: ", user[0])
+    # print("USER DICT: ", user[0].__dict__)
     user.board_modules = json.loads(user.board_modules)
     return user
 

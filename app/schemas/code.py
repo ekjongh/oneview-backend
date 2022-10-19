@@ -17,13 +17,15 @@ class OrgCodeOutput2(BaseModel):
 
 
 class OperTeamCode(BaseModel):
-    oper_team_nm: Union[str, None]
+    id: Union[str, None]
+    label: Union[str, None]
     area_jo_nms: List[str] = []
 
 
 class OrgCodeOutput(BaseModel):
-    biz_hq_nm: Union[str, None]
-    oper_team_nms: List[OperTeamCode]=[]
+    id: Union[str, None]
+    label: Union[str, None]
+    children: List[OperTeamCode]=[]
 
 
 class SubMenuCode(BaseModel):

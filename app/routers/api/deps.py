@@ -20,18 +20,18 @@ async def get_db() ->  AsyncGenerator[AsyncSession, None]:
         await db.close()
 
 
-def get_current_user(
-    db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
+async def get_current_user(
+    db: SessionLocal = Depends(get_db), Authorize: AuthJWT = Depends()
 ) -> models.User:
     Authorize.jwt_required()
     user_id = Authorize.get_jwt_subject()
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    user = await get_user_by_id(db, user_id)
+    # if not user:
+        # raise HTTPException(status_code=404, detail="User not found")
     return user
 #
 #
-def get_current_active_user(
+async def get_current_active_user(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
     if not current_user.is_active:
