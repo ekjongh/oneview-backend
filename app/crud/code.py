@@ -72,11 +72,11 @@ async def get_org_code_all(db: AsyncSession):
         for  team in team_set:
             j_l = [{"id":r[2], "label":r[2]} for r in query_result if r[0] == bonbu and r[1] == team]
             # list_teams.append(schemas.OperTeamCode(oper_team_nm=team, area_jo_nms=j_l))
-            list_teams.append({"id":team, "label":team, "childeren":j_l})
+            list_teams.append({"id":team, "label":team, "children":j_l})
         # print(list_teams)
 
         # list_bonbu.append(schemas.OrgCodeOutput(biz_hq_nm=bonbu, oper_team_nms=list_teams))
-        list_bonbu.append({"id":bonbu, "label":bonbu, "childeren":list_teams})
+        list_bonbu.append({"id":bonbu, "label":bonbu, "children":list_teams})
 
     return list_bonbu
 
