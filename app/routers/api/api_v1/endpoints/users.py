@@ -1,7 +1,7 @@
 from typing import List
 
 from app.errors import exceptions as ex
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 
@@ -27,14 +27,13 @@ async def register(user: UserCreate, db: SessionLocal = Depends(get_db)):
 @router.get("/", response_model=List[UserOutput])
 async def read_users(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db)):
     users = await get_users(db, skip=skip, limit=limit)
-    print("USERS MODEL: ", users[0].__dict__)
+    # print("USERS MODEL: ", users[0].__dict__)
     new_users = []
     for user in users:
         user.__dict__.pop("_sa_instance_state")
         new_users.append(user)
     users_out = list(map(lambda model:UserOutput(**model.__dict__), new_users))
     return users_out
-
 
 @router.get("/me", response_model=UserOutput)
 async def read_my_config(user: UserBase = Depends(get_current_user)):
@@ -59,14 +58,13 @@ async def read_user_by_id(id: str, db: SessionLocal = Depends(get_db)):
     user_out = UserOutput(**db_user.__dict__)
     return user_out
 
-
 @router.put("/{id}", response_model=UserBase)
 async def update_user_by_id(id: str, user:UserOutput, db: SessionLocal = Depends(get_db),
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
         if client.id != id:
             raise ex.NotAuthorized
-    _user = update_user(db, user_id=id, user=user)
+    _user = await update_user(db, user_id=id, user=user)
 
     return {"result": "Update Success!", "user": _user}
 
@@ -77,7 +75,7 @@ async def delete_user_by_id(id: int, db: SessionLocal = Depends(get_db),
     if not client.is_superuser:
         if client.id != id:
             raise ex.NotAuthorized
-    _ = delete_user(db=db, user_id=id)
+    _ = await delete_user(db=db, user_id=id)
     return {"result": "Delete Success!"}
 
 # # ------------------------------- User DashBoard Config ... -------------------------------------- #

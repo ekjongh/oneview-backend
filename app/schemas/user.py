@@ -35,7 +35,8 @@ class UserUpdate(UserBase):
     group_2: Union[str, None] = None
     group_3: Union[str, None] = None
     group_4: Union[str, None] = None
-    board_modules: List[ModuleConfigBase]
+    # board_modules: List[ModuleConfigBase]
+    board_modules: Union[str, None] = None
 
 
     class Config:
@@ -74,7 +75,8 @@ class UserOutput(UserBase):
     group_2: Union[str, None] = None
     group_3: Union[str, None] = None
     group_4: Union[str, None] = None
-    board_modules: List[ModuleConfigBase]
+    # board_modules: List[ModuleConfigBase]
+    board_modules: Union[str, None] = None
 
     class Config:
         schema_extra = {

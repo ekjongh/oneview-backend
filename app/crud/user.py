@@ -21,8 +21,9 @@ async def get_user_by_id(db: AsyncSession, user_id: str):
     stmt = select(models.User).filter(models.User.user_id == user_id)
     query = await db.execute(stmt)
     user = query.scalar()
-    if user:
-        user = user_model_to_schema(user)
+    # board_module 형식 []->str 변경으로 미사용
+    # if user: 
+    #     user = user_model_to_schema(user)
     return user
 
 
@@ -30,11 +31,9 @@ async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
     stmt = select(models.User).offset(skip).limit(limit)
     query = await db.execute(stmt)
     users = query.scalars().all()
-    # print("CRUD>USER.PY GET_USERS: ", users)
-    # print("CRUD>USER.PY GET_USERS> USERS[0]: ", users[0])
-    # print("CRUD>USER.PY GET_USERS> USERS[0]: ", users[0].board_modules)
-    if len(users) != 0:
-        users = list(map(user_model_to_schema, users))
+    # board_module 형식 []->str 변경으로 미사용
+    # if len(users) != 0:
+    #     users = list(map(user_model_to_schema, users))
     return users
 
 
@@ -88,18 +87,23 @@ def create_superuser(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def update_user(db: Session, user_id: str, user: schemas.UserOutput):
-    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+async def update_user(db: Session, user_id: str, user: schemas.UserOutput):
+    stmt = select(models.User).filter(models.User.user_id == user_id)
+    query = await db.execute(stmt)
+    db_user = query.scalar()
+
     if db_user is None:
         raise ex.NotFoundUserEx
-    user = user_schema_to_model(user)
+
+    # board_module 형식 []->str 변경으로 미사용
+    # user = user_schema_to_model(user)
 
     user_data = user.dict(exclude_unset=True)
     for k, v in user_data.items():
         setattr(db_user, k, v)
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
 
