@@ -62,7 +62,7 @@ async def read_user_by_id(id: str, db: SessionLocal = Depends(get_db)):
 async def update_user_by_id(id: str, user:UserOutput, db: SessionLocal = Depends(get_db),
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
-        if client.id != id:
+        if client.user_id != id:
             raise ex.NotAuthorized
     _user = await update_user(db, user_id=id, user=user)
 

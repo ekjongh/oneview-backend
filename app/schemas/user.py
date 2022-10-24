@@ -77,6 +77,7 @@ class UserOutput(UserBase):
     group_4: Union[str, None] = None
     # board_modules: List[ModuleConfigBase]
     board_modules: Union[str, None] = None
+    level: Union[str, None] = None
 
     class Config:
         schema_extra = {
