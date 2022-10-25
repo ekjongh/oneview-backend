@@ -106,6 +106,7 @@ class BtsSummary(BaseModel):
     rip_cnt: Union[int, None]
     new_phr_m3d_cnt: Union[int, None]
     new_phr_mind_cnt: Union[int, None]
+    phr_bad_cnt: Union[int, None]
     phr_cnt: Union[int, None]
     nr_rsrp_cnt: Union[int, None]
     volte_self_fail_cacnt: Union[int, None]
