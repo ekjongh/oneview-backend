@@ -112,7 +112,7 @@ async def refresh(Authorize: AuthJWT = Depends()):
 
 # 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
 @router.post('/jwt/auth')
-def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db),Authorize: AuthJWT = Depends()):
+async def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db),Authorize: AuthJWT = Depends()):
     client_ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
     client_ip_decoded = java.decode_value(VOC_CLIENT_IP)
     user_id_decoded = java.decode_value(VOC_USER_ID)
@@ -120,15 +120,15 @@ def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=Form(...)
     # if client_ip != client_ip_decoded:
     #     raise HTTPException(status_code=401, detail="Bad user ip")
     #
-    login_user = get_user_by_id(db, user_id_decoded)
+    login_user = await get_user_by_id(db, user_id_decoded)
     if not login_user:
         register_user = UserCreate(user_id = user_id_decoded)
-        _ = create_user(db, register_user)
+        _ = await create_user(db, register_user)
 
     access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
     print("user_id_decoded: ", user_id_decoded)
-    r = RedirectResponse(url="/#", status_code=status.HTTP_303_SEE_OTHER)
+    r = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     r.set_cookie(key="access_token", value=access_token, httponly=False)  # ok
     r.set_cookie(key="refresh_token", value=refresh_token, httponly=False)  # ok
     return r

@@ -15,7 +15,7 @@ async def get_addr_code(sido:str=None, gungu:str=None, dong:str=None, db: Sessio
     return await get_addr_code_all(sido=sido, gungu=gungu, dong=dong, db=db)
 
 
-@router.get("/org", response_model=List[schemas.OrgCodeOutput])
+@router.get("/org")
 async def get_org_code(db: SessionLocal = Depends(get_db)):
     return await get_org_code_all(db=db)
 

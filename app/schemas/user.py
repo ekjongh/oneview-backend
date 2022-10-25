@@ -35,7 +35,8 @@ class UserUpdate(UserBase):
     group_2: Union[str, None] = None
     group_3: Union[str, None] = None
     group_4: Union[str, None] = None
-    board_modules: List[ModuleConfigBase]
+    # board_modules: List[ModuleConfigBase]
+    board_modules: Union[str, None] = None
 
 
     class Config:
@@ -62,7 +63,7 @@ class UserInDBBase(UserBase):
         orm_mode = True
 
 
-class UserOutput(BaseModel):
+class UserOutput(UserBase):
     user_id: Union[str, None] = None
     user_name: Union[str, None] = None
     email: Union[str, None] = None
@@ -74,7 +75,9 @@ class UserOutput(BaseModel):
     group_2: Union[str, None] = None
     group_3: Union[str, None] = None
     group_4: Union[str, None] = None
-    board_modules: List[ModuleConfigBase]
+    # board_modules: List[ModuleConfigBase]
+    board_modules: Union[str, None] = None
+    level: Union[str, None] = None
 
     class Config:
         schema_extra = {
