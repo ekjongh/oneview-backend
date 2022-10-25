@@ -334,6 +334,7 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
                         ).label("rsrq_bad_cnt")
     sum_rip_cnt = func.sum(func.ifnull(models.VocSpec.rip_cnt, 0)).label("rip_cnt")
     sum_new_phr_m3d_cnt = func.sum(func.ifnull(models.VocSpec.new_phr_m3d_cnt, 0)).label("new_phr_m3d_cnt")
+    sum_new_phr_mind_cnt = func.sum(func.ifnull(models.VocSpec.new_phr_mind_cnt, 0)).label("new_phr_mind_cnt")
     sum_phr_cnt = func.sum(func.ifnull(models.VocSpec.phr_cnt, 0)).label("phr_cnt")
     sum_nr_rsrp_cnt = func.sum(func.ifnull(models.VocSpec.nr_rsrp_cnt, 0)).label("nr_rsrp_cnt")
     sum_volte_self_fail_cacnt = func.sum(func.ifnull(models.VocSpec.volte_self_fail_cacnt, 0)).\
@@ -354,6 +355,7 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
         sum_rsrq_bad_cnt,
         sum_rip_cnt,
         sum_new_phr_m3d_cnt,
+        sum_new_phr_mind_cnt,
         sum_phr_cnt,
         sum_nr_rsrp_cnt,
         sum_volte_self_fail_cacnt
