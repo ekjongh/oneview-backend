@@ -40,7 +40,7 @@ async def logout_access(db: Session = Depends(get_db), Authorize: AuthJWT = Depe
     Authorize.jwt_required()
     current_user = Authorize.get_jwt_subject()
 
-    _user = get_user_by_id(db, current_user)
+    _user = await get_user_by_id(db, current_user)
     _user_id = _user.user_id
 
     decrypted_token = Authorize.get_raw_jwt()['jti']
@@ -53,7 +53,7 @@ async def logout_refresh(db: Session = Depends(get_db), Authorize: AuthJWT = Dep
     Authorize.jwt_refresh_token_required()
     current_user = Authorize.get_jwt_subject()
 
-    _user = get_user_by_id(db, current_user)
+    _user = await get_user_by_id(db, current_user)
 
     _user_id = _user.user_id
     decrypted_token = Authorize.get_raw_jwt()['jti']
