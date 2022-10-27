@@ -136,7 +136,7 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
 
     #주요단말정렬기준 : 데이터량
     # stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
-    stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
@@ -224,7 +224,7 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
         pass
 
     # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(sum_total_data > 0).order_by(g5_off_ratio.asc()).limit(limit)
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
