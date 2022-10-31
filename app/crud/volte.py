@@ -119,7 +119,10 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
         stmt = stmt.where(between(models.VolteFailHndset.base_date, start_date, end_date))
 
     # 상품 조건
-    if prod and prod != "전체":
+    if prod == "5G-SA":
+        stmt = stmt.where(models.VolteFailHndset.anals_3_prod_level_nm == '5G')
+        stmt = stmt.where(models.VolteFailHndset.sa_5g_suprt_div_nm == '5G_SA지원')
+    elif prod and prod != "전체":
         stmt = stmt.where(models.VolteFailHndset.anals_3_prod_level_nm == prod)
 
     txt_l = []
@@ -156,7 +159,7 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
 
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
-    print(stmt_rk)
+    # print(stmt_rk)
     query_result = query.fetchall()
     query_keys = query.keys()
 

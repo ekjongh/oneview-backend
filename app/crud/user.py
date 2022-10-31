@@ -131,29 +131,50 @@ def delete_user(db: Session, user_id: int):
 
 def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
     default_config = """
-                {{"banners": 
+             {{"banners": 
               [
                 {{"catIndicator":"천명당VOC",
                  "catProductService":"5G",
                  "catScope":"{c_txt}",
                  "group":"{g_txt}",
-                 "title":"품질 VOC 발생",
-                 "dates":"어제"
+                 "title":"품질 VOC 발생 5G",
+                 "dates":"최근갱신일"
                 }}, 
+                {{"catIndicator":"천명당VOC",
+                 "catProductService":"LTE",
+                 "catScope":"{c_txt}",
+                 "group":"{g_txt}",
+                 "title":"품질 VOC 발생 LTE",
+                 "dates":"최근갱신일"
+                }},                 
                 {{"catIndicator":"VOLTE절단율",
                  "catProductService":"5G",
                  "catScope":"{c_txt}",
                  "group":"{g_txt}",
                  "title":"VoLTE 절단율",
-                 "dates":"어제"
+                 "dates":"최근갱신일"
                 }}, {{
                  "catIndicator":"오프로딩율_5G",
                  "catProductService":"5G",
                  "catScope":"{c_txt}",
                  "group":"{g_txt}",
                  "title":"5G 오프로드율",
-                 "dates":"어제"
-                }} 
+                 "dates":"최근갱신일"
+                }},{{
+                 "catIndicator":"MDT",
+                 "catProductService":"_",
+                 "catScope":"{c_txt}",
+                 "group":"{g_txt}",
+                 "title":"MDT 불량률",
+                 "dates":"최근갱신일"
+                }},{{
+                 "catIndicator":"LTE기지국통계RRC",
+                 "catProductService":"RRC성공률",
+                 "catScope":"{c_txt}",
+                 "group":"{g_txt}",
+                 "title":"RRC성공률",
+                 "dates":"최근갱신일"
+                }}
               ], 
              "cards": 
               [
@@ -163,7 +184,7 @@ def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
                  "catScope":"{c_txt}",
                  "group":"{g_txt}",
                  "title":"품질 VOC 발생 5G",
-                 "caption":"품질 VOC 발생 5G (2주간 일별 추이)",
+                 "caption":"천명당VOC / 일별추이 / 5G / {c_txt} / {g_txt}",
                  "dates":"2주간"
                 }}, {{
                   "catIndicator":"VOLTE절단율",
@@ -172,7 +193,7 @@ def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
                   "catScope":"{c_txt}",
                   "group":"{g_txt}",
                   "title":"VoLTE 절단율 5G",
-                  "caption":"VoLTE 절단율 5G (2주간 일별 추이)",
+                  "caption":"VoLTE절단율 / 일별추이 / 5G / {c_txt} / {g_txt}",
                   "dates":"2주간"
                 }}, {{
                   "catIndicator":"오프로딩율_5G",
@@ -181,7 +202,7 @@ def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
                   "catScope":"{c_txt}",
                   "group":"{g_txt}",
                   "title":"5G 오프로드율",
-                  "caption":"5G 오프로드율 (2주간 일별 추이)",
+                  "caption":"오프로딩율_5G / 일별추이 / 5G / {c_txt} / {g_txt}",
                   "dates":"2주간"
                 }}, {{
                   "catIndicator":"단말별가입자수",
@@ -190,23 +211,23 @@ def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
                   "catScope":"{c_txt}",
                   "group":"{g_txt}",
                   "title":"5G 단말 기종별 고객 수 5G",
-                  "caption":"5G 단말 기종별 고객 수 5G (전주 대비)",
+                  "caption":"단말별가입자수 / 5G / {c_txt} / {g_txt}",
                   "dates":"어제"
                 }}, {{
                   "catIndicator":"MDT",
                   "catPresentationFormat":"일별추이",
                   "catProductService":"_",
                   "title":"MDT 불량률",
-                  "caption":"MDT 불량률 (2주간 일별 추이)",
+                  "caption":"MDT / 일별추이 / {c_txt} / {g_txt}",
                   "catScope":"{c_txt}",
                   "group":"{g_txt}",
                   "dates":"2주간"
                 }}, {{
-                  "catIndicator":"LTE기지국통계_RRC",
+                  "catIndicator":"LTE기지국통계RRC",
                   "catPresentationFormat":"일별추이",
-                  "catProductService":"RRC연결재설정성공율|PRB사용량",
-                  "title":"RRC연결재설정성공율, PRB사용량",
-                  "caption":"RRC연결재설정성공율, PRB사용량 (2주간 일별 추이)",
+                  "catProductService":"RRC성공률",
+                  "title":"LTE기지국통계RRC",
+                  "caption":"LTE기지국통계RRC / 일별추이 / RRC성공률 / {c_txt} / {g_txt}",
                   "catScope":"{c_txt}",
                   "group":"{g_txt}",
                   "dates":"2주간"

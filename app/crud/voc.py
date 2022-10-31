@@ -12,7 +12,7 @@ from app import models
 async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                    start_date: str = None, end_date: str = None, limit: int = 10):
     # 기지국별 VOC Worst TOP 10
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
     juso = func.concat(models.VocList.sido_nm+' ', models.VocList.eup_myun_dong_nm).label("juso")
     
@@ -59,11 +59,12 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
         code_val = None
     
     # code의 값목록 : 삼성|노키아
-    if code_val != "" and group != "":
+    if (code_val) and (group):
         txt_l = group.split("|")
         stmt = stmt.where(code_val.in_(txt_l))
 
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     # stmt_rk = select([
     #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('RANK'),
@@ -82,7 +83,7 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
 async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                       start_date: str = None, end_date: str = None, limit: int = 10):
     # 단말별 품질 VOC Worst TOP10
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
    
     entities = [
@@ -199,7 +200,7 @@ async def get_voc_list_by_group_date(db: AsyncSession, group: str, start_date: s
 async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                  start_date: str = None, end_date: str = None):
     # 1000가입자당  VOC건수
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.ifnull(models.SubscrOrg.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
 
     stmt_sbscr = select(models.SubscrOrg.base_date, sbscr_cnt)
@@ -398,7 +399,7 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
     sbscr_where_and = []  # sbscr 테이블 where list
     voc_where_and = []  # voc 테이블 where list
 
-    voc_cnt = func.sum(models.VocList.sr_tt_rcp_no_cnt).label("voc_cnt")
+    voc_cnt = func.count(models.VocList.sr_tt_rcp_no_cnt).label("voc_cnt")
     sbscr_cnt = func.sum(models.SubscrOrg.bprod_maint_sbscr_cascnt).label("sbscr_cnt")
 
     # 기간
@@ -532,7 +533,7 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
 async def get_worst10_bts_by_group_date(db: AsyncSession, group: str = None, start_date: str = None, end_date: str = None,
                                   limit: int = 10):
     # 기지국별 5G품질 VOC Worst TOP 10
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
     juso = func.concat(models.VocList.sido_nm + ' ', models.VocList.eup_myun_dong_nm).label("juso")
 
@@ -587,7 +588,7 @@ async def get_worst10_bts_by_group_date(db: AsyncSession, group: str = None, sta
 async def get_worst10_hndset_by_group_date(db: AsyncSession, group: str = None, start_date: str = None, end_date: str = None,
                                      limit: int = 10):
     # 단말별 5G품질 VOC Worst TOP10
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
 
     entities = [
@@ -636,7 +637,7 @@ async def get_worst10_hndset_by_group_date(db: AsyncSession, group: str = None, 
 
 async def get_voc_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
     # 1000가입자당  VOC건수
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.ifnull(models.SubscrOrg.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
 
     stmt_sbscr = select(models.SubscrOrg.base_date, sbscr_cnt)
@@ -690,7 +691,7 @@ async def get_voc_trend_by_group_date(db: AsyncSession, group: str, start_date: 
 
 async def get_voc_trend_by_group_date_bk(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
     # 1000가입자당  VOC건수
-    voc_cnt = func.sum(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
+    voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0)).label("voc_cnt")
     sbscr_cnt = func.sum(func.ifnull(models.Subscr.bprod_maint_sbscr_cascnt, 0)).label("sbscr_cnt")
 
     stmt_sbscr = select(models.Subscr.base_date, sbscr_cnt)
@@ -749,10 +750,10 @@ async def get_voc_event_by_group_date(db: AsyncSession, prod: str = None, code: 
     ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
     in_cond = [ref_day, today]
 
-    sum_cnt = func.sum(
+    sum_cnt = func.count(
         case((models.VocList.base_date == today, models.VocList.sr_tt_rcp_no_cnt), else_=0)
     ).label("score")
-    sum_cnt_ref = func.sum(
+    sum_cnt_ref = func.count(
         case((models.VocList.base_date == ref_day, models.VocList.sr_tt_rcp_no_cnt), else_=0)
     ).label("score_ref")
 

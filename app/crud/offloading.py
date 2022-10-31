@@ -119,7 +119,7 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
     if code == "제조사별":
         stmt = stmt.where(models.Offloading_Hndset.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
         stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(txt_l))

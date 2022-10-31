@@ -125,8 +125,8 @@ async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, prod:str, code:st
     else: # 전국
         pass
 
-    #worst 기준(RRC실패율, 트래픽, PRB부하율)
-    if prod == "RRC실패율":
+    #worst 기준(RRC성공률, 트래픽, PRB부하율)
+    if prod == "RRC성공률":
         order_col = rrc_rate.asc()
     elif prod == "트래픽":
         order_col = sum_rrc_try.desc()
