@@ -39,8 +39,6 @@ async def get_addr_code_all(db: AsyncSession, sido:str=None, gungu:str=None, don
         ]
         stmt = select(*entities)
         stmt = stmt.group_by(*entities)
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
-
 
     query = await db.execute(stmt)
     query_result = query.all()
@@ -58,7 +56,7 @@ async def get_org_code_all(db: AsyncSession):
         models.OrgCode.area_jo_nm,
     ]
     stmt = select(*entities).order_by(models.OrgCode.seq_no)
-    # print(stmt)
+
     query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
@@ -73,7 +71,6 @@ async def get_org_code_all(db: AsyncSession):
             j_l = [{"id":r[2], "label":r[2]} for r in query_result if r[0] == bonbu and r[1] == team]
             # list_teams.append(schemas.OperTeamCode(oper_team_nm=team, area_jo_nms=j_l))
             list_teams.append({"id":team, "label":team, "children":j_l})
-        # print(list_teams)
 
         # list_bonbu.append(schemas.OrgCodeOutput(biz_hq_nm=bonbu, oper_team_nms=list_teams))
         list_bonbu.append({"id":bonbu, "label":bonbu, "children":list_teams})
@@ -91,7 +88,7 @@ async def get_menu_code_all(db: AsyncSession):
         models.MenuCode.menu4,
     ]
     stmt = select(*entities)
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
     query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()

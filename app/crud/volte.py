@@ -75,7 +75,7 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         stmt = stmt.where(models.VolteFailBts.anals_3_prod_level_nm == prod)
 
     # stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(sum_try>100).order_by(cut_ratio.desc()).limit(limit)
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
         *stmt.c
@@ -150,7 +150,7 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
         pass
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).limit(limit)
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
@@ -228,8 +228,6 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
         stmt_cut = stmt_cut.where(models.VolteFailOrg.anals_3_prod_level_nm == prod)
 
     stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.VolteFailOrg.base_date.asc())
-
-    print(stmt_cut.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = await db.execute(stmt_cut)
     query_result_cut = query_cut.all()
@@ -479,7 +477,6 @@ async def get_worst10_volte_hndset_by_group_date(db: AsyncSession, group: str, s
 
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
-    print(stmt_rk)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
 

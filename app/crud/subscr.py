@@ -41,7 +41,7 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
     if code == "제조사별":
         stmt = stmt.where(models.SubscrHndset.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         stmt = stmt.where(models.SubscrHndset.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
         stmt = stmt.where(models.SubscrHndset.oper_team_nm.in_(txt_l))
@@ -113,7 +113,7 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
     if code == "제조사별":
         stmt = stmt.where(models.SubscrOrg.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         stmt = stmt.where(models.SubscrOrg.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
         stmt = stmt.where(models.SubscrOrg.oper_team_nm.in_(txt_l))

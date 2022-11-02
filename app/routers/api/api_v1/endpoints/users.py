@@ -54,7 +54,7 @@ async def read_user_by_id(id: str, db: SessionLocal = Depends(get_db)):
     db_user = await get_user_by_id(db, user_id=id)
     if db_user is None:
         raise ex.NotFoundUserEx
-    print("db_user: ", db_user.__dict__)
+    # print("db_user: ", db_user.__dict__)
     user_out = UserOutput(**db_user.__dict__)
     return user_out
 

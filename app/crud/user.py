@@ -55,7 +55,6 @@ async def create_user(db: Session, user: schemas.UserCreate):
 
     query = await db.execute(stmt)
     query_result = query.first()
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     if not query_result:
         raise HTTPException(status_code=401,detail="Bad user id")
@@ -68,7 +67,6 @@ async def create_user(db: Session, user: schemas.UserCreate):
         j=0
         for i in range(4-min(3, len(depts)), 4):
             setattr(db_user, f"group_{i}", depts[j])
-            print(f"group_{i} : {depts[j]}")
             j = j+1
         # db_user["group_1"] = query_result["EX_POSITION_NM"]
 
@@ -78,9 +76,9 @@ async def create_user(db: Session, user: schemas.UserCreate):
         #   센터장 로그인-> 센터&센터
         #   그외 -> default.(강남엔지니어링부. 전국?)
         #   조 직원 로그인(config수정한경우) -> 직원&조
-        print("user select", db_user.level, db_user.group_3)
+        # print("user select", db_user.level, db_user.group_3)
         db_user.board_modules = get_default_board_modules(db, db_user.level, db_user.group_3)
-        print(db_user.board_modules)
+        # print(db_user.board_modules)
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
@@ -237,7 +235,6 @@ def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
         """
     if level == "직원":
         if group.endswith("조"):
-            print("DEFAULT >> 직원 조")
             tmp = default_config.format(c_txt="조별", g_txt=group)
         elif group.endswith("팀") or group.endswith("부"):
             tmp = default_config.format(c_txt="팀별", g_txt=group)
