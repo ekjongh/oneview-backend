@@ -49,3 +49,4 @@ class SubscrHndset(KBase):
     anals_3_prod_level_nm = Column(String(100), primary_key=True)
     hndset_pet_nm = Column(String(100), primary_key=True)
     bprod_maint_sbscr_cascnt = Column(Integer)
+
