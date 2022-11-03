@@ -78,8 +78,6 @@ async def get_org_code_all(db: AsyncSession):
     return list_bonbu
 
 
-
-
 async def get_menu_code_all(db: AsyncSession):
     entities = [
         models.MenuCode.menu1,
@@ -102,4 +100,5 @@ async def get_menu_code_all(db: AsyncSession):
         list_menu.append(schemas.MenuCodeOutput(name=nm, menus=list_submenu))
 
     return list_menu
+
 

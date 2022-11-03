@@ -23,6 +23,7 @@ class OrgCode(Base):
     area_team_nm = Column(String(100))
     area_jo_nm = Column(String(100))
 
+
 class MenuCode(Base):
     __tablename__ = "CODE_MENU"
 
@@ -30,6 +31,7 @@ class MenuCode(Base):
     menu2 = Column(String(100))
     menu3 = Column(String(200))
     menu4 = Column(String(200))
+
 
 class OrgGroup(Base):
     __tablename__ = "ORG_GROUP_TMP"

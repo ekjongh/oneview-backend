@@ -82,13 +82,13 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
 
     lastweek = (datetime.strptime(start_date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
 
-    sum_cnt = func.sum(case((models.SubscrOrg.base_date == start_date, models.SubscrOrg.bprod_maint_sbscr_cascnt)
+    sum_cnt = func.sum(case((models.Subscr.base_date == start_date, models.Subscr.bprod_maint_sbscr_cascnt)
                             , else_=0)).label("sum_cnt")
-    sum_cnt_ref = func.sum(case((models.SubscrOrg.base_date == lastweek, models.SubscrOrg.bprod_maint_sbscr_cascnt)
+    sum_cnt_ref = func.sum(case((models.Subscr.base_date == lastweek, models.Subscr.bprod_maint_sbscr_cascnt)
                                 , else_=0)).label("sum_cnt_ref")
 
     entities = [
-        models.SubscrOrg.anals_3_prod_level_nm.label("prod"),
+        models.Subscr.anals_3_prod_level_nm.label("prod"),
     ]
     entities_groupby = [
         sum_cnt,
@@ -97,12 +97,12 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
 
     stmt = select(*entities, *entities_groupby)
     stmt_total = select(literal("전국").label("prod"), *entities_groupby)  # 전국5g단말합계
-    stmt_total = stmt_total.where(models.SubscrOrg.anals_3_prod_level_nm == '5G')
+    stmt_total = stmt_total.where(models.Subscr.anals_3_prod_level_nm == '5G')
 
 
     #날짜
-    stmt = stmt.where(models.SubscrOrg.base_date.in_([start_date, lastweek]))
-    stmt_total = stmt_total.where(models.SubscrOrg.base_date.in_([start_date, lastweek]))
+    stmt = stmt.where(models.Subscr.base_date.in_([start_date, lastweek]))
+    stmt_total = stmt_total.where(models.Subscr.base_date.in_([start_date, lastweek]))
 
     txt_l = []
     # code의 값목록 : 삼성|노키아
@@ -111,20 +111,17 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
 
     # 선택 조건
     if code == "제조사별":
-        stmt = stmt.where(models.SubscrOrg.mkng_cmpn_nm.in_(txt_l))
+        stmt = stmt.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
         stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.SubscrOrg.oper_team_nm.in_(stmt_where))
+        stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
-        stmt = stmt.where(models.SubscrOrg.oper_team_nm.in_(txt_l))
+        stmt = stmt.where(models.Subscr.oper_team_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
-        stmt = stmt.where(models.SubscrOrg.eup_myun_dong_nm.in_(stmt_where))
+        stmt_where = select(models.AddrCode.gun_gu_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.Subscr.gun_gu_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
-        stmt = stmt.where(models.SubscrOrg.eup_myun_dong_nm.in_(stmt_where))
-    elif code == "읍면동별":
-        stmt = stmt.where(models.SubscrOrg.eup_myun_dong_nm.in_(txt_l))
+        stmt = stmt.where(models.Subscr.gun_gu_nm.in_(txt_l))
     else: # 전국
         pass
 

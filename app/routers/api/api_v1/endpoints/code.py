@@ -29,3 +29,5 @@ async def get_menu_code(db: SessionLocal = Depends(get_db)):
 async def get_maker_code():
     maker_list = ["삼성전자", "노키아", "에릭슨엘지(주)", "이노와이어리스", "(주)주니코리아"]
     return maker_list
+
+

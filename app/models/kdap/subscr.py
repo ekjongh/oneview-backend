@@ -17,7 +17,7 @@ class Subscr(KBase):
     oper_team_nm = Column(String(100))
     sido_nm = Column(String(100), primary_key=True)
     gun_gu_nm = Column(String(100), primary_key=True)
-    eup_myun_dong_nm = Column(String(100))
+    # eup_myun_dong_nm = Column(String(100))
     anals_3_prod_level_nm = Column(String(100), primary_key=True)
     hndset_pet_nm = Column(String(100), primary_key=True)
     sa_5g_suprt_div_nm = Column(String(100))
