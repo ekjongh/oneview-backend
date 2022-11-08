@@ -62,6 +62,29 @@ class VolteFailHndset(KBase):
     fc417_cnt = Column(Integer)
     fc8210_cnt = Column(Integer)
 
+
+class VolteFail(KBase):
+    __tablename__ = "SUM_VOLTE_FAIL_RATE"
+
+    base_date = Column(String(100), primary_key=True)
+    mkng_cmpn_nm = Column(String(100))
+    area_jo_nm = Column(String(100))
+    sido_nm = Column(String(100))
+    gun_gu_nm = Column(String(100))
+    eup_myun_dong_nm = Column(String(100))
+    anals_3_prod_level_nm = Column(String(100))
+    try_cacnt = Column(Integer)
+    comp_cacnt = Column(Integer)
+    fail_cacnt = Column(Integer)
+    fc373_cnt = Column(Integer)
+    fc374_cnt = Column(Integer)
+    fc9563_cnt = Column(Integer)
+    fc8501_cnt = Column(Integer)
+    fc417_cnt = Column(Integer)
+    fc8210_cnt = Column(Integer)
+
+
+# #########################################################
 class VolteFailOrg(KBase):
     __tablename__ = "SUM_VOLTE_FAIL_RATE_ORG"
 

@@ -131,9 +131,9 @@ async def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=For
 
     r.set_cookie(key="access_token", value=access_token, httponly=False )
     r.set_cookie(key="refresh_token", value=refresh_token, httponly=False )
-    r.set_cookie(key="access_token", value=access_token, httponly=False, domain="kt.co.kr")
-    r.set_cookie(key="refresh_token", value=refresh_token, httponly=False, domain="kt.co.kr")
-    r.set_cookie(key="AUTHCHK", value=refresh_token, httponly=False, domain="kt.co.kr")
+    r.set_cookie(key="access_token", value=access_token, httponly=False, domain=".kt.co.kr")
+    r.set_cookie(key="refresh_token", value=refresh_token, httponly=False, domain=".kt.co.kr")
+    r.set_cookie(key="AUTHCHK", value=refresh_token, httponly=False, domain=".kt.co.kr")
 
     return r
 

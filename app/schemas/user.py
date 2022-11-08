@@ -30,6 +30,8 @@ class UserUpdate(UserBase):
     phone: Union[str, None] = None
     is_active: Union[bool, None] = None
     is_superuser: Union[bool, None] = None
+    auth: Union[str, None] = None
+    level: Union[str, None] = None
 
     group_1: Union[str, None] = None
     group_2: Union[str, None] = None
@@ -38,6 +40,7 @@ class UserUpdate(UserBase):
     # board_modules: List[ModuleConfigBase]
     board_modules: Union[str, None] = None
 
+    is_default: Union[bool, None] = None # 화면설정 초기화 여부
 
     class Config:
         schema_extra = {
@@ -78,6 +81,7 @@ class UserOutput(UserBase):
     # board_modules: List[ModuleConfigBase]
     board_modules: Union[str, None] = None
     level: Union[str, None] = None
+    auth: Union[str, None] = None
 
     class Config:
         schema_extra = {

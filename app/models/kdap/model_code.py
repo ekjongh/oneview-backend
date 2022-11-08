@@ -33,6 +33,14 @@ class MenuCode(Base):
     menu4 = Column(String(200))
 
 
+class DashboardConfigCode(Base):
+    __tablename__ = "CODE_CONFIG"
+
+    idx = Column(Integer, primary_key=True)
+    auth = Column(String(100))
+    board_modules = Column(String(5000))
+
+
 class OrgGroup(Base):
     __tablename__ = "ORG_GROUP_TMP"
 

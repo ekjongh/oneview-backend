@@ -59,7 +59,7 @@ async def read_user_by_id(id: str, db: SessionLocal = Depends(get_db)):
     return user_out
 
 @router.put("/{id}", response_model=UserBase)
-async def update_user_by_id(id: str, user:UserOutput, db: SessionLocal = Depends(get_db),
+async def update_user_by_id(id: str, user:UserUpdate, db: SessionLocal = Depends(get_db),
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
         if client.user_id != id:
