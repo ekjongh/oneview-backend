@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select, between, case,literal
 
 from app.errors import exceptions as ex
+from app.crud.code import get_dashboard_configs_by_auth
 from .. import models, schemas
 from app.utils.internel.user import user_model_to_schema, user_schema_to_model
 import json
@@ -55,7 +56,6 @@ async def create_user(db: Session, user: schemas.UserCreate):
 
     query = await db.execute(stmt)
     query_result = query.first()
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     if not query_result:
         raise HTTPException(status_code=401,detail="Bad user id")
@@ -68,7 +68,6 @@ async def create_user(db: Session, user: schemas.UserCreate):
         j=0
         for i in range(4-min(3, len(depts)), 4):
             setattr(db_user, f"group_{i}", depts[j])
-            print(f"group_{i} : {depts[j]}")
             j = j+1
         # db_user["group_1"] = query_result["EX_POSITION_NM"]
 
@@ -78,9 +77,15 @@ async def create_user(db: Session, user: schemas.UserCreate):
         #   센터장 로그인-> 센터&센터
         #   그외 -> default.(강남엔지니어링부. 전국?)
         #   조 직원 로그인(config수정한경우) -> 직원&조
-        print("user select", db_user.level, db_user.group_3)
-        db_user.board_modules = get_default_board_modules(db, db_user.level, db_user.group_3)
-        print(db_user.board_modules)
+        # print("user select", db_user.level, db_user.group_3)
+
+        db_user.auth = "직원" if db_user.level=="직원" else "팀장"
+
+        board_config = await get_dashboard_configs_by_auth(db, db_user.auth)
+        if board_config:
+            db_user.board_modules = board_config.format(c_txt="팀별", g_txt=db_user.group_3)
+
+        # print(db_user.board_modules)
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
@@ -101,7 +106,7 @@ def create_superuser(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-async def update_user(db: Session, user_id: str, user: schemas.UserOutput):
+async def update_user(db: Session, user_id: str, user: schemas.UserUpdate):
     stmt = select(models.User).filter(models.User.user_id == user_id)
     query = await db.execute(stmt)
     db_user = query.scalar()
@@ -113,6 +118,13 @@ async def update_user(db: Session, user_id: str, user: schemas.UserOutput):
     # user = user_schema_to_model(user)
 
     user_data = user.dict(exclude_unset=True)
+
+    # if is_default -> default config 적용
+    if user_data["is_default"]:
+        board_config = await get_dashboard_configs_by_auth(db, user_data["auth"])
+        if board_config:
+            user_data["board_modules"] = board_config.format(c_txt="팀별", g_txt=user_data["group_3"])
+
     for k, v in user_data.items():
         setattr(db_user, k, v)
     db.add(db_user)
@@ -121,118 +133,17 @@ async def update_user(db: Session, user_id: str, user: schemas.UserOutput):
     return db_user
 
 
-def delete_user(db: Session, user_id: int):
-    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+async def delete_user(db: Session, user_id: int):
+    stmt = select(models.User).filter(models.User.user_id == user_id)
+    query = await db.execute(stmt)
+    db_user = query.scalar()
+
     if db_user is None:
         raise ex.NotFoundUserEx
-    db.delete(db_user)
-    db.commit()
+    await db.delete(db_user)
+    await db.commit()
     return db_user
 
-def get_default_board_modules(db: Session, level: str="직원", group: str="" ):
-    default_config = """
-                {{"banners": 
-              [
-                {{"catIndicator":"천명당VOC",
-                 "catProductService":"5G",
-                 "catScope":"{c_txt}",
-                 "group":"{g_txt}",
-                 "title":"품질 VOC 발생",
-                 "dates":"어제"
-                }}, 
-                {{"catIndicator":"VOLTE절단율",
-                 "catProductService":"5G",
-                 "catScope":"{c_txt}",
-                 "group":"{g_txt}",
-                 "title":"VoLTE 절단율",
-                 "dates":"어제"
-                }}, {{
-                 "catIndicator":"오프로딩율_5G",
-                 "catProductService":"5G",
-                 "catScope":"{c_txt}",
-                 "group":"{g_txt}",
-                 "title":"5G 오프로드율",
-                 "dates":"어제"
-                }} 
-              ], 
-             "cards": 
-              [
-                {{"catIndicator":"천명당VOC",
-                 "catPresentationFormat":"일별추이",
-                 "catProductService":"5G",
-                 "catScope":"{c_txt}",
-                 "group":"{g_txt}",
-                 "title":"품질 VOC 발생 5G",
-                 "caption":"품질 VOC 발생 5G (2주간 일별 추이)",
-                 "dates":"2주간"
-                }}, {{
-                  "catIndicator":"VOLTE절단율",
-                  "catPresentationFormat":"일별추이",
-                  "catProductService":"5G",
-                  "catScope":"{c_txt}",
-                  "group":"{g_txt}",
-                  "title":"VoLTE 절단율 5G",
-                  "caption":"VoLTE 절단율 5G (2주간 일별 추이)",
-                  "dates":"2주간"
-                }}, {{
-                  "catIndicator":"오프로딩율_5G",
-                  "catPresentationFormat":"일별추이",
-                  "catProductService":"5G",
-                  "catScope":"{c_txt}",
-                  "group":"{g_txt}",
-                  "title":"5G 오프로드율",
-                  "caption":"5G 오프로드율 (2주간 일별 추이)",
-                  "dates":"2주간"
-                }}, {{
-                  "catIndicator":"단말별가입자수",
-                  "catPresentationFormat":"_",
-                  "catProductService":"5G",
-                  "catScope":"{c_txt}",
-                  "group":"{g_txt}",
-                  "title":"5G 단말 기종별 고객 수 5G",
-                  "caption":"5G 단말 기종별 고객 수 5G (전주 대비)",
-                  "dates":"어제"
-                }}, {{
-                  "catIndicator":"MDT",
-                  "catPresentationFormat":"일별추이",
-                  "catProductService":"_",
-                  "title":"MDT 불량률",
-                  "caption":"MDT 불량률 (2주간 일별 추이)",
-                  "catScope":"{c_txt}",
-                  "group":"{g_txt}",
-                  "dates":"2주간"
-                }}, {{
-                  "catIndicator":"LTE기지국통계_RRC",
-                  "catPresentationFormat":"일별추이",
-                  "catProductService":"RRC연결재설정성공율|PRB사용량",
-                  "title":"RRC연결재설정성공율, PRB사용량",
-                  "caption":"RRC연결재설정성공율, PRB사용량 (2주간 일별 추이)",
-                  "catScope":"{c_txt}",
-                  "group":"{g_txt}",
-                  "dates":"2주간"
-                }}
-              ]
-            }}
-        """
-    if level == "직원":
-        if group.endswith("조"):
-            print("DEFAULT >> 직원 조")
-            tmp = default_config.format(c_txt="조별", g_txt=group)
-        elif group.endswith("팀") or group.endswith("부"):
-            tmp = default_config.format(c_txt="팀별", g_txt=group)
-        elif group.endswith("센터"):
-            tmp = default_config.format(c_txt="센터별", g_txt=group)
-        else:
-            tmp = default_config.format(c_txt="팀별", g_txt="강남엔지니어링부")
-    else:
-        if group.endswith("팀") or group.endswith("부"):
-            tmp = default_config.format(c_txt="팀별", g_txt=group)
-        elif group.endswith("센터"):
-            tmp = default_config.format(c_txt="센터별", g_txt=group)
-        else:
-            tmp = default_config.format(c_txt="팀별", g_txt="강남엔지니어링부")
-    return tmp
-    # return db.query(models.UserDashboardConfig).filter(models.UserDashboardConfig.owner_id == user_id).first()
 
 
 # ------------------------------- User DashBoard Config ... -------------------------------------- #

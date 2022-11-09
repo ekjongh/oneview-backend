@@ -17,3 +17,9 @@ class SubMenuCode(BaseModel):
 class MenuCodeOutput(BaseModel):
     name: Union[str, None]
     menus: List[SubMenuCode]
+
+
+class ConfigCode(BaseModel):
+    idx: Union[int, None]
+    auth: Union[str, None]
+    board_modules: Union[str, None]

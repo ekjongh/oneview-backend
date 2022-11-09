@@ -14,8 +14,7 @@ from app.crud.voc import get_voc_event_by_group_date, \
                          get_voc_trend_item_by_group_date, \
                          get_worst10_bts_by_group_date2, \
                          get_worst10_hndset_by_group_date2, \
-                         get_voc_trend_by_group_date2,\
-                         get_voc_trend_by_group_date_bk
+                         get_voc_trend_by_group_date2
 
 
 router = APIRouter()
@@ -54,6 +53,7 @@ async def get_voc_trend_daily2(prod:str=None, code:str=None, group:str="",start_
     voc_trend_days = await get_voc_trend_by_group_date2(db=db, prod=prod, code=code, group=group,
                                                  start_date=start_date, end_date=end_date)
     return voc_trend_days
+
 
 
 # 기존 Code

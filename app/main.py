@@ -44,6 +44,9 @@ origins = [
     "http://10.203.228.81:8080",
     "http://10.220.230.193",
     "http://10.220.230.193:8000",
+    "http://10.200.76.123",
+    "http://ownview.kt.co.kr",
+    "https://ownview.kt.co.kr",
 ]
 
 # app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)

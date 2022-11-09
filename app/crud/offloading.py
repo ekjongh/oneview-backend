@@ -119,7 +119,7 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
     if code == "제조사별":
         stmt = stmt.where(models.Offloading_Hndset.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(stmt_where))
     elif code == "팀별":
         stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(txt_l))
@@ -136,7 +136,7 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
 
     #주요단말정렬기준 : 데이터량
     # stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
-    stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
@@ -224,7 +224,7 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
         pass
 
     # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(sum_total_data > 0).order_by(g5_off_ratio.asc()).limit(limit)
 
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
@@ -347,7 +347,6 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
             st_in.c.base_date,
             code_where_nm
         )
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
 
     query = await db.execute(stmt)
@@ -476,7 +475,6 @@ async def get_offloading_trend_by_group_date(db: AsyncSession, group: str, start
         stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
 
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.all()
@@ -535,7 +533,6 @@ async def get_worst10_offloading_hndset_by_group_date(db: AsyncSession, group: s
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
@@ -690,11 +687,6 @@ async def get_offloading_event_by_group_date(db: AsyncSession, group: str="", da
         dates = result[0]
     except:
         return None
-    print("date: ", in_cond)
-    print("resut: ", result)
-    print("keys: ", query_keys)
-    print(dict(zip(query_keys, result)))
-
 
     if len(values) == 1:
         if today in dates:

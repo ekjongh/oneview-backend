@@ -23,6 +23,7 @@ class OrgCode(Base):
     area_team_nm = Column(String(100))
     area_jo_nm = Column(String(100))
 
+
 class MenuCode(Base):
     __tablename__ = "CODE_MENU"
 
@@ -31,8 +32,17 @@ class MenuCode(Base):
     menu3 = Column(String(200))
     menu4 = Column(String(200))
 
+
+class DashboardConfigCode(Base):
+    __tablename__ = "CODE_CONFIG"
+
+    idx = Column(Integer, primary_key=True)
+    auth = Column(String(100))
+    board_modules = Column(String(5000))
+
+
 class OrgGroup(Base):
-    __tablename__ = "ORG_GROUP"
+    __tablename__ = "ORG_GROUP_TMP"
 
     EX_ORG_CD = Column(String(20), primary_key=True)
     NAME = Column(String(100))
@@ -46,7 +56,7 @@ class OrgGroup(Base):
 
 
 class OrgUser(Base):
-    __tablename__ = "ORG_USER"
+    __tablename__ = "ORG_USER_TMP"
 
     LOGIN_ID = Column(String(10), primary_key=True)
     NAME = Column(String(128))

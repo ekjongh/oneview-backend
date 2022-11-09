@@ -205,8 +205,6 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
         *stmt.c
     ])
 
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
-    # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
@@ -385,7 +383,6 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
             code_where_nm
         )
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
     query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
@@ -608,7 +605,6 @@ async def get_worst10_mdt_bts_by_group_date(db: AsyncSession, group: str, start_
     ])
 
     # query = db.execute(stmt_rk)
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)

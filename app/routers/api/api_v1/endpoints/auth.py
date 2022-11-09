@@ -15,7 +15,7 @@ from app.schemas.user import User, UserBase, UserEnc, UserCreate
 ## 인증테스트
 import jpype
 from fastapi import Form, Request, Response, status
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, HTMLResponse
 from app.utils import java
 from app.errors.exceptions import AccessEx
 
@@ -40,7 +40,7 @@ async def logout_access(db: Session = Depends(get_db), Authorize: AuthJWT = Depe
     Authorize.jwt_required()
     current_user = Authorize.get_jwt_subject()
 
-    _user = get_user_by_id(db, current_user)
+    _user = await get_user_by_id(db, current_user)
     _user_id = _user.user_id
 
     decrypted_token = Authorize.get_raw_jwt()['jti']
@@ -53,7 +53,7 @@ async def logout_refresh(db: Session = Depends(get_db), Authorize: AuthJWT = Dep
     Authorize.jwt_refresh_token_required()
     current_user = Authorize.get_jwt_subject()
 
-    _user = get_user_by_id(db, current_user)
+    _user = await get_user_by_id(db, current_user)
 
     _user_id = _user.user_id
     decrypted_token = Authorize.get_raw_jwt()['jti']
@@ -120,15 +120,20 @@ async def login_by_kdap(request:Request, response:Response, VOC_USER_ID: str=For
     # if client_ip != client_ip_decoded:
     #     raise HTTPException(status_code=401, detail="Bad user ip")
     #
+
     login_user = await get_user_by_id(db, user_id_decoded)
     if not login_user:
         register_user = UserCreate(user_id = user_id_decoded)
         _ = await create_user(db, register_user)
-
     access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
-    print("user_id_decoded: ", user_id_decoded)
     r = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-    r.set_cookie(key="access_token", value=access_token, httponly=False)  # ok
-    r.set_cookie(key="refresh_token", value=refresh_token, httponly=False)  # ok
+
+    r.set_cookie(key="access_token", value=access_token, httponly=False )
+    r.set_cookie(key="refresh_token", value=refresh_token, httponly=False )
+    r.set_cookie(key="access_token", value=access_token, httponly=False, domain=".kt.co.kr")
+    r.set_cookie(key="refresh_token", value=refresh_token, httponly=False, domain=".kt.co.kr")
+    r.set_cookie(key="AUTHCHK", value=refresh_token, httponly=False, domain=".kt.co.kr")
+
     return r
+
