@@ -223,8 +223,9 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
         stmt_sbscr = stmt_sbscr.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
         stmt_voc = stmt_voc.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        # stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        stmt_sbscr = stmt_sbscr.where(models.Subscr.biz_hq_nm.in_(txt_l))
         stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(txt_l))
@@ -421,11 +422,11 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
         voc_sel_nm = models.VocList.mkng_cmpn_nm  # voc 테이블 select 변수
 
     elif code == "센터별":
-        code_tbl_nm = models.OrgCode
-        code_sel_nm = models.OrgCode.oper_team_nm
-        code_where_nm = models.OrgCode.biz_hq_nm
+        # code_tbl_nm = models.OrgCode
+        # code_sel_nm = models.OrgCode.oper_team_nm
+        # code_where_nm = models.OrgCode.biz_hq_nm
 
-        sbscr_sel_nm = models.Subscr.oper_team_nm
+        sbscr_sel_nm = models.Subscr.biz_hq_nm
         voc_sel_nm = models.VocList.biz_hq_nm  # voc 테이블 select 변수
     elif code == "팀별":
         sbscr_sel_nm = models.Subscr.oper_team_nm

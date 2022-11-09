@@ -75,11 +75,13 @@ async def get_mdt_trend_by_group_date2(db: AsyncSession, code:str, group: str, s
     if code == "제조사별":
         stmt_cut = stmt.where(models.Mdt.bts_maker_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        # stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        stmt = stmt.where(models.Mdt.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        # stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        stmt = stmt.where(models.Mdt.oper_team_nm.in_(txt_l))
     elif code == "조별":
         stmt = stmt.where(models.Mdt.area_jo_nm.in_(txt_l))
     elif code == "시도별":
@@ -179,11 +181,13 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
     if code == "제조사별":
         stmt_cut = stmt.where(models.Mdt.bts_maker_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        # stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        stmt = stmt.where(models.Mdt.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        # stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
+        stmt = stmt.where(models.Mdt.oper_team_nm.in_(txt_l))
     elif code == "조별":
         stmt = stmt.where(models.Mdt.area_jo_nm.in_(txt_l))
     elif code == "시도별":
@@ -276,17 +280,17 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
         stmt_sel_nm = models.Mdt.bts_maker_nm
 
     elif code == "센터별":
-        code_tbl_nm = models.OrgCode
-        code_sel_nm = models.OrgCode.area_jo_nm
-        code_where_nm = models.OrgCode.biz_hq_nm
+        # code_tbl_nm = models.OrgCode
+        # code_sel_nm = models.OrgCode.area_jo_nm
+        # code_where_nm = models.OrgCode.biz_hq_nm
 
-        stmt_sel_nm = models.Mdt.area_jo_nm
+        stmt_sel_nm = models.Mdt.biz_hq_nm
     elif code == "팀별":
-        code_tbl_nm = models.OrgCode
-        code_sel_nm = models.OrgCode.area_jo_nm
-        code_where_nm = models.OrgCode.oper_team_nm
+        # code_tbl_nm = models.OrgCode
+        # code_sel_nm = models.OrgCode.area_jo_nm
+        # code_where_nm = models.OrgCode.oper_team_nm
 
-        stmt_sel_nm = models.Mdt.area_jo_nm
+        stmt_sel_nm = models.Mdt.oper_team_nm
     elif code == "조별":
         stmt_sel_nm = models.Mdt.area_jo_nm
     elif code == "시도별":
