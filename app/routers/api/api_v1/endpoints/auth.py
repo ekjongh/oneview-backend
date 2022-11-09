@@ -128,7 +128,6 @@ async def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_
     # access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
     r = RedirectResponse(url=f"/auth?token={refresh_token}", status_code=status.HTTP_303_SEE_OTHER)
-
     # r.set_cookie(key="access_token", value=access_token, httponly=False )
     # r.set_cookie(key="refresh_token", value=refresh_token, httponly=False )
 
