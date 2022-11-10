@@ -123,10 +123,10 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(stmt_where))
-        stmt = stmt.where(models.Offloading_Bts.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Hndset.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         # stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(txt_l))
-        stmt = stmt.where(models.Offloading_Bts.oper_team_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(txt_l))
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Offloading_Hndset.eup_myun_dong_nm.in_(stmt_where))
@@ -146,7 +146,7 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
         func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
     ])
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
