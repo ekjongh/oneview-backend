@@ -99,17 +99,23 @@ class BtsSummary(BaseModel):
     equip_nm: Union[str, None]          # 주기지국
     latit_val: Union[str, None]
     lngit_val: Union[str, None]
-    s1ap_cnt: Union[int, None]
-    s1ap_fail_cnt: Union[int, None]
-    rsrp_bad_cnt: Union[int, None]
-    rsrq_bad_cnt: Union[int, None]
-    rip_cnt: Union[int, None]
+
+    s1ap_cnt: Union[int, None]          # s1ap발생 d
+    s1ap_fail_cnt: Union[int, None]     # s1ap실패 d
+    volte_self_fail_cacnt: Union[int, None]  # 자망절단 ㅇ
+    volte_fail_cacnt: Union[int, None]  # 총절단
+    rsrp_avg: Union[float, None]        # rsrp 평균
+    rsrp_bad_cnt: Union[int, None]      # rsrp불량 d
+    rsrq_bad_cnt: Union[int, None]      # rsrq불량 d
+    rip_avg: Union[float, None]         # rip 평균
+    rip_bad_cnt: Union[int, None]       # rip 불량
+    rip_cnt: Union[int, None]           # rip 건수 d
+    phr_avg: Union[float, None]         # phr 평균
+    phr_bad_cnt: Union[int, None]       # phr 불량 ㅇ
     new_phr_m3d_cnt: Union[int, None]
     new_phr_mind_cnt: Union[int, None]
-    phr_bad_cnt: Union[int, None]
     phr_cnt: Union[int, None]
     nr_rsrp_cnt: Union[int, None]
-    volte_self_fail_cacnt: Union[int, None]
 
 class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo

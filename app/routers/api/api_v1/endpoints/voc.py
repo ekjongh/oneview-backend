@@ -5,11 +5,7 @@ from fastapi import APIRouter, Depends
 from app import schemas
 from app.db.session import SessionLocal
 from app.routers.api.deps import get_db
-from app.crud.voc import get_voc_event_by_group_date, \
-                         get_voc_list_by_group_date, \
-                         get_voc_trend_by_group_date, \
-                         get_worst10_bts_by_group_date, \
-                         get_worst10_hndset_by_group_date, \
+from app.crud.voc import get_voc_list_by_group_date, \
                          get_voc_spec_by_srno,\
                          get_voc_trend_item_by_group_date, \
                          get_worst10_bts_by_group_date2, \
@@ -90,22 +86,4 @@ async def get_voc_trend_item_daily(prod:str=None, code:str=None, group:str="",st
 #     vocs = get_vocs(db=db, team=team, date=date, limit=limit)
 #     return vocs
 
-
-#############################################
-# 주기지국 VOC 기준 Worst TOP 10
-@router.get("/worst", response_model=List[schemas.VocBtsOutput])
-async def get_worst_bts(limit: int = 10, group:str="", start_date: str = "20220501", end_date: str = None, db: SessionLocal = Depends(get_db)):
-    worst_bts = await get_worst10_bts_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date, limit=limit)
-    return worst_bts
-
-# 단말기 VOC 기준 Worst TOP 10
-@router.get("/worst_hndset", response_model=List[schemas.VocHndsetOutput])
-async def get_worst_hndset(limit: int = 10, group:str="", start_date: str = "20220501", end_date: str = None, db: SessionLocal = Depends(get_db)):
-    worst_hndset = await get_worst10_hndset_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date, limit=limit)
-    return worst_hndset
-
-@router.get("/trend-day", response_model=List[schemas.VocTrendOutput])
-async def get_voc_trend_daily(group:str="", start_date: str = "20220501", end_date: str = None, db: SessionLocal = Depends(get_db)):
-    voc_trend_days = await get_voc_trend_by_group_date(db=db, group=group, start_date=start_date, end_date=end_date)
-    return voc_trend_days
 
