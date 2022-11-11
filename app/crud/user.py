@@ -18,13 +18,14 @@ import json
 #     return user
 
 def get_user_by_id(db: Session, user_id: str):
-    stmt = select(models.User).filter(models.User.user_id == user_id)
-    query = db.execute(stmt)
-    user = query.scalar()
-    # board_module 형식 []->str 변경으로 미사용
-    # if user:
-    #     user = user_model_to_schema(user)
-    return user
+    return db.query(models.User).filter(models.User.user_id == user_id).first()
+    # stmt = select(models.User).filter(models.User.user_id == user_id)
+    # query = db.execute(stmt)
+    # user = query.scalar()
+    # # board_module 형식 []->str 변경으로 미사용
+    # # if user:
+    # #     user = user_model_to_schema(user)
+    # return user
 
 
 # async def get_user_by_id(db: AsyncSession, user_id: str):

@@ -51,7 +51,7 @@ async def update_my_config(user:UserBase = Depends(get_current_user)):
 
 @router.get("/{id}", response_model=UserOutput)
 async def read_user_by_id(id: str, db: SessionLocal = Depends(get_db)):
-    db_user = await get_user_by_id(db, user_id=id)
+    db_user = get_user_by_id(db, user_id=id)
     if db_user is None:
         raise ex.NotFoundUserEx
     # print("db_user: ", db_user.__dict__)

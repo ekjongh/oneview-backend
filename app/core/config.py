@@ -6,6 +6,7 @@ from typing import List
 base_dir = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 load_dotenv()
 SQLALCHEMY_DATABASE_URL = environ.get("SQLALCHEMY_DATABASE_URL")
+SQLALCHEMY_DATABASE_URL_SYNC = environ.get("SQLALCHEMY_DATABASE_URL_SYNC")
 
 @dataclass
 class Config:
@@ -18,6 +19,7 @@ class Config:
     DEBUG: bool = False
     TEST_MODE: bool = False
     DB_URL: str = SQLALCHEMY_DATABASE_URL
+    DB_URL_SYNC: str = SQLALCHEMY_DATABASE_URL_SYNC
 
 
 @dataclass

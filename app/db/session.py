@@ -6,7 +6,7 @@ from app.core.config import conf
 
 config = conf()
 SQLALCHEMY_DATABASE_URL = config.DB_URL
-
+SQLALCHEMY_DATABASE_URL_SYNC = config.DB_URL_SYNC
 # SQLALCHEMY_DATABASE_URL = 'oracle://nwai:nwai123@10.203.13.202:8316/XE'
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 # cx_Oracle.makedsn("localhost", 49161, sid="xe")
@@ -24,7 +24,7 @@ engine = create_async_engine(
     # max_identifier_length=30,
 )
 engine_sync = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    SQLALCHEMY_DATABASE_URL_SYNC,
     # connect_args={"check_same_thread": False}
     # connect_args={
     #     "encoding": "UTF-8",
@@ -34,6 +34,7 @@ engine_sync = create_engine(
     # },
     # max_identifier_length=30,
 )
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, class_=AsyncSession, bind=engine)
 SessionLocalSync = sessionmaker(autocommit=False, autoflush=False, bind=engine_sync)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, class_=AsyncSession, bind=engine)
+# SessionLocalSync = sessionmaker(autocommit=False, autoflush=False, bind=engine_sync)
 print("DB Connections Success!")

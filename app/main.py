@@ -11,7 +11,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from .crud.blacklist import get_blacklist
 from .db.init_db import init_db
-from .db.session import SessionLocal, engine
+from .db.session import SessionLocal, engine, SessionLocalSync
 from .middleware.trust_hosts import TrustedHostMiddleware
 from .routers.api.api_v1.api import api_v1_router
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ c = conf()
 conf_dict = c.__dict__
 
 # DB 초기화
-init_db(SessionLocal())
+init_db(SessionLocalSync())
 # 미들웨어 추가.
 origins = [
     "http://localhost:8080",
