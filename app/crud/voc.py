@@ -324,12 +324,13 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
     sum_s1ap_cnt = func.sum(func.ifnull(models.VocSpec.s1ap_cnt, 0)).label("s1ap_cnt")
     sum_s1ap_fail_cnt = func.sum(func.ifnull(models.VocSpec.s1ap_fail_cnt, 0)).label("s1ap_fail_cnt")
     # 자망절단, 총절단
-    sum_volte_self_fail_cacnt = func.sum(models.VocSpec.volte_self_fail_cacnt).label("volte_self_fail_cacnt")
-    sum_volte_fail_cacnt = func.sum(models.VocSpec.volte_self_fail_cacnt + models.VocSpec.volte_other_fail_cacnt).label("volte_fail_cacnt")
+    sum_volte_self_fail_cacnt = func.sum(func.ifnull(models.VocSpec.volte_self_fail_cacnt,0)).label("volte_self_fail_cacnt")
+    sum_volte_fail_cacnt = func.sum(func.ifnull(models.VocSpec.volte_self_fail_cacnt,0) +
+                                    func.ifnull(models.VocSpec.volte_other_fail_cacnt,0)).label("volte_fail_cacnt")
     # SRU발생건, nSINR평균 불량
     #rsrp 평균, 불량 , rsrq 불량
-    rsrp_avg = func.sum(models.VocSpec.rsrp_sum)/ (func.sum(models.VocSpec.rsrp_cnt) + 1e-6)
-    rsrp_avg = func.round(rsrp_avg,4).label("rsrp_avg")
+    sum_rsrp_cnt = func.sum(func.ifnull(models.VocSpec.rsrp_cnt,0)).label("rsrp_cnt")
+    sum_rsrp_sum = func.sum(func.ifnull(models.VocSpec.rsrp_sum,0)).label("rsrp_sum")
     sum_rsrp_bad_cnt = func.sum(
                                 func.ifnull(models.VocSpec.rsrp_m105d_cnt, 0)
                                 + func.ifnull(models.VocSpec.rsrp_m110d_cnt, 0)
@@ -339,13 +340,12 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
                             + func.ifnull(models.VocSpec.rsrq_m17d_cnt, 0)
                         ).label("rsrq_bad_cnt")
     # rip 평균, 불량
-    rip_avg = func.sum(models.VocSpec.rip_sum)/ (func.sum(models.VocSpec.rip_cnt) + 1e-6)
-    rip_avg = func.round(rip_avg).label("rip_avg")
+    sum_rip_sum = func.sum(func.ifnull(models.VocSpec.rip_sum,0)).label("rip_sum")
     sum_rip_bad_cnt = func.sum(func.ifnull(models.VocSpec.new_rip_maxd_cnt, 0)).label("rip_bad_cnt")
     sum_rip_cnt = func.sum(func.ifnull(models.VocSpec.rip_cnt, 0)).label("rip_cnt")
     # phr 평균, 불량
-    phr_avg = func.sum(models.VocSpec.phr_sum) / (func.sum(models.VocSpec.phr_cnt) + 1e-6)
-    phr_avg = func.round(phr_avg,4).label("phr_avg")
+    sum_phr_sum = func.sum(func.ifnull(models.VocSpec.phr_sum,0)).label("phr_sum")
+    sum_phr_cnt = func.sum(func.ifnull(models.VocSpec.phr_cnt,0)).label("phr_cnt")
     sum_phr_bad_cnt = func.sum(
                             func.ifnull(models.VocSpec.new_phr_m3d_cnt, 0)
                             + func.ifnull(models.VocSpec.new_phr_mind_cnt, 0)
@@ -368,16 +368,18 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
         sum_s1ap_fail_cnt,      # s1ap실패
         sum_volte_self_fail_cacnt, # 자망절단
         sum_volte_fail_cacnt,   # 총절단
-        rsrp_avg,               # rsrp 평균
+        sum_rsrp_cnt,           # rsrp
+        sum_rsrp_sum,           # rsrp
         sum_rsrp_bad_cnt,       # rsrp불량
         sum_rsrq_bad_cnt,       # rsrq불량
-        rip_avg,                # rip 평균
+        sum_rip_sum,            # rip
+        sum_rip_cnt,            # rip
         sum_rip_bad_cnt,        # rip 불량
         sum_rip_cnt,            # rip건수
-        phr_avg,                # phr 평균
+        sum_phr_sum,            # phr
+        sum_phr_cnt,            # phr
         sum_phr_bad_cnt,        # phr 불량
         sum_nr_rsrp_cnt,
-
     ]
 
     stmt_bts = select(*entities_bts, *entities_bts_groupby)
