@@ -23,5 +23,17 @@ engine = create_async_engine(
     # },
     # max_identifier_length=30,
 )
+engine_sync = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    # connect_args={"check_same_thread": False}
+    # connect_args={
+    #     "encoding": "UTF-8",
+    #     "nencoding": "UTF-8",
+    #     "mode": cx_Oracle.SYSDBA,
+    #     "events": True
+    # },
+    # max_identifier_length=30,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, class_=AsyncSession, bind=engine)
+SessionLocalSync = sessionmaker(autocommit=False, autoflush=False, bind=engine_sync)
 print("DB Connections Success!")

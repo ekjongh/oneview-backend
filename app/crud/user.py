@@ -17,15 +17,24 @@ import json
 #     user.board_modules = json.dumps([dict(obj) for obj in user.board_modules])
 #     return user
 
-
-async def get_user_by_id(db: AsyncSession, user_id: str):
+def get_user_by_id(db: Session, user_id: str):
     stmt = select(models.User).filter(models.User.user_id == user_id)
-    query = await db.execute(stmt)
+    query = db.execute(stmt)
     user = query.scalar()
     # board_module 형식 []->str 변경으로 미사용
-    # if user: 
+    # if user:
     #     user = user_model_to_schema(user)
     return user
+
+
+# async def get_user_by_id(db: AsyncSession, user_id: str):
+#     stmt = select(models.User).filter(models.User.user_id == user_id)
+#     query = await db.execute(stmt)
+#     user = query.scalar()
+#     # board_module 형식 []->str 변경으로 미사용
+#     # if user:
+#     #     user = user_model_to_schema(user)
+#     return user
 
 
 async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
