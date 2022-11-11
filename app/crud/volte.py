@@ -52,11 +52,13 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
     if code == "제조사별":
         stmt = stmt.where(models.VolteFailBts.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        # stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+        stmt = stmt.where(models.VolteFailBts.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        # stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+        stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
     elif code == "조별":
         stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
     elif code == "시도별":
@@ -134,8 +136,9 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
     if code == "제조사별":
         stmt = stmt.where(models.VolteFailHndset.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        # stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(stmt_where))
+        stmt = stmt.where(models.VolteFailHndset.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
     elif code == "시도별":
@@ -205,11 +208,13 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
     if code == "제조사별":
         stmt_cut = stmt_cut.where(models.VolteFail.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
+        # stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
+        stmt_cut = stmt_cut.where(models.VolteFail.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
+        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+        # stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
+        stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm.in_(txt_l))
     elif code == "조별":
         stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(txt_l))
     elif code == "시도별":
@@ -274,17 +279,17 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         stmt_sel_nm = models.VolteFail.mkng_cmpn_nm
 
     elif code == "센터별":
-        code_tbl_nm = models.OrgCode
-        code_sel_nm = models.OrgCode.area_jo_nm
-        code_where_nm = models.OrgCode.biz_hq_nm
+        # code_tbl_nm = models.OrgCode
+        # code_sel_nm = models.OrgCode.area_jo_nm
+        # code_where_nm = models.OrgCode.biz_hq_nm
 
-        stmt_sel_nm = models.VolteFail.area_jo_nm
+        stmt_sel_nm = models.VolteFail.biz_hq_nm
     elif code == "팀별":
-        code_tbl_nm = models.OrgCode
-        code_sel_nm = models.OrgCode.area_jo_nm
-        code_where_nm = models.OrgCode.oper_team_nm
+        # code_tbl_nm = models.OrgCode
+        # code_sel_nm = models.OrgCode.area_jo_nm
+        # code_where_nm = models.OrgCode.oper_team_nm
 
-        stmt_sel_nm = models.VolteFail.area_jo_nm
+        stmt_sel_nm = models.VolteFail.oper_team_nm
     elif code == "조별":
         stmt_sel_nm = models.VolteFail.area_jo_nm
     elif code == "시도별":
@@ -357,253 +362,3 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         list_items.append(schemas.VolteTrendItemOutput(title=code, data=t_l))
     return list_items
 
-############################
-async def get_worst10_volte_bts_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
-                                        limit: int = 10):
-    # 5G VOLTE 절단호기준 worst 10 기지국 :
-    # get_worst10_volte_bts_by_group_date(db: Session, group: str = None, start_date: str=None, end_date: str=None, limit: int=10):
-    sum_try = func.sum(func.ifnull(models.VolteFailBts.try_cacnt, 0.0)).label("sum_try")
-    sum_suc = func.sum(func.ifnull(models.VolteFailBts.comp_cacnt, 0.0)).label("sum_suc")
-    # sum_fail = func.sum(func.ifnull(models.VolteFailBts.fail_cacnt, 0.0)).label("sum_fail")
-    sum_cut = func.sum(func.ifnull(models.VolteFailBts.fail_cacnt, 0.0)).label("sum_cut")
-    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
-    cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
-    juso = func.concat(models.VolteFailBts.sido_nm + ' ', models.VolteFailBts.eup_myun_dong_nm).label("juso")
-
-    entities = [
-        models.VolteFailBts.equip_nm,
-        models.VolteFailBts.equip_cd,
-        # juso,
-        models.VolteFailBts.biz_hq_nm.label("center"),
-        models.VolteFailBts.oper_team_nm.label("team"),
-        models.VolteFailBts.area_jo_nm.label("jo")
-    ]
-    entities_groupby = [
-        sum_try,
-        sum_suc,
-        # sum_fail,
-        sum_cut,
-        cut_ratio
-    ]
-
-    stmt = select(*entities, *entities_groupby).where(models.VolteFailBts.anals_3_prod_level_nm == '5G')
-
-    if not end_date:
-        end_date = start_date
-
-    if start_date:
-        stmt = stmt.where(between(models.VolteFailBts.base_date, start_date, end_date))
-
-    txt_l = []
-    # code의 값목록 : 삼성|노키아
-    if group != "":
-        txt_l = group.split("|")
-
-    if group.endswith("센터"):
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
-    elif group.endswith("조"):
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
-
-    # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc())
-    stmt_rk = select([
-        func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
-        *stmt.c
-    ])
-    # query = db.execute(stmt_rk)
-    query = await db.execute(stmt)
-    query_result = query.fetchmany(size=limit)
-    query_keys = query.keys()
-
-    list_worst_volte_bts = list(map(lambda x: schemas.VolteBtsOutput(**dict(zip(query_keys, x))), query_result))
-    return list_worst_volte_bts
-
-
-async def get_worst10_volte_hndset_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None,
-                                           limit: int = 10):
-    # 5G VOLTE 절단율 worst 10 단말기
-    sum_try = func.sum(func.ifnull(models.VolteFailHndset.try_cacnt, 0.0)).label("sum_try")
-    sum_suc = func.sum(func.ifnull(models.VolteFailHndset.comp_cacnt, 0.0)).label("sum_suc")
-    sum_cut = func.sum(func.ifnull(models.VolteFailHndset.fail_cacnt, 0.0)).label("sum_cut")
-    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
-    cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
-
-    entities = [
-        models.VolteFailHndset.hndset_pet_nm,
-    ]
-    entities_groupby = [
-        sum_try,
-        sum_suc,
-        sum_cut,
-        cut_ratio
-    ]
-
-    stmt = select(*entities, *entities_groupby).where(models.VolteFailHndset.anals_3_prod_level_nm == '5G')
-
-    if not end_date:
-        end_date = start_date
-
-    if start_date:
-        stmt = stmt.where(between(models.VolteFailHndset.base_date, start_date, end_date))
-
-    txt_l = []
-    # code의 값목록 : 삼성|노키아
-    if group != "":
-        txt_l = group.split("|")
-
-    if group.endswith("센터"):
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt = stmt.where(models.VolteFailHndset.area_jo_nm.in_(stmt_where))
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
-    else:
-        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
-
-    # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc())
-
-    stmt_rk = select([
-        func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
-        *stmt.c
-    ])
-
-    # query = db.execute(stmt_rk)
-    query = await db.execute(stmt)
-    query_result = query.fetchmany(size=limit)
-    query_keys = query.keys()
-
-    list_worst_volte_hndset = list(map(lambda x: schemas.VolteHndsetOutput(**dict(zip(query_keys, x))), query_result))
-    return list_worst_volte_hndset
-
-
-async def get_volte_trend_by_group_date(db: AsyncSession, group: str, start_date: str = None, end_date: str = None):
-    sum_suc = func.sum(func.ifnull(models.VolteFailOrg.comp_cacnt, 0.0)).label("sum_suc")
-    sum_cut = func.sum(func.ifnull(models.VolteFailOrg.fail_cacnt, 0.0)).label("sum_cut")
-    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
-    cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_rate")
-
-    fc_373_cnt = func.sum(func.ifnull(models.VolteFailOrg.fc373_cnt, 0.0)).label("fc_373")
-    fc_9563_cnt = func.sum(func.ifnull(models.VolteFailOrg.fc9563_cnt, 0.0)).label("fc_9563")
-
-    entities_cut = [
-        models.VolteFailOrg.base_date.label("date"),
-    ]
-    entities_groupby_cut = [
-        cut_ratio,
-        fc_373_cnt,
-        fc_9563_cnt
-    ]
-
-    stmt_cut = select(*entities_cut, *entities_groupby_cut).where(models.VolteFailOrg.anals_3_prod_level_nm == '5G')
-
-    if not end_date:
-        end_date = start_date
-
-    if start_date:
-        stmt_cut = stmt_cut.where(between(models.VolteFailOrg.base_date, start_date, end_date))
-
-    txt_l = []
-    # code의 값목록 : 삼성|노키아
-    if group != "":
-        txt_l = group.split("|")
-
-
-    if group.endswith("센터"):
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
-        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(stmt_where))
-    elif group.endswith("팀") or group.endswith("부"):
-        stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(stmt_where))
-    elif group.endswith("조"):
-        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
-    else:
-        stmt_cut = stmt_cut.where(models.VolteFailOrg.area_jo_nm.in_(txt_l))
-
-    stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.VolteFailOrg.base_date.asc())
-
-    query_cut = await db.execute(stmt_cut)
-    query_result_cut = query_cut.all()
-    query_keys_cut = query_cut.keys()
-
-    list_volte_trend = list(map(lambda x: schemas.VolteTrendOutput(**dict(zip(query_keys_cut, x))), query_result_cut))
-    return list_volte_trend
-
-async def get_volte_event_by_group_date(db: AsyncSession, group: str="", date:str=None):
-    # today = datetime.today().strftime("%Y%m%d")
-    # yesterday = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
-
-    today = date
-    ref_day = (datetime.strptime(date, "%Y%m%d") - timedelta(1)).strftime("%Y%m%d")
-    in_cond = [ref_day, today]
-
-    sum_suc = func.sum(func.ifnull(models.VolteFailBts.comp_cacnt, 0.0))
-    sum_cut = func.sum(func.ifnull(models.VolteFailBts.fail_cacnt, 0.0))
-    cut_ratio = sum_cut / (sum_suc + 1e-6) * 100
-    cut_ratio = func.round(cut_ratio, 4)
-    cut_ratio = func.coalesce(cut_ratio, 0.0000).label("cut_ratio")
-
-    entities = [
-        models.VolteFailBts.base_date,
-        # models.VolteFailBts.area_jo_nm
-    ]
-    entities_groupby = [
-        cut_ratio
-    ]
-
-    if group.endswith("센터"):
-        select_group = models.VolteFailBts.biz_hq_nm
-    elif group.endswith("팀") or group.endswith("부"):
-        select_group = models.VolteFailBts.oper_team_nm
-    elif group.endswith("조"):
-        select_group = models.VolteFailBts.area_jo_nm
-    else:
-        select_group = None
-
-    if select_group:
-        entities.append(select_group)
-        stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
-            group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
-        stmt = stmt.where(select_group == group)
-    else:
-        stmt = select([*entities, *entities_groupby], models.VolteFailBts.base_date.in_(in_cond)). \
-            group_by(*entities).order_by(models.VolteFailBts.base_date.asc())
-    try:
-        query = await db.execute(stmt)
-        query_result = query.all()
-        query_keys = query.keys()
-        result = list(zip(*query_result))
-        values = result[-1]
-        dates = result[0]
-    except:
-        return None
-    # print("date: ", in_cond)
-    # print("resut: ", result)
-    # print("keys: ", query_keys)
-    # print(dict(zip(query_keys, result)))
-
-    if len(values) == 1:
-        if today in dates:
-            score = values[0]
-            score_ref = 0
-        else:
-            score = 0
-            score_ref = values[0]
-    else:
-        score = values[1]
-        score_ref = values[0]
-
-    volte_event = schemas.VolteEventOutput(
-        title = "VoLTE 절단율(전일대비)",
-        score = score,
-        score_ref = score_ref,
-    )
-    return volte_event

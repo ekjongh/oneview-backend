@@ -68,6 +68,8 @@ class VolteFail(KBase):
 
     base_date = Column(String(100), primary_key=True)
     mkng_cmpn_nm = Column(String(100))
+    biz_hq_nm  = Column(String(100))
+    oper_team_nm = Column(String(100))
     area_jo_nm = Column(String(100))
     sido_nm = Column(String(100))
     gun_gu_nm = Column(String(100))
