@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 
 from app.crud.user import create_user, get_users, get_user_by_id, update_user, delete_user
-from app.routers.api.deps import get_db, get_current_user, get_current_active_user
+from app.routers.api.deps import get_db, get_current_user, get_current_active_user, get_db_sync
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserOutput
 # from app.schemas.user_board_config import UserBoardConfigBase, UserBoardConfig
 # from app.utils.internel.user import dashboard_model_to_schema
@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=UserBase, status_code=201)
-async def register(user: UserCreate, db: SessionLocal = Depends(get_db)):
+async def register(user: UserCreate, db: SessionLocal = Depends(get_db_sync)):
     register_user = get_user_by_id(db, user.user_id)
     if register_user:
         raise HTTPException(status_code=401, detail="user already exist")
@@ -70,7 +70,7 @@ async def update_user_by_id(id: str, user:UserUpdate, db: SessionLocal = Depends
 
 
 @router.delete("/{id}", response_model=UserBase)
-async def delete_user_by_id(id: int, db: SessionLocal = Depends(get_db),
+async def delete_user_by_id(id: int, db: SessionLocal = Depends(get_db_sync),
                       client=Depends(get_current_active_user)):
     if not client.is_superuser:
         if client.id != id:

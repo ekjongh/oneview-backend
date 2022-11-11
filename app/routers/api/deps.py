@@ -12,23 +12,23 @@ from app.db.session import SessionLocal, SessionLocalSync
 from sqlalchemy.ext.asyncio import AsyncSession
 
 #
-def get_db() -> Generator:
+def get_db_sync() -> Generator:
     try:
         db = SessionLocalSync()
         yield db
     finally:
         db.close()
 
-# def get_db() ->  AsyncGenerator[AsyncSession, None]:
-#     try:
-#         async with SessionLocal() as db:
-#             yield db
-#     finally:
-#         await db.close()
+async def get_db() ->  AsyncGenerator[AsyncSession, None]:
+    try:
+        async with SessionLocal() as db:
+            yield db
+    finally:
+        await db.close()
 
 
 async def get_current_user(
-    db: SessionLocal = Depends(get_db), Authorize: AuthJWT = Depends()
+    db: SessionLocal = Depends(get_db_sync), Authorize: AuthJWT = Depends()
 ) -> models.User:
     Authorize.jwt_required()
     user_id = Authorize.get_jwt_subject()
