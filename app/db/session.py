@@ -14,6 +14,7 @@ SQLALCHEMY_DATABASE_URL_SYNC = config.DB_URL_SYNC
 engine = create_async_engine(
 # engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
+    pool_recycle=500
     # connect_args={"check_same_thread": False}
     # connect_args={
     #     "encoding": "UTF-8",
@@ -25,6 +26,7 @@ engine = create_async_engine(
 )
 engine_sync = create_engine(
     SQLALCHEMY_DATABASE_URL_SYNC,
+    pool_recycle=500
     # connect_args={"check_same_thread": False}
     # connect_args={
     #     "encoding": "UTF-8",

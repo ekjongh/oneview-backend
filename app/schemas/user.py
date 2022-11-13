@@ -40,7 +40,6 @@ class UserUpdate(UserBase):
     # board_modules: List[ModuleConfigBase]
     board_modules: Union[str, None] = None
 
-    is_default: Union[bool, None] = None # 화면설정 초기화 여부
 
     class Config:
         schema_extra = {
@@ -80,8 +79,7 @@ class UserOutput(UserBase):
     group_4: Union[str, None] = None
     # board_modules: List[ModuleConfigBase]
     board_modules: Union[str, None] = None
-    level: Union[str, None] = None
-    auth: Union[str, None] = None
+
 
     class Config:
         schema_extra = {

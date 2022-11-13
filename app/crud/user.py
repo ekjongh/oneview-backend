@@ -130,10 +130,10 @@ async def update_user(db: Session, user_id: str, user: schemas.UserUpdate):
     user_data = user.dict(exclude_unset=True)
 
     # if is_default -> default config 적용
-    if user_data["is_default"]:
-        board_config = await get_dashboard_configs_by_auth(db, user_data["auth"])
-        if board_config:
-            user_data["board_modules"] = board_config.format(c_txt="팀별", g_txt=user_data["group_3"])
+    # if user_data["is_default"]:
+    #     board_config = await get_dashboard_configs_by_auth(db, user_data["auth"])
+    #     if board_config:
+    #         user_data["board_modules"] = board_config.format(c_txt="팀별", g_txt=user_data["group_3"])
 
     for k, v in user_data.items():
         setattr(db_user, k, v)
