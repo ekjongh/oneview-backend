@@ -20,6 +20,8 @@ class MdtBtsOutput(BaseModel):
     equip_cd: Union[str, None]         # 기지국ID
     equip_nm: Union[str, None]          # 기지국명
     rsrp_bad_rate: Union[float, None]     # RSRP불량률
+    rsrp_bad_cnt: Union[int, None]
+    rsrp_cnt: Union[int, None]
     rsrq_bad_rate: Union[float, None]     # RSRQ불량률
     rip_bad_rate: Union[float, None]      # RIP불량률
     phr_bad_rate: Union[float, None]      # PHR불량률

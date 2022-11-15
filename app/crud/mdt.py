@@ -109,7 +109,8 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
                                         limit: int = 10):
     sum_rsrp_m105d_cnt = func.sum(models.Mdt.rsrp_m105d_cnt)
     sum_rsrp_m110d_cnt = func.sum(models.Mdt.rsrp_m110d_cnt)
-    sum_rsrp_cnt = func.sum(models.Mdt.rsrp_cnt)
+    sum_rsrp_bad_cnt = (sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt).label("rsrp_bad_cnt")
+    sum_rsrp_cnt = func.sum(models.Mdt.rsrp_cnt).label("rsrp_cnt")
     sum_rsrp_value = func.sum(models.Mdt.rsrp_sum)
 
     sum_rsrq_m15d_cnt = func.sum(models.Mdt.rsrq_m15d_cnt)
@@ -129,7 +130,7 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
     sum_nr_rsrp_cnt = func.sum(models.Mdt.nr_rsrp_cnt)
     sum_nr_rsrp_value = func.sum(models.Mdt.nr_rsrp_sum)
 
-    rsrp_bad_rate = func.round((sum_rsrp_m105d_cnt + sum_rsrp_m110d_cnt) / (sum_rsrp_cnt + 1e-6) * 100, 4).\
+    rsrp_bad_rate = func.round(sum_rsrp_bad_cnt / (sum_rsrp_cnt + 1e-6) * 100, 4).\
         label("rsrp_bad_rate")
     rsrp_mean = func.round(sum_rsrp_value / (sum_rsrp_cnt + 1e-6),4).label("rsrp_mean")
 
@@ -158,6 +159,8 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
     ]
     entities_groupby = [
         rsrp_bad_rate,
+        sum_rsrp_bad_cnt,
+        sum_rsrp_cnt,
         rsrq_bad_rate,
         rip_bad_rate,
         phr_bad_rate,
