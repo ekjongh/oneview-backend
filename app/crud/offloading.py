@@ -97,10 +97,10 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
     ]
     entities_groupby = [
         g5_off_ratio,
-        # sum_3g_data,
-        # sum_lte_data,
-        # sum_5g_data,
-        # sum_sru_data,
+        sum_3g_data,
+        sum_lte_data,
+        sum_5g_data,
+        sum_sru_data,
         sum_total_data,
     ]
 
@@ -139,17 +139,16 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
         pass
 
     #주요단말정렬기준 : 데이터량
-    # stmt = stmt.group_by(*entities).order_by(sum_total_data.asc()).subquery()
-    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
+    stmt = stmt.group_by(*entities).order_by(sum_total_data.desc()).limit(50)
 
     stmt_rk = select([
-        func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
+        # func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
-    ])
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    ]).order_by(stmt.c.g5_off_ratio.asc()).limit(limit)
+    # print(stmt_rk.compile(compile_kwargs={"literal_binds": True}))
 
     # query = db.execute(stmt_rk)
-    query = await db.execute(stmt)
+    query = await db.execute(stmt_rk)
     query_result = query.all()
     query_keys = query.keys()
 
@@ -176,19 +175,17 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
                        models.Offloading_Bts.eup_myun_dong_nm).label("juso")
 
     entities = [
-        # models.Offloading_Bts.equip_nm,
-        # models.Offloading_Bts.equip_cd,
         juso,
         models.Offloading_Bts.biz_hq_nm.label("center"),
         models.Offloading_Bts.oper_team_nm.label("team"),
         models.Offloading_Bts.area_jo_nm.label("jo")
     ]
     entities_groupby = [
-        # sum_3g_data,
-        # sum_lte_data,
-        # sum_5g_data,
-        # sum_sru_data,
-        # sum_total_data,
+        sum_3g_data,
+        sum_lte_data,
+        sum_5g_data,
+        sum_sru_data,
+        sum_total_data,
         g5_off_ratio,
     ]
 
@@ -230,14 +227,13 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
         pass
 
     # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_total_data > 0).order_by(g5_off_ratio.asc()).limit(limit)
+    stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
 
     stmt_rk = select([
-        func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
+        # func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),
         *stmt.c
-    ])
+    ]).order_by(stmt.c.g5_off_ratio.asc()).limit(limit)
 
-    # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()

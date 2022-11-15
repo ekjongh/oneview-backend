@@ -17,7 +17,7 @@ class VocListInput(BaseModel):
     pass
 
 class VocBtsOutput(BaseModel):
-    RANK: Union[int,None]
+    # RANK: Union[int,None]
     equip_cd: Union[str, None]         # 기지국ID
     equip_nm: Union[str, None]          # 기지국명
     voc_cnt: Union[int, None]            # VOC건수
@@ -27,7 +27,7 @@ class VocBtsOutput(BaseModel):
     jo: Union[str, None]
 
 class VocHndsetOutput(BaseModel):
-    RANK: Union[int, None]
+    # RANK: Union[int, None]
     hndset_pet_nm: Union[str, None]       # 단말기명
     voc_cnt: Union[int, None]             # VOC건수
 

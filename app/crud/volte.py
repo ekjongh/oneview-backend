@@ -153,16 +153,17 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
         pass
 
     # stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(sum_cut.desc()).subquery()
-    stmt = stmt.group_by(*entities).having(sum_try > 100).order_by(cut_ratio.desc()).limit(limit)
+    stmt = stmt.group_by(*entities).order_by(sum_cut.desc()).limit(50)
 
     stmt_rk = select([
-        func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
+        # func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
         *stmt.c
-    ])
+    ]).order_by(stmt.c.cut_ratio.desc()).limit(10)
 
     # query = db.execute(stmt_rk)
-    query = await db.execute(stmt)
-    # print(stmt_rk)
+    query = await db.execute(stmt_rk)
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
     query_result = query.fetchall()
     query_keys = query.keys()
 
