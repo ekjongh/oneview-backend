@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select, between, case,literal
 
 from app.errors import exceptions as ex
-from app.crud.code import get_dashboard_configs_by_auth
 from .. import models, schemas
 from app.utils.internel.user import user_model_to_schema, user_schema_to_model
 import json
