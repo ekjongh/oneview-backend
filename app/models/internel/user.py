@@ -25,6 +25,8 @@ class User(Base):
 
     level = Column(String(50), default="")
     auth = Column(String(30), default="직원") #직원, 팀장, 광역본부장/센터장, 부문장/스텝본부장
+    board_id = Column(Integer)
 
     blacklists = relationship("Blacklist", back_populates="owner")
+    dashboardconfig = relationship("DashboardConfig", back_populates="owner")
     # events_bts_comment = relationship("EventsBtsComment", back_populates="owner")

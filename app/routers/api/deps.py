@@ -27,7 +27,7 @@ async def get_db() ->  AsyncGenerator[AsyncSession, None]:
         await db.close()
 
 
-async def get_current_user(
+def get_current_user(
     db: SessionLocal = Depends(get_db_sync), Authorize: AuthJWT = Depends()
 ) -> models.User:
     Authorize.jwt_required()

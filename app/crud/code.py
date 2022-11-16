@@ -49,6 +49,8 @@ async def get_addr_code_all(db: AsyncSession, sido:str=None, gungu:str=None, don
     list_code = list(map(lambda x: schemas.AddrCodeOutput(**dict(zip(query_keys, x))), query_result))
     return list_code
 
+def get_org_code_by_team(db:Session, dept_nm:str):
+    return db.query(models.OrgCode.oper_team_nm).filter(models.OrgCode.oper_team_nm==dept_nm).first()
 
 async def get_org_code_all(db: AsyncSession):
     entities = [

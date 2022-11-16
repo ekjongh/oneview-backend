@@ -1,6 +1,7 @@
 from app.models.internel.user import User
 # from .item import Item
 from .internel.blacklist import Blacklist
+from .internel.dashboard_config import DashboardConfig
 # from .voc_tb import Voc
 
 from app.models.kdap.volte import VolteFailBts, VolteFailHndset, VolteFail, VolteFailOrg

@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from app import schemas
 from app.core.security import verify_password
 from app.crud.blacklist import create_blacklist
-from app.crud.user import get_user_by_id, create_user
+from app.crud.user import get_user_by_id, create_user, update_user
+from app.crud.dashboard_config import db_insert_dashboard_config_by_default
 from app.routers.api.deps import get_db, get_current_active_user, get_current_user, get_db_sync
 from app.schemas import UserCreate, TokenCreate
 from app.schemas.user import User, UserBase, UserEnc, UserCreate
@@ -112,7 +113,7 @@ async def refresh(Authorize: AuthJWT = Depends()):
 
 # 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
 @router.post('/jwt/auth')
-async def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db_sync),Authorize: AuthJWT = Depends()):
+def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str=Form(...), VOC_ORG_NM:str=Form(...), db: Session = Depends(get_db_sync),Authorize: AuthJWT = Depends()):
     client_ip = request.headers["x-forwarded-for"] if "x-forwarded-for" in request.headers.keys() else request.client.host
     client_ip_decoded = java.decode_value(VOC_CLIENT_IP)
     user_id_decoded = java.decode_value(VOC_USER_ID)
@@ -124,7 +125,10 @@ async def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_
     login_user = get_user_by_id(db, user_id_decoded)
     if not login_user:
         register_user = UserCreate(user_id = user_id_decoded)
-        _ = await create_user(db, register_user)
+        user = create_user(db, register_user)
+        config = db_insert_dashboard_config_by_default(db,user)
+        _ = update_user(db, user.user_id,schemas.UserUpdate(board_id=config.board_id))
+
     # access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
     r = RedirectResponse(url=f"/#/auth?token={refresh_token}", status_code=status.HTTP_303_SEE_OTHER)

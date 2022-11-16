@@ -38,7 +38,7 @@ class UserUpdate(UserBase):
     group_3: Union[str, None] = None
     group_4: Union[str, None] = None
     # board_modules: List[ModuleConfigBase]
-    board_modules: Union[str, None] = None
+    board_id: Union[int, None]
 
 
     class Config:
