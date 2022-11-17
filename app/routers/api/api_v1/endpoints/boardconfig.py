@@ -38,7 +38,14 @@ router = APIRouter()
 #     return result
 #
 #
-@router.get("/{user_id}", response_model=List[DashboardConfigList])
+@router.get("/boardconfigs/me", response_model=List[DashboardConfigList])
+def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_user), db: SessionLocal = Depends(get_db_sync)):
+    """
+    내가 선택할 수 있는 대시보드 컨피그 목록 조회
+    """
+    return db_get_dashboard_configs_by_userid(db, user_id=user.user_id)
+
+@router.get("/boardconfigs/{user_id}", response_model=List[DashboardConfigList])
 def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get_db_sync)):
     """
     내가 선택할 수 있는 대시보드 컨피그 목록 조회
@@ -46,7 +53,7 @@ def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get
     return db_get_dashboard_configs_by_userid(db, user_id=user_id)
 
 
-@router.get("/{board_id}", response_model=DashboardConfigOut)
+@router.get("/boardconfig/{board_id}", response_model=DashboardConfigOut)
 def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync), user: UserBase = Depends(get_current_user)):
 # def read_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync)):
     """
@@ -63,7 +70,7 @@ def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db
     return board_config
 
 
-@router.post("/{user_id}")
+@router.post("/boardconfig/{user_id}")
 def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync)):
     """
     새로운 이름의 나의 대시보드 컨피그 생성 ( 나의 컨피그 5개가 넘을 시, 생성 불가 )
@@ -76,14 +83,14 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
         return {"result": "create Success!", "data": data}
 
 
-@router.put("/{board_id}")
+@router.put("/boardconfig/{board_id}")
 def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync)):
     data = db_update_dashboard_config_by_id(board_id=board_id, db=db, board_config=board_config)
 
     return {"result": "Update Success!", "data": data}
 
 
-@router.delete("/{board_id}")
+@router.delete("/boardconfig/{board_id}")
 def delete_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync),
                                             user: UserBase = Depends(get_current_user)):
     """
