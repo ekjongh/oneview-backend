@@ -48,7 +48,7 @@ def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_user), 
 @router.get("/boardconfigs/{user_id}", response_model=List[DashboardConfigList])
 def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get_db_sync)):
     """
-    내가 선택할 수 있는 대시보드 컨피그 목록 조회
+    user_id가 선택할 수 있는 대시보드 컨피그 목록 조회
     """
     return db_get_dashboard_configs_by_userid(db, user_id=user_id)
 
@@ -85,6 +85,9 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
 
 @router.put("/boardconfig/{board_id}")
 def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync)):
+    """
+    선택한 board_id에 대한 대시보드 컨피그 수정
+    """
     data = db_update_dashboard_config_by_id(board_id=board_id, db=db, board_config=board_config)
 
     return {"result": "Update Success!", "data": data}
@@ -94,7 +97,7 @@ def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn
 def delete_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync),
                                             user: UserBase = Depends(get_current_user)):
     """
-    선택한 dashboard config 삭제 ( config 한개 남았을 시, 삭제 불가)
+    선택한 board_id에 대한 dashboard config 삭제 ( config 한개 남았을 시, 삭제 불가)
     """
     cnt = db_count_dashboard_config_by_id(user_id=user.user_id, db=db)
     if cnt<= 1:
