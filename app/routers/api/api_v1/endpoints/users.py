@@ -3,12 +3,12 @@ from typing import List
 from app.errors import exceptions as ex
 from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, SessionLocalSync
 
 from app.crud.user import create_user, get_users, get_user_by_id, update_user, delete_user
+from app.crud.dashboard_config import db_get_dashboard_config_by_id
 from app.routers.api.deps import get_db, get_current_user, get_current_active_user, get_db_sync
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserOutput
-# from app.schemas.user_board_config import UserBoardConfigBase, UserBoardConfig
 # from app.utils.internel.user import dashboard_model_to_schema
 from fastapi.responses import RedirectResponse
 
@@ -36,17 +36,24 @@ async def read_users(skip: int = 0, limit: int = 100, db: SessionLocal = Depends
     return users_out
 
 @router.get("/me", response_model=UserOutput)
-def read_my_config(user: UserBase = Depends(get_current_user)):
+def read_my_config(user: UserBase = Depends(get_current_user), db: SessionLocal = Depends(get_db_sync)):
     if not user:
         return None
     else:
         user_me = UserOutput(**user.__dict__)
+        board_config = db_get_dashboard_config_by_id(db=db, board_id=user.board_id, user_id=user.user_id)
+        if board_config:
+            user_me.board_modules= board_config.board_module
         return user_me
 
 
-@router.put("/me", response_model=UserOutput)
-def update_my_config(user:UserBase = Depends(get_current_user)):
-    pass
+@router.put("/me", response_model=UserBase)
+def update_my_config(user_in:UserUpdate, db: SessionLocal = Depends(get_db_sync), user:UserBase = Depends(get_current_user)):
+    if not user:
+        return {"result": "Update Fail!"}
+    _user = update_user(db=db, user_id=user.user_id, user=user_in)
+
+    return {"result": "Update Success!", "user": _user}
 
 
 @router.get("/{id}", response_model=UserOutput)
@@ -54,9 +61,10 @@ def read_user_by_id(id: str, db: SessionLocal = Depends(get_db_sync)):
     db_user = get_user_by_id(db, user_id=id)
     if db_user is None:
         raise ex.NotFoundUserEx
-    # print("db_user: ", db_user.__dict__)
     user_out = UserOutput(**db_user.__dict__)
+    # user_out = UserOutput(**db_user)
     return user_out
+
 
 @router.put("/{id}", response_model=UserBase)
 def update_user_by_id(id: str, user:UserUpdate, db: SessionLocal = Depends(get_db_sync),

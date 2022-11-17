@@ -22,9 +22,9 @@ class DashboardConfigIn(BaseModel):
 class DashboardConfigOut(BaseModel):
     board_id: Union[int, None]
     name: Union[str, None]
-    board_module: Union[str, None]
     owner_id: Union[str, None]
     update_yn: Union[bool, None]
+    board_module: Union[str, None]
 
 
 class DashboardConfigList(BaseModel):

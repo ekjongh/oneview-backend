@@ -18,7 +18,7 @@ class User(Base):
     group_3 = Column(String(100), default="")
     group_4 = Column(String(100), default="")
 
-    board_modules = Column(String(4000), default="")
+    # board_modules = Column(String(4000), default="")
 
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)

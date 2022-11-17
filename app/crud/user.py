@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, select, between, case,literal
+from sqlalchemy import func, select, between, case,literal, and_
 
 from app.errors import exceptions as ex
 from .. import models, schemas
@@ -17,14 +17,38 @@ import json
 #     return user
 
 def get_user_by_id(db: Session, user_id: str):
-    return db.query(models.User).filter(models.User.user_id == user_id).first()
-    # stmt = select(models.User).filter(models.User.user_id == user_id)
-    # query = db.execute(stmt)
-    # user = query.scalar()
+    stmt = select(models.User).filter(models.User.user_id == user_id)
+    query = db.execute(stmt)
+    user = query.scalar()
     # # board_module 형식 []->str 변경으로 미사용
     # # if user:
     # #     user = user_model_to_schema(user)
-    # return user
+    return user
+    # entities = [
+    #     # *models.User.__table__.columns,
+    #     models.User.user_id,
+    #     models.User.user_name,
+    #     models.User.email,
+    #     models.User.phone,
+    #     models.User.group_1,
+    #     models.User.group_2,
+    #     models.User.group_3,
+    #     models.User.group_4,
+    #     models.User.is_active,
+    #     models.User.is_superuser,
+    #     models.User.board_id,
+    #     models.User.auth,
+    #     models.User.level,
+    #     models.DashboardConfig.board_module,
+    # ]
+    # stmt = select(*entities).outerjoin(models.DashboardConfig,
+    #                          and_(models.User.user_id == models.DashboardConfig.owner_id,
+    #                               models.User.board_id == models.DashboardConfig.board_id)).\
+    #                          filter(models.User.user_id == user_id)
+    # query = db.execute(stmt)
+    # query_result = query.first()
+    #
+    # return query_result._asdict()
 
 
 # async def get_user_by_id(db: AsyncSession, user_id: str):

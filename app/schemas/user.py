@@ -70,16 +70,16 @@ class UserOutput(UserBase):
     user_name: Union[str, None] = None
     email: Union[str, None] = None
     phone: Union[str, None] = None
-    is_active: Union[bool, None] = None
-    is_superuser: Union[bool, None] = None
-
     group_1: Union[str, None] = None
     group_2: Union[str, None] = None
     group_3: Union[str, None] = None
     group_4: Union[str, None] = None
-    # board_modules: List[ModuleConfigBase]
+    is_active: Union[bool, None] = None
+    is_superuser: Union[bool, None] = None
+    board_id : Union[int, None] = None
+    auth: Union[str, None] = None
+    level: Union[str, None] = None
     board_modules: Union[str, None] = None
-
 
     class Config:
         schema_extra = {
