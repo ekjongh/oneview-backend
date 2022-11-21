@@ -24,7 +24,12 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
         models.Offloading_Bts.base_date.label("date"),
     ]
     entities_groupby = [
-        g5_off_ratio
+        g5_off_ratio,
+        sum_3g_data,
+        sum_lte_data,
+        sum_5g_data,
+        sum_sru_data,
+        sum_total_data
     ]
     
     stmt = select(*entities, *entities_groupby)

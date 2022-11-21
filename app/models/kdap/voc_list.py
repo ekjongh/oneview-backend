@@ -50,7 +50,13 @@ class VocList(KBase):
     voc_rcp_txn = Column(String(1000))
     tt_trt_sbst = Column(String(1000))
     voc_actn_txn = Column(String(1000))
+    equip_cd_data = Column(String(100))
+    equip_nm_data = Column(String(100))
+    latit_val_data = Column(String(50))
+    lngit_val_data = Column(String(50))
+
     sr_tt_rcp_no_cnt = Column(Integer)
+
 
 
 class VocSpec(KBase):

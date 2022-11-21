@@ -73,7 +73,10 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         pass
 
     # 상품 조건
-    if prod and prod != "전체":
+    if prod == "5G-SA":
+        stmt = stmt.where(models.VolteFailBts.anals_3_prod_level_nm == '5G')
+        stmt = stmt.where(models.VolteFailBts.sa_5g_suprt_div_nm == '5G_SA지원')
+    elif prod and prod != "전체":
         stmt = stmt.where(models.VolteFailBts.anals_3_prod_level_nm == prod)
 
     # stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc()).subquery()
@@ -230,7 +233,10 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
         pass
 
     # 상품 조건
-    if prod and prod != "전체":
+    if prod == "5G-SA":
+        stmt_cut = stmt_cut.where(models.VolteFail.anals_3_prod_level_nm == '5G')
+        stmt_cut = stmt_cut.where(models.VolteFail.sa_5g_suprt_div_nm == '5G_SA지원')
+    elif prod and prod != "전체":
         stmt_cut = stmt_cut.where(models.VolteFail.anals_3_prod_level_nm == prod)
 
     stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.VolteFail.base_date.asc())
@@ -268,7 +274,10 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
     stmt_where_and.append(between(models.VolteFail.base_date, start_date, end_date))
 
     # 상품 조건
-    if prod and prod != "전체":
+    if prod == "5G-SA":
+        stmt_where_and.append(models.VolteFail.anals_3_prod_level_nm == '5G')
+        stmt_where_and.append(models.VolteFail.anals_3_prod_level_nm == '5G_SA지원')
+    elif prod and prod != "전체":
         stmt_where_and.append(models.VolteFail.anals_3_prod_level_nm == prod)
 
     # code의 값목록 : 삼성|노키아

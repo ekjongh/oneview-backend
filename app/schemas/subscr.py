@@ -13,3 +13,4 @@ class SubscrCompareProdOutput(BaseModel):
     sum_cnt: Union[float, None]        # 금주
     sum_cnt_ref: Union[float, None]       # 전주
 
+

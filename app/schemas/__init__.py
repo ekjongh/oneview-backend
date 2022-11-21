@@ -11,5 +11,5 @@ from .dashboard_config import  DashboardConfigIn, DashboardConfigList, Dashboard
 from .mdt import MdtTrendOutput, MdtBtsOutput,MdtTrendItemOutput
 from .subscr import SubscrCompareOutput, SubscrCompareProdOutput
 from .rrc import RrcTrendOutput, RrcBtsOutput, RrcTrendItemOutput
-from .data_cnt import DataCntCompareProdOutput
+from .data_cnt import DataCntCompareProdOutput, DataCntTrendOutput
 from .code import AddrCodeOutput, MenuCodeOutput, SubMenuCode

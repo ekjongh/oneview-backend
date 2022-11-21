@@ -353,6 +353,10 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
         models.VocList.day_utmky,
         models.VocList.ngt_utmkx,
         models.VocList.ngt_utmky,
+        models.VocList.equip_cd_data,
+        models.VocList.equip_nm_data,
+        models.VocList.latit_val_data,
+        models.VocList.lngit_val_data,
     ]
     stmt_voc = select(*entities_voc).where(models.VocList.sr_tt_rcp_no == sr_tt_rcp_no)
 
@@ -403,7 +407,8 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
     # sum_new_phr_mind_cnt = func.sum(func.ifnull(models.VocSpec.new_phr_mind_cnt, 0)).label("new_phr_mind_cnt")
     # sum_phr_cnt = func.sum(func.ifnull(models.VocSpec.phr_cnt, 0)).label("phr_cnt")
     sum_nr_rsrp_cnt = func.sum(func.ifnull(models.VocSpec.nr_rsrp_cnt, 0)).label("nr_rsrp_cnt")
-
+    sum_volte_try_cacnt = func.sum(func.ifnull(models.VocSpec.volte_try_cacnt, 0)).label("volte_try_cacnt")
+    sum_volte_comp_cacnt = func.sum(func.ifnull(models.VocSpec.volte_comp_cacnt, 0)).label("volte_comp_cacnt")
     entities_bts = [
         # models.VocSpec.base_date,  # label("기준년원일"),
         models.VocSpec.svc_cont_id,
@@ -429,6 +434,8 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
         sum_phr_cnt,            # phr
         sum_phr_bad_cnt,        # phr 불량
         sum_nr_rsrp_cnt,
+        sum_volte_try_cacnt,
+        sum_volte_comp_cacnt,
     ]
 
     stmt_bts = select(*entities_bts, *entities_bts_groupby)

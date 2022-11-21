@@ -91,6 +91,10 @@ class VocUserInfo(BaseModel):
     day_utmky: Union[str, None]
     ngt_utmkx: Union[str, None]
     ngt_utmky: Union[str, None]
+    equip_cd_data: Union[str, None]          # 주기지국id
+    equip_nm_data: Union[str, None]          # 주기지국
+    latit_val_data: Union[str, None]         # 주기지국위도
+    lngit_val_data: Union[str, None]         # 주기지국경도
 
 class BtsSummary(BaseModel):
     base_date: Union[str, None]         # 기준년원일
@@ -118,6 +122,8 @@ class BtsSummary(BaseModel):
     new_phr_mind_cnt: Union[int, None]
     phr_cnt: Union[int, None]
     nr_rsrp_cnt: Union[int, None]
+    volte_try_cacnt: Union[int, None]
+    volte_comp_cacnt: Union[int, None]
 
 class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo

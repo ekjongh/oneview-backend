@@ -12,6 +12,11 @@ class offloadingCompare(BaseModel):
 class OffloadingTrendOutput(BaseModel):
     date: Union[str, None]
     value: Union[float, None]
+    sum_3g_data: Union[float, None]
+    sum_lte_data: Union[float, None]
+    sum_5g_data: Union[float, None]
+    sum_sru_data: Union[float, None]
+    sum_total_data: Union[float, None]
 
 
 class OffloadingEventOutput(BaseModel):
