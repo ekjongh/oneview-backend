@@ -69,7 +69,7 @@ def db_get_dashboard_config_by_id(db: Session, board_id: int, user_id:str):
 
     if result.owner_id == "admin":
         group_3 = db.query(models.User.group_3).filter(models.User.user_id == user_id).scalar()
-        boardconfig.board_module = boardconfig.board_module.format(c_txt="팀별",g_txt=group_3)
+        # boardconfig.board_module = boardconfig.board_module.format(c_txt="팀별",g_txt=group_3)
 
     return boardconfig
 

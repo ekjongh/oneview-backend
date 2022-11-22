@@ -56,9 +56,15 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         # stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
         stmt = stmt.where(models.VolteFailBts.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        # stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
-        stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
+        # stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
+        # 22.11.22
+        # 지하철엔지니어링부 -> oper_team_nm 사용, 그외 -> area_team_nm && not 지하철
+        if "지하철엔지니어링부" in txt_l:
+            stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
+        else:
+            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+            stmt = stmt.where(models.VolteFailBts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
     elif code == "시도별":
@@ -216,9 +222,16 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
         # stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
         stmt_cut = stmt_cut.where(models.VolteFail.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-        # stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
-        stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm.in_(txt_l))
+        # stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm.in_(txt_l))
+        # 22.11.22
+        # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
+        if "지하철엔지니어링부" in txt_l:
+            stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm.in_(txt_l))
+        else:
+            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
+            stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
+
     elif code == "조별":
         stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(txt_l))
     elif code == "시도별":
@@ -295,11 +308,18 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
 
         stmt_sel_nm = models.VolteFail.biz_hq_nm
     elif code == "팀별":
-        # code_tbl_nm = models.OrgCode
-        # code_sel_nm = models.OrgCode.area_jo_nm
-        # code_where_nm = models.OrgCode.oper_team_nm
+        # stmt_sel_nm = models.VolteFail.oper_team_nm
+        # 22.11.22
+        # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
+        if "지하철엔지니어링부" in where_ins:
+            stmt_sel_nm = models.VolteFail.oper_team_nm
+        else:
+            code_tbl_nm = models.OrgCode
+            code_sel_nm = models.OrgCode.area_jo_nm
+            code_where_nm = models.OrgCode.oper_team_nm
 
-        stmt_sel_nm = models.VolteFail.oper_team_nm
+            stmt_sel_nm = models.VolteFail.area_jo_nm
+            stmt_where_and.append(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt_sel_nm = models.VolteFail.area_jo_nm
     elif code == "시도별":
@@ -360,6 +380,7 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
             st_in.c.base_date,
             code_where_nm
         )
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = await db.execute(stmt)
     query_result_cut = query_cut.all()

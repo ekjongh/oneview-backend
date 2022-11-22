@@ -36,35 +36,46 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
     if start_date:
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     # 상품 조건
     if prod and prod != "전체":
         stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
 
     # 선택 조건
     if code == "제조사별":
-        code_val = models.VocList.mkng_cmpn_nm
+        stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        code_val = models.VocList.biz_hq_nm
+        stmt = stmt.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        code_val = models.VocList.oper_team_nm
+        # code_val = models.VocList.oper_team_nm
+        # 22.11.22
+        # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
+        if "지하철엔지니어링부" in txt_l:
+            stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
+        else:
+            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
+            stmt = stmt.where(models.VolteFailBts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         code_val = models.VocList.area_jo_nm
     elif code == "시도별":
-        code_val = models.VocList.sido_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        code_val = models.VocList.gun_gu_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
-        code_val = models.VocList.eup_myun_dong_nm
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
     else:
-        code_val = None
-    
-    # code의 값목록 : 삼성|노키아
-    if (code_val) and (group):
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
+        pass
+
 
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     # stmt_rk = select([
     #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('RANK'),
@@ -101,32 +112,41 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
     if start_date:
         stmt = stmt.where(between(models.VocList.base_date, start_date, end_date))
 
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
     # 상품 조건
     if prod and prod != "전체":
         stmt = stmt.where(models.VocList.anals_3_prod_level_nm == prod)
 
     # 선택 조건
     if code == "제조사별":
-        code_val = models.VocList.mkng_cmpn_nm
+        stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "센터별":
-        code_val = models.VocList.biz_hq_nm
+        stmt = stmt.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        code_val = models.VocList.oper_team_nm
+        # 22.11.22
+        # 지하철엔지니어링부 -> oper_team_nm 사용, 그외 -> area_team_nm && not 지하철
+        if "지하철엔지니어링부" in txt_l:
+            stmt = stmt.where(models.VocList.oper_team_nm.in_(txt_l))
+        else:
+            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt = stmt.where(models.VocList.area_jo_nm.in_(stmt_where))
+            stmt = stmt.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
-        code_val = models.VocList.area_jo_nm
+        stmt = stmt.where(models.VocList.area_jo_nm.in_(txt_l))
     elif code == "시도별":
-        code_val = models.VocList.sido_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        code_val = models.VocList.gun_gu_nm
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
-        code_val = models.VocList.eup_myun_dong_nm
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
     else:
         code_val = None
-
-    # code의 값목록 : 삼성|노키아
-    if code_val != "" and group !="":
-        txt_l = group.split("|")
-        stmt = stmt.where(code_val.in_(txt_l))
 
     # stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).subquery()
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
@@ -221,7 +241,14 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
     elif code == "센터별":
         stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
-        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
+        # 22.11.22
+        # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
+        if "지하철엔지니어링부" in txt_l:
+            stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
+        else:
+            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_voc = stmt_voc.where(models.VocList.area_jo_nm.in_(stmt_where))
+            stmt_voc = stmt_voc.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_voc = stmt_voc.where(models.VocList.sido_nm.in_(txt_l))
     elif code == "시군구별":
@@ -398,7 +425,7 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
     sum_rsrq_sum = func.sum(func.ifnull(models.VocSpec.rsrq_sum,0)).label("rsrq_sum")
 
     # rip 평균, 불량
-    sum_rip_bad_cnt = func.sum(func.ifnull(models.VocSpec.new_rip_maxd_cnt, 0)).label("rip_bad_cnt")
+    # sum_rip_bad_cnt = func.sum(func.ifnull(models.VocSpec.new_rip_maxd_cnt, 0)).label("rip_bad_cnt")
     sum_rip_maxd_cnt = func.sum(func.ifnull(models.VocSpec.new_rip_maxd_cnt, 0)).label("rip_maxd_cnt")
     sum_rip_sum = func.sum(func.ifnull(models.VocSpec.rip_sum, 0)).label("rip_sum")
     sum_rip_cnt = func.sum(func.ifnull(models.VocSpec.rip_cnt, 0)).label("rip_cnt")
@@ -439,22 +466,21 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
     entities_bts_groupby = [
         sum_s1ap_cnt,           # s1ap발생
         sum_s1ap_fail_cnt,      # s1ap실패
-        sum_rsrp_m105d_cnt,  # rsrp불량
-        sum_rsrp_m110d_cnt,  # rsrp불량
+        sum_rsrp_m105d_cnt,  # rsrp불량(-109~-105)
+        sum_rsrp_m110d_cnt,  # rsrp불량(min~-110)
         sum_rsrp_bad_cnt,       # rsrp불량
         sum_rsrp_cnt,           # rsrp
         sum_rsrp_sum,           # rsrp
-        sum_rsrq_m15d_cnt,       # rsrq불량(m15d)
-        sum_rsrq_m17d_cnt,       # rsrq불량(m17d)
+        sum_rsrq_m15d_cnt,       # rsrq불량( -16.5~-15)
+        sum_rsrq_m17d_cnt,       # rsrq불량(min~-17)
         sum_rsrq_bad_cnt,       # rsrq불량
         sum_rsrq_sum,            # rsrq 합
         sum_rsrq_cnt,            # rsrq 건수
-        sum_rip_bad_cnt,        # rip 불량
-        sum_rip_maxd_cnt,        # rip 불량(maxd)
+        sum_rip_maxd_cnt,        # rip 불량(-091.9~max)
         sum_rip_sum,            # rip 합
         sum_rip_cnt,            # rip 건수
-        sum_phr_m3d_cnt,        # phr m3d
-        sum_phr_mind_cnt,       # phr mind
+        sum_phr_m3d_cnt,        # phr m3d (-3~0.9)
+        sum_phr_mind_cnt,       # phr mind (min~-3.1 )
         sum_phr_bad_cnt,        # phr 불량
         sum_phr_sum,            # phr
         sum_phr_cnt,            # phr
@@ -463,7 +489,7 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
         sum_volte_try_cacnt,
         sum_volte_comp_cacnt,
         sum_volte_self_fail_cacnt,  # 자망절단
-        sum_volte_other_fail_cacnt,  # 자망절단
+        sum_volte_other_fail_cacnt,  # 타망절단
         sum_volte_fail_cacnt,  # 총절단
     ]
 
@@ -486,6 +512,125 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
 
 
 async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
+                                           start_date: str = None, end_date: str = None):
+    code_tbl_nm = None
+    code_sel_nm = Column()  # code테이블 select()
+    code_where_nm = Column()  # code테이블 where()
+
+    where_ins = []  # code테이블, volte 테이블 where in (a, b, c)
+    stmt_where_and = []  # where list
+
+    voc_cnt = func.count(models.VocList.sr_tt_rcp_no_cnt).label("voc_cnt")
+
+    # 기간조건
+    if not start_date:
+        start_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+    if not end_date:
+        end_date = start_date
+
+    stmt_where_and.append(between(models.VocList.base_date, start_date, end_date))
+
+    # 상품 조건
+    if prod and prod != "전체":
+        stmt_where_and.append(models.VocList.anals_3_prod_level_nm == prod)
+
+    # code의 값목록 : 삼성|노키아
+    if group != '':
+        where_ins = group.split("|")
+
+    # 선택 조건
+    if code == "제조사별":
+        stmt_sel_nm = models.VocList.mkng_cmpn_nm
+
+    elif code == "센터별":
+        # code_tbl_nm = models.OrgCode
+        # code_sel_nm = models.OrgCode.area_jo_nm
+        # code_where_nm = models.OrgCode.biz_hq_nm
+
+        stmt_sel_nm = models.VocList.biz_hq_nm
+    elif code == "팀별":
+        # stmt_sel_nm = models.VolteFail.oper_team_nm
+        # 22.11.22
+        # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
+        if "지하철엔지니어링부" in where_ins:
+            stmt_sel_nm = models.VocList.oper_team_nm
+        else:
+            code_tbl_nm = models.OrgCode
+            code_sel_nm = models.OrgCode.area_jo_nm
+            code_where_nm = models.OrgCode.oper_team_nm
+
+            stmt_sel_nm = models.VocList.area_jo_nm
+            stmt_where_and.append(models.VocList.oper_team_nm != "지하철엔지니어링부")
+    elif code == "조별":
+        stmt_sel_nm = models.VocList.area_jo_nm
+    elif code == "시도별":
+        code_tbl_nm = models.AddrCode
+        code_sel_nm = models.AddrCode.eup_myun_dong_nm
+        code_where_nm = models.AddrCode.sido_nm
+
+        stmt_sel_nm = models.VocList.eup_myun_dong_nm
+    elif code == "시군구별":
+        code_tbl_nm = models.AddrCode
+        code_sel_nm = models.AddrCode.eup_myun_dong_nm
+        code_where_nm = models.AddrCode.gun_gu_nm
+
+        stmt_sel_nm = models.VocList.eup_myun_dong_nm
+    elif code == "읍면동별":
+        stmt_sel_nm = models.VocList.eup_myun_dong_nm
+    else:
+        raise ex.SqlFailureEx
+
+    # stmt 생성
+    if not code_tbl_nm:  # code table 미사용시
+        stmt_where_and.append(stmt_sel_nm.in_(where_ins))
+
+        stmt = select(
+            stmt_sel_nm.label("code"),
+            models.VocList.base_date.label("date"),
+            voc_cnt
+        ).where(
+            and_(*stmt_where_and)
+        ).group_by(models.VocList.base_date, stmt_sel_nm)
+    else:  # code table 사용시
+        stmt_wh = select(code_sel_nm).distinct().where(code_where_nm.in_(where_ins))
+        stmt_where_and.append(stmt_sel_nm.in_(stmt_wh))
+
+        st_in = select(
+            models.VocList.base_date,
+            stmt_sel_nm.label("code"),
+            voc_cnt,
+        ).where(
+            and_(*stmt_where_and)
+        ).group_by(models.VocList.base_date, stmt_sel_nm)
+
+        stmt = select(
+            code_where_nm.label("code"),
+            st_in.c.base_date.label("date"),
+            func.sum(st_in.c.voc_cnt).label("value"),
+        ).outerjoin(
+            code_tbl_nm,
+            code_sel_nm == st_in.c.code
+        ).group_by(
+            st_in.c.base_date,
+            code_where_nm
+        )
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    query_cut = await db.execute(stmt)
+    query_result = query_cut.all()
+    query_keys = query_cut.keys()
+
+    code_set = set([r[0] for r in query_result])
+    list_items = []
+    for code in code_set:
+        t_l = [schemas.VocTrendOutput(date=r[1], value=r[2]) for r in query_result if r[0] == code]
+        list_items.append(schemas.VocTrendItemOutput(title=code, data=t_l))
+
+    return list_items
+
+#-------------------------------------------------------------------
+
+async def get_voc_trend_item_by_group_date2(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                      start_date: str = None, end_date: str = None):
     code_tbl_nm = None
     code_sel_nm = Column()  # code테이블 select()
@@ -532,8 +677,27 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
         sbscr_sel_nm = models.Subscr.biz_hq_nm
         voc_sel_nm = models.VocList.biz_hq_nm  # voc 테이블 select 변수
     elif code == "팀별":
+        # 22.11.22
+        # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
+        if "지하철엔지니어링부" in where_ins:
+            sbscr_sel_nm = models.Subscr.oper_team_nm
+            voc_sel_nm = models.VocList.oper_team_nm  # voc 테이블 select 변수
+        else:
+            code_tbl_nm = models.OrgCode
+            code_sel_nm = models.OrgCode.area_jo_nm
+            code_where_nm = models.OrgCode.oper_team_nm
+
+            sbscr_sel_nm = models.Subscr.area_jo_nm
+            voc_sel_nm = models.VocList.area_jo_nm  # voc 테이블 select 변수
+
+
+            stmt_sel_nm = models.VolteFail.area_jo_nm
+            sbscr_where_and.append(models.Subscr.oper_team_nm != "지하철엔지니어링부")
+            voc_where_and.append(models.VocList.oper_team_nm != "지하철엔지니어링부")
+
+
+
         sbscr_sel_nm = models.Subscr.oper_team_nm
-        voc_sel_nm = models.VocList.oper_team_nm  # voc 테이블 select 변수
     elif code == "시도별":
         code_tbl_nm = models.AddrCode
         code_sel_nm = models.AddrCode.gun_gu_nm

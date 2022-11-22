@@ -50,6 +50,7 @@ def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get
     """
     user_id가 선택할 수 있는 대시보드 컨피그 목록 조회
     """
+    # owner이거나 superuser 이면..
     return db_get_dashboard_configs_by_userid(db, user_id=user_id)
 
 
@@ -59,6 +60,7 @@ def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db
     """
     내가 선택한 대시보드 컨피그 상세 조회
     """
+    # owner이거나 superuser 이면..
     board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user_id=user.user_id)
     # board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user_id="10077209")
     if board_config is None:
@@ -75,6 +77,8 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
     """
     새로운 이름의 나의 대시보드 컨피그 생성 ( 나의 컨피그 5개가 넘을 시, 생성 불가 )
     """
+    # owner이거나 superuser 이면..
+
     cnt = db_count_dashboard_config_by_id(user_id=user_id, db=db)
     if cnt >= 5:
         return {"result": "ERROR! 개인 Config는 최대 5개입니다.", "data": None}
@@ -84,10 +88,12 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
 
 
 @router.put("/boardconfig/{board_id}")
-def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync)):
+def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync), user: UserBase = Depends(get_current_user)):
     """
     선택한 board_id에 대한 대시보드 컨피그 수정
     """
+    # owner이거나 superuser 이면..
+
     data = db_update_dashboard_config_by_id(board_id=board_id, db=db, board_config=board_config)
 
     return {"result": "Update Success!", "data": data}
@@ -99,6 +105,7 @@ def delete_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_
     """
     선택한 board_id에 대한 dashboard config 삭제 ( config 한개 남았을 시, 삭제 불가)
     """
+    # owner이거나 superuser 이면..
     cnt = db_count_dashboard_config_by_id(user_id=user.user_id, db=db)
     if cnt<= 1:
         return {"result": "ERROR! 최소 1개의 Config가 필요합니다."}

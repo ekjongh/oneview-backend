@@ -119,7 +119,6 @@ class BtsSummary(BaseModel):
     rsrq_sum: Union[int, None]      # rsrq합
 
     rip_maxd_cnt: Union[int, None]       # rip 불량
-    rip_bad_cnt: Union[int, None]  # rip 불량
     rip_sum: Union[int, None]         # rip 합
     rip_cnt: Union[int, None]         # rip 건수
 
