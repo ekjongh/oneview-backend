@@ -11,7 +11,7 @@ class RrcTrendOutput(BaseModel):
 
 
 class RrcBtsOutput(BaseModel):
-    RANK: Union[int, None]
+    # RANK: Union[int, None]
     equip_cd: Union[str, None]         # 기지국ID
     equip_nm: Union[str, None]          # 기지국명
     rrc_try: Union[float, None]

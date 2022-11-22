@@ -103,27 +103,40 @@ class BtsSummary(BaseModel):
     equip_nm: Union[str, None]          # 주기지국
     latit_val: Union[str, None]
     lngit_val: Union[str, None]
+    cell_cd : Union[str, None]          ###
 
-    s1ap_cnt: Union[int, None]          # s1ap발생 d
-    s1ap_fail_cnt: Union[int, None]     # s1ap실패 d
-    volte_self_fail_cacnt: Union[int, None]  # 자망절단 ㅇ
-    volte_fail_cacnt: Union[int, None]  # 총절단
-    rsrp_cnt: Union[float, None]        # rsrp 건수
-    rsrp_sum: Union[float, None]  # rsrp 합
-    rsrp_bad_cnt: Union[int, None]      # rsrp불량 d
-    rsrq_bad_cnt: Union[int, None]      # rsrq불량 d
-    rip_sum: Union[float, None]         # rip 합
-    rip_cnt: Union[float, None]         # rip 건수
-    rip_bad_cnt: Union[int, None]       # rip 불량
-    phr_sum: Union[float, None]         # phr 합
-    phr_cnt: Union[float, None]         # phr 건수
-    phr_bad_cnt: Union[int, None]       # phr 불량 ㅇ
-    new_phr_m3d_cnt: Union[int, None]
-    new_phr_mind_cnt: Union[int, None]
-    phr_cnt: Union[int, None]
+    s1ap_cnt: Union[int, None]          # s1ap발생
+    s1ap_fail_cnt: Union[int, None]     # s1ap실패
+
+    rsrp_m105d_cnt: Union[int, None]    ###
+    rsrp_m110d_cnt: Union[int, None]    ###
+    rsrp_cnt: Union[int, None]        # rsrp 건수
+    rsrp_sum: Union[int, None]  # rsrp 합
+
+    rsrq_m15d_cnt: Union[int, None]      # rsrq불량
+    rsrq_m17d_cnt: Union[int, None]      # rsrq불량
+    rsrq_cnt: Union[int, None]      # rsrq건수
+    rsrq_sum: Union[int, None]      # rsrq합
+
+    rip_maxd_cnt: Union[int, None]       # rip 불량
+    rip_bad_cnt: Union[int, None]  # rip 불량
+    rip_sum: Union[int, None]         # rip 합
+    rip_cnt: Union[int, None]         # rip 건수
+
+    phr_m3d_cnt: Union[int, None]
+    phr_mind_cnt: Union[int, None]
+    phr_sum: Union[int, None]         # phr 합
+    phr_cnt: Union[int, None]         # phr 건수
+
     nr_rsrp_cnt: Union[int, None]
+    nr_rsrp_sum: Union[int, None]
+
     volte_try_cacnt: Union[int, None]
     volte_comp_cacnt: Union[int, None]
+    volte_self_fail_cacnt: Union[int, None]  # 자망절단
+    volte_other_fail_cacnt: Union[int, None]  #
+    volte_fail_cacnt: Union[int, None]  #
+
 
 class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo
