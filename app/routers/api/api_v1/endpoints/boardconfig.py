@@ -77,10 +77,8 @@ def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db
         board_module = board_config.board_module
         ### catscope: 조별-> 조, 팀별-> 팀, 센터별-> 센터....
         l = [('조별', client.group_4), ('팀별', client.group_3), ('센터별', client.group_2)]
-        print(l)
 
         for item in l:
-            print(board_module)
             board_module = re.sub(r'(\"?catScope\"?\s*:\s*\"?' + item[0] + '\"?"\s*,\s*\"?group\"?:\"?)\w*(\"?\,)',
                           r'\g<1>' + item[1] + '\g<2>', board_module)
 
