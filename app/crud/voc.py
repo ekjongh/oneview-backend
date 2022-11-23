@@ -55,11 +55,11 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
         # 22.11.22
         # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
         if "지하철엔지니어링부" in txt_l:
-            stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
+            stmt = stmt.where(models.VocList.oper_team_nm.in_(txt_l))
         else:
             stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-            stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
-            stmt = stmt.where(models.VolteFailBts.oper_team_nm != "지하철엔지니어링부")
+            stmt = stmt.where(models.VocList.area_jo_nm.in_(stmt_where))
+            stmt = stmt.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         code_val = models.VocList.area_jo_nm
     elif code == "시도별":

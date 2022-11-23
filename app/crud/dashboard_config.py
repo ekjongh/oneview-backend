@@ -8,6 +8,7 @@ from app.crud.code import get_org_code_by_team
 from .. import models, schemas
 from app.utils.internel.user import user_model_to_schema, user_schema_to_model
 import json
+import re
 
 # def user_model_to_schema(user):
 #     user.board_modules = json.loads(user.board_modules)
@@ -54,23 +55,28 @@ def db_get_dashboard_configs_by_userid(db: Session, user_id: str):
 
 
 
-def db_get_dashboard_config_by_id(db: Session, board_id: int, user_id:str):
-    result = db.query(models.DashboardConfig).filter(and_(models.DashboardConfig.board_id == board_id,
-                                                          or_(models.DashboardConfig.owner_id == user_id,
-                                                              models.DashboardConfig.owner_id == "admin"))).first()
+def db_get_dashboard_config_by_id(db: Session, board_id: int, user: schemas.UserBase):
+    result = db.query(models.DashboardConfig).filter(models.DashboardConfig.board_id == board_id).first()
     if not result:
-        return
+        return None
 
     boardconfig = schemas.DashboardConfigOut(board_id=board_id,
                                         name=result.name,
                                         owner_id=result.owner_id,
                                         update_yn=result.update_yn,
                                         board_module=result.board_module)
-
-    if result.owner_id == "admin":
-        group_3 = db.query(models.User.group_3).filter(models.User.user_id == user_id).scalar()
-        # boardconfig.board_module = boardconfig.board_module.format(c_txt="팀별",g_txt=group_3)
-
+    # if result.owner_id == "admin":
+    #     board_module = boardconfig.board_module
+    #     ### catscope: 조별-> 조, 팀별-> 팀, 센터별-> 센터....
+    #     l = [('조별', user.group_4), ('팀별', user.group_3), ('센터별', user.group_2)]
+    #     print(l)
+    #
+    #     for item in l:
+    #         print(board_module)
+    #         board_module = re.sub(r'(\"?catScope\"?\s*:\s*\"?' + item[0] + '\"?"\s*,\s*\"?group\"?:\"?)\w*(\"?)',
+    #                       '\\1' + item[1] + '\\2', board_module)
+    #
+    #     boardconfig.board_module = board_module
     return boardconfig
 
 

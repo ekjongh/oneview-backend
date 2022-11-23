@@ -18,6 +18,7 @@ from app.schemas.dashboard_config import DashboardConfigIn, DashboardConfigOut, 
 # from app.utils.internel.user import dashboard_model_to_schema
 
 from fastapi.responses import RedirectResponse
+import re
 
 router = APIRouter()
 
@@ -46,28 +47,44 @@ def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_user), 
     return db_get_dashboard_configs_by_userid(db, user_id=user.user_id)
 
 @router.get("/boardconfigs/{user_id}", response_model=List[DashboardConfigList])
-def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get_db_sync)):
+def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get_db_sync), client=Depends(get_current_active_user)):
     """
     user_id가 선택할 수 있는 대시보드 컨피그 목록 조회
     """
-    # owner이거나 superuser 이면..
+    if not client.is_superuser:
+        if client.user_id != user_id:
+            raise ex.NotAuthorized
+
     return db_get_dashboard_configs_by_userid(db, user_id=user_id)
 
 
 @router.get("/boardconfig/{board_id}", response_model=DashboardConfigOut)
-def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync), user: UserBase = Depends(get_current_user)):
+def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync), client: UserBase = Depends(get_current_user)):
 # def read_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync)):
     """
     내가 선택한 대시보드 컨피그 상세 조회
     """
-    # owner이거나 superuser 이면..
-    board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user_id=user.user_id)
-    # board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user_id="10077209")
+    board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user=client)
+
     if board_config is None:
         raise HTTPException(status_code=404, detail="config not found")
 
-    # group_3 = user.group_3
-    # result.board_module = result.board_module.format(g_txt=user.group_3, c_txt="팀별")
+    if not client.is_superuser:
+        if client.user_id != board_config.owner_id:
+            return {"result":"not allowed"}
+
+    if board_config.owner_id == "admin":
+        board_module = board_config.board_module
+        ### catscope: 조별-> 조, 팀별-> 팀, 센터별-> 센터....
+        l = [('조별', client.group_4), ('팀별', client.group_3), ('센터별', client.group_2)]
+        print(l)
+
+        for item in l:
+            print(board_module)
+            board_module = re.sub(r'(\"?catScope\"?\s*:\s*\"?' + item[0] + '\"?"\s*,\s*\"?group\"?:\"?)\w*(\"?\,)',
+                          r'\g<1>' + item[1] + '\g<2>', board_module)
+
+        board_config.board_module = board_module
 
     return board_config
 
@@ -77,8 +94,6 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
     """
     새로운 이름의 나의 대시보드 컨피그 생성 ( 나의 컨피그 5개가 넘을 시, 생성 불가 )
     """
-    # owner이거나 superuser 이면..
-
     cnt = db_count_dashboard_config_by_id(user_id=user_id, db=db)
     if cnt >= 5:
         return {"result": "ERROR! 개인 Config는 최대 5개입니다.", "data": None}
@@ -88,11 +103,16 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
 
 
 @router.put("/boardconfig/{board_id}")
-def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync), user: UserBase = Depends(get_current_user)):
+def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn, db: SessionLocal = Depends(get_db_sync), client: UserBase = Depends(get_current_user)):
     """
     선택한 board_id에 대한 대시보드 컨피그 수정
     """
-    # owner이거나 superuser 이면..
+    db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user= client)
+
+    if not client.is_superuser:
+        if client.user_id != db_board_config.owner_id:
+            # raise ex.NotAuthorized
+            return {"result":"not allowed"}
 
     data = db_update_dashboard_config_by_id(board_id=board_id, db=db, board_config=board_config)
 
@@ -101,12 +121,18 @@ def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn
 
 @router.delete("/boardconfig/{board_id}")
 def delete_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync),
-                                            user: UserBase = Depends(get_current_user)):
+                                            client: UserBase = Depends(get_current_user)):
     """
     선택한 board_id에 대한 dashboard config 삭제 ( config 한개 남았을 시, 삭제 불가)
     """
-    # owner이거나 superuser 이면..
-    cnt = db_count_dashboard_config_by_id(user_id=user.user_id, db=db)
+    db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user=client)
+
+    if not client.is_superuser:
+        if client.user_id != db_board_config.owner_id:
+            # raise ex.NotAuthorized
+            return {"result":"not allowed"}
+
+    cnt = db_count_dashboard_config_by_id(user_id=client.user_id, db=db)
     if cnt<= 1:
         return {"result": "ERROR! 최소 1개의 Config가 필요합니다."}
     elif db_is_my_config_by_id(db=db, board_id=board_id):

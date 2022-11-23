@@ -41,7 +41,7 @@ def read_my_config(user: UserBase = Depends(get_current_user), db: SessionLocal 
         return None
     else:
         user_me = UserOutput(**user.__dict__)
-        board_config = db_get_dashboard_config_by_id(db=db, board_id=user.board_id, user_id=user.user_id)
+        board_config = db_get_dashboard_config_by_id(db=db, board_id=user.board_id, user=user)
         if board_config:
             user_me.board_modules= board_config.board_module
         return user_me
