@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from .endpoints import auth, users, items, voc, volte, events, offloading, mdt, subscr, rrc, data_cnt, code,boardconfig
+from .endpoints import auth, users, items, voc, volte, events, offloading, mdt, subscr, rrc, data_cnt, code, boardconfig
 from ..deps import get_current_user
 
 api_v1_router = APIRouter()

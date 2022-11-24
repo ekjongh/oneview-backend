@@ -1,4 +1,6 @@
 # # from app.schemas import UserBoardConfig
+from app.schemas import ModuleConfigBase, ModuleConfigBanner, ModuleConfigCard
+
 import json
 
 def user_model_to_schema(user):
@@ -9,26 +11,20 @@ def user_schema_to_model(user):
     user.board_modules = json.dumps([dict(obj) for obj in user.board_modules])
     return user
 
-#
-# def dashboard_model_to_schema(board_config):
-#     owner_id = board_config.owner_id
-#     modules = json.loads(board_config.modules)
-#     output_schema = UserBoardConfig(
-#             id=id,
-#             owner_id=owner_id,
-#             modules=modules,
-#         )
-#     return output_schema
-#
-#
-# def dashboard_schema_to_model(schema: UserBoardConfig):
-#
-#     owner_id = schema.owner_id
-#     modules = [dict(obj) for obj in schema.modules]
-#     modules = json.dumps(modules)
-#
-#     dashboard_data = dict(
-#         owner_id=owner_id,
-#         modules=modules,
-#     )
-#     return dashboard_data
+
+def boardconfig_model_to_schema(model: str):
+    schema = ModuleConfigBase()
+    model = json.loads(model)
+
+    schema.banners = list(map(lambda x:ModuleConfigBanner(**x), model["banners"]))
+    schema.cards = list(map(lambda x:ModuleConfigCard(**x), model["cards"]))
+
+    return schema
+
+
+def boardconfig_schema_to_model(schema:ModuleConfigBase):
+    banners = [dict(obj) for obj in schema.banners]
+    cards = [dict(obj) for obj in schema.cards]
+
+    return json.dumps(dict(banners=banners, cards=cards), ensure_ascii=False)
+

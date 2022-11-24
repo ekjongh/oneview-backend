@@ -1,10 +1,11 @@
 from typing import List, Union
 from .item import Item
 from pydantic import BaseModel
+from .dashboard_config import ModuleConfigBase
 
-class ModuleConfigBase(BaseModel):
-    kpi: Union[str, None]
-    group: Union[str, None]
+# class ModuleConfigBase(BaseModel):
+#     kpi: Union[str, None]
+#     group: Union[str, None]
 
 
 class UserBase(BaseModel):

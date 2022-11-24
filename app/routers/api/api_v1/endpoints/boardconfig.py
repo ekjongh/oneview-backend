@@ -11,14 +11,13 @@ from app.crud.dashboard_config import db_insert_dashboard_config_by_id,\
     db_update_dashboard_config_by_id, \
     db_delete_dashboard_config_by_id,\
     db_count_dashboard_config_by_id,\
+    change_dashboard_config_group,\
     db_is_my_config_by_id
 from app.routers.api.deps import get_db, get_current_user, get_current_active_user, get_db_sync
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserOutput
 from app.schemas.dashboard_config import DashboardConfigIn, DashboardConfigOut,  DashboardConfigList
-# from app.utils.internel.user import dashboard_model_to_schema
+from app.utils.internel.user import boardconfig_schema_to_model
 
-from fastapi.responses import RedirectResponse
-import re
 
 router = APIRouter()
 
@@ -40,11 +39,12 @@ router = APIRouter()
 #
 #
 @router.get("/boardconfigs/me", response_model=List[DashboardConfigList])
-def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_user), db: SessionLocal = Depends(get_db_sync)):
+def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_active_user), db: SessionLocal = Depends(get_db_sync)):
     """
     내가 선택할 수 있는 대시보드 컨피그 목록 조회
     """
     return db_get_dashboard_configs_by_userid(db, user_id=user.user_id)
+
 
 @router.get("/boardconfigs/{user_id}", response_model=List[DashboardConfigList])
 def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get_db_sync), client=Depends(get_current_active_user)):
@@ -59,31 +59,18 @@ def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get
 
 
 @router.get("/boardconfig/{board_id}", response_model=DashboardConfigOut)
-def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync), client: UserBase = Depends(get_current_user)):
-# def read_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync)):
+def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync), client: UserBase = Depends(get_current_active_user)):
     """
     내가 선택한 대시보드 컨피그 상세 조회
     """
-    board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user=client)
+    board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
 
     if board_config is None:
-        raise HTTPException(status_code=404, detail="config not found")
-
-    if not client.is_superuser:
-        if client.user_id != board_config.owner_id:
-            return {"result":"not allowed"}
-
-    if board_config.owner_id == "admin":
-        board_module = board_config.board_module
-        ### catscope: 조별-> 조, 팀별-> 팀, 센터별-> 센터....
-        l = [('조별', client.group_4), ('팀별', client.group_3), ('센터별', client.group_2)]
-
-        for item in l:
-            board_module = re.sub(r'(\"?catScope\"?\s*:\s*\"?' + item[0] + '\"?"\s*,\s*\"?group\"?:\"?)\w*(\"?\,)',
-                          r'\g<1>' + item[1] + '\g<2>', board_module)
-
-        board_config.board_module = board_module
-
+        # raise HTTPException(status_code=404, detail="config not found")
+        return {"result":None}
+    if board_config.owner_id == "admin" and client.user_id != board_config.owner_id:
+        schema_config = change_dashboard_config_group(board_config.board_module, client)
+        board_config.board_module = boardconfig_schema_to_model(schema_config)
     return board_config
 
 
@@ -105,7 +92,7 @@ def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn
     """
     선택한 board_id에 대한 대시보드 컨피그 수정
     """
-    db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user= client)
+    db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
 
     if not client.is_superuser:
         if client.user_id != db_board_config.owner_id:
@@ -123,17 +110,14 @@ def delete_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_
     """
     선택한 board_id에 대한 dashboard config 삭제 ( config 한개 남았을 시, 삭제 불가)
     """
-    db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id, user=client)
+    db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
 
     if not client.is_superuser:
         if client.user_id != db_board_config.owner_id:
             # raise ex.NotAuthorized
             return {"result":"not allowed"}
 
-    cnt = db_count_dashboard_config_by_id(user_id=client.user_id, db=db)
-    if cnt<= 1:
-        return {"result": "ERROR! 최소 1개의 Config가 필요합니다."}
-    elif db_is_my_config_by_id(db=db, board_id=board_id):
+    if db_is_my_config_by_id(db=db, board_id=board_id, user_id=client.user_id):
         return {"result": "ERROR! my_config는 삭제 불가"}
     else :
         data = db_delete_dashboard_config_by_id(board_id=board_id, db=db)

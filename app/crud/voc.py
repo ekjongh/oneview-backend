@@ -454,7 +454,7 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
                                     func.ifnull(models.VocSpec.volte_other_fail_cacnt,0)).label("volte_fail_cacnt")
 
     entities_bts = [
-        # models.VocSpec.base_date,  # label("기준년원일"),
+        models.VocSpec.base_date,  # label("기준년원일"),
         models.VocSpec.svc_cont_id,
         models.VocSpec.equip_cd,
         models.VocSpec.equip_nm,
