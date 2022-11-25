@@ -150,7 +150,9 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
         pass
 
     #주요단말정렬기준 : 데이터량
-    stmt = stmt.group_by(*entities).order_by(sum_total_data.desc()).limit(50)
+    stmt = stmt.group_by(*entities)
+    if limit <= 10:
+        stmt = stmt.order_by(sum_total_data.desc()).limit(50)
 
     stmt_rk = select([
         # func.rank().over(order_by=stmt.c.g5_off_ratio.asc()).label("RANK"),

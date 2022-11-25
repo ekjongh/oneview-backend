@@ -20,7 +20,7 @@ def db_insert_dashboard_config_by_id(db: Session, user_id: str, board_config: sc
     db_board_config = models.DashboardConfig(owner_id=user_id)
 
     board_config_data = board_config.dict(exclude_unset=True)
-    board_config_data.board_module = boardconfig_schema_to_model(board_config_data.board_module)
+    # board_config_data.board_module = boardconfig_schema_to_model(board_config_data.board_module)
 
     for k, v in board_config_data.items():
         setattr(db_board_config, k, v)
