@@ -9,12 +9,14 @@ class VocListBase(BaseModel):
     equip_cd0: Union[str, None]
     pass
 
+
 class VocListInput(BaseModel):
     start_date: str
     end_date: str
     belong_class: str
     belong_nm: str
     pass
+
 
 class VocBtsOutput(BaseModel):
     # RANK: Union[int,None]
@@ -26,19 +28,30 @@ class VocBtsOutput(BaseModel):
     team: Union[str, None]
     jo: Union[str, None]
 
+
 class VocHndsetOutput(BaseModel):
     # RANK: Union[int, None]
     hndset_pet_nm: Union[str, None]       # 단말기명
     voc_cnt: Union[int, None]             # VOC건수
 
+
 class VocTrendOutput(BaseModel):
     date: Union[str, None]
     value: Union[float, None]
+
+
+class VocTrendMonthOutput(BaseModel):
+    date: Union[str, None]
+    value: Union[float, None]
+    voc_cnt: Union[int, None]
+    sbscr_cnt: Union[int, None]
+
 
 class VocEventOutput(BaseModel):
     title: Union[str, None]
     score: Union[float, None]
     score_ref: Union[float, None]
+
 
 class VocListOutput(BaseModel):
     base_date: Union[str, None]         # 기준년원일
@@ -61,6 +74,7 @@ class VocListOutput(BaseModel):
     voc_actn_txn: Union[str, None]
     tt_trt_sbst: Union[str, None]
     juso: Union[str, None]
+
 
 class VocUserInfo(BaseModel):
     sr_tt_rcp_no: Union[str, None]      # VOC접수번호
@@ -95,6 +109,7 @@ class VocUserInfo(BaseModel):
     equip_nm_data: Union[str, None]          # 주기지국
     latit_val_data: Union[str, None]         # 주기지국위도
     lngit_val_data: Union[str, None]         # 주기지국경도
+
 
 class BtsSummary(BaseModel):
     base_date: Union[str, None]         # 기준년원일
@@ -141,6 +156,12 @@ class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo
     bts_summary: List[BtsSummary]
 
+
 class VocTrendItemOutput(BaseModel):
     title: Union[str,None]
     data: List[VocTrendOutput]
+
+
+class VocTrendItemMonthOutput(BaseModel):
+    title: Union[str,None]
+    data: List[VocTrendMonthOutput]

@@ -10,7 +10,9 @@ from app.crud.voc import get_voc_list_by_group_date, \
                          get_voc_trend_item_by_group_date, \
                          get_worst10_bts_by_group_date2, \
                          get_worst10_hndset_by_group_date2, \
-                         get_voc_trend_by_group_date2
+                         get_voc_trend_by_group_date2, \
+                         get_voc_trend_by_group_month, \
+                         get_voc_trend_item_by_group_month
 
 
 router = APIRouter()
@@ -58,11 +60,11 @@ async def get_voc_trend_daily2(prod:str=None, code:str=None, group:str="",start_
 #     voc_trend_days = get_voc_trend_by_group_date(db=db, group=team, start_date=start_date, end_date=end_date)
 #     return voc_trend_days
 
-@router.get("/kpi-day", response_model=schemas.VocEventOutput)
-async def get_voc_event_day(prod:str=None, code:str=None,  group:str="", date:str="20220901",
-                            db: SessionLocal = Depends(get_db)):
-    voc_event_day = await get_voc_event_by_group_date(db=db, prod=prod, code=code, group=group, date=date)
-    return voc_event_day
+# @router.get("/kpi-day", response_model=schemas.VocEventOutput)
+# async def get_voc_event_day(prod:str=None, code:str=None,  group:str="", date:str="20220901",
+#                             db: SessionLocal = Depends(get_db)):
+#     voc_event_day = await get_voc_event_by_group_date(db=db, prod=prod, code=code, group=group, date=date)
+#     return voc_event_day
 
 
 # VOC 상세 - SRTT_RCP_NO에 대한 전일이후 기지국 목록
@@ -85,5 +87,27 @@ async def get_voc_trend_item_daily(prod:str=None, code:str=None, group:str="",st
 # async def get_vocs_by_main_bts(limit: int = 10, team: str = None, date: str = None, db: SessionLocal = Depends(get_db)):
 #     vocs = get_vocs(db=db, team=team, date=date, limit=limit)
 #     return vocs
+
+
+
+@router.get("/trend-month", response_model=List[schemas.VocTrendMonthOutput])
+async def get_voc_trend_month(prod:str=None, code:str=None, group:str="",start_month:str="202101", end_month:str=None
+                              , db: SessionLocal = Depends(get_db)):
+    """
+    천회선당VOC(월별)
+    - code: 센터별,팀별,시도별,시군구별
+    - out: date,value(천회선당voc), voc_cnt, sbscr_cnt
+    """
+    voc_trend_months = await get_voc_trend_by_group_month(db=db, prod=prod, code=code, group=group,
+                                                 start_month=start_month, end_month=end_month)
+    return voc_trend_months
+
+
+@router.get("/trend-item-month", response_model=List[schemas.VocTrendItemMonthOutput])
+async def get_voc_trend_item_month(prod:str=None, code:str=None, group:str="",start_month:str="202101", end_month:str=None
+                              , db: SessionLocal = Depends(get_db)):
+    voc_trend_month = await get_voc_trend_item_by_group_month(db=db, prod=prod, code=code, group=group,
+                                                 start_month=start_month, end_month=end_month)
+    return voc_trend_month
 
 

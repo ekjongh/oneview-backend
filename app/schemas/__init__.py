@@ -2,7 +2,7 @@ from .item import Item, ItemCreate, ItemBase
 from .user import User, UserCreate, UserBase, UserUpdate, UserOutput, UserEnc
 from .token import Token, TokenCreate
 from .voc_list import VocBtsOutput, VocHndsetOutput, VocListOutput, VocTrendOutput, VocEventOutput, \
-                      VocUserInfo, BtsSummary, VocSpecOutput, VocTrendItemOutput
+                      VocUserInfo, BtsSummary, VocSpecOutput, VocTrendItemOutput, VocTrendMonthOutput, VocTrendItemMonthOutput
 from .volte import VolteBtsOutput, VolteHndsetOutput, VolteEventOutput, VolteTrendOutput, VolteTrendItemOutput  # , VolteFcTrendOutput
 from .offloading import OffloadingTrendOutput, OffloadingBtsOutput, OffloadingHndsetOutput, OffloadingEventOutput, \
                 OffloadingCompareOutput, OffloadingDongOutput, OffloadingTrendItemOutput

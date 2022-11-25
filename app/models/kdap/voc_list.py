@@ -99,3 +99,33 @@ class VocSpec(KBase):
     volte_self_fail_cacnt = Column(Integer)
     volte_other_fail_cacnt = Column(Integer)
 
+
+class VocListMM(KBase):
+    __tablename__ = "SUM_VOC_TXN_MM"
+
+    base_ym = Column(String(6), primary_key=True)
+    mkng_cmpn_nm = Column(String(50))
+    biz_hq_cd = Column(String(20))
+    biz_hq_nm = Column(String(50))
+    oper_team_cd = Column(String(20))
+    oper_team_nm = Column(String(50))
+    area_hq_nm = Column(String(50))
+    area_center_nm = Column(String(50))
+    area_team_nm = Column(String(50))
+    area_jo_nm = Column(String(50))
+    sido_nm = Column(String(100))
+    gun_gu_nm = Column(String(100))
+    eup_myun_dong_nm = Column(String(100))
+    anals_3_prod_level_nm = Column(String(50))
+    bprod_nm = Column(String(50))
+    hndset_pet_nm = Column(String(50))
+    sa_5g_suprt_div_nm = Column(String(50))
+    voc_type_nm = Column(String(20))
+    voc_wjt_prmr_nm = Column(String(50))
+    voc_wjt_scnd_nm = Column(String(50))
+    voc_wjt_tert_nm = Column(String(50))
+    voc_wjt_qrtc_nm = Column(String(50))
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
+
+    sr_tt_rcp_no = Column(Integer)

@@ -140,7 +140,7 @@ def db_insert_dashboard_config_by_default(db: Session, user: models.User ):
     board_module = change_dashboard_config_group(board_config.board_module, user)
     board_module = boardconfig_schema_to_model(board_module)
     db_board_config = models.DashboardConfig(owner_id=user.user_id,
-                                             name="workingconfig",
+                                             name="workingprofile",
                                              board_module=board_module)
 
     db.add(db_board_config)

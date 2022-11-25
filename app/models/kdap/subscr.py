@@ -24,29 +24,19 @@ class Subscr(KBase):
     bprod_maint_sbscr_cascnt = Column(Integer)
 
 
-class SubscrOrg(KBase):
-    __tablename__ = "SUM_SBSTR_CNT_ORG"
+class SubscrMM(KBase):
+    __tablename__ = "SUM_SBSTR_CNT_MM"
 
-    base_date = Column(String(100), primary_key=True)
-    mkng_cmpn_nm = Column(String(100))
-    oper_team_nm = Column(String(100))
+    base_ym = Column(String(100), primary_key=True)
+    # mkng_cmpn_nm = Column(String(100))
+    biz_hq_cd = Column(String(20))
+    biz_hq_nm = Column(String(50))
+    oper_team_cd = Column(String(20))
+    oper_team_nm = Column(String(50))
     sido_nm = Column(String(100))
     gun_gu_nm = Column(String(100))
-    eup_myun_dong_nm = Column(String(100))
-    anals_3_prod_level_nm = Column(String(100))
+    anals_3_prod_level_nm = Column(String(50))
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
+
     bprod_maint_sbscr_cascnt = Column(Integer)
-
-
-class SubscrHndset(KBase):
-    __tablename__ = "SUM_SBSTR_CNT_HNDSET"
-
-    base_date = Column(String(100), primary_key=True)
-    mkng_cmpn_nm = Column(String(100))
-    oper_team_nm = Column(String(100))
-    sido_nm = Column(String(100), primary_key=True)
-    gun_gu_nm = Column(String(100), primary_key=True)
-    eup_myun_dong_nm = Column(String(100))
-    anals_3_prod_level_nm = Column(String(100), primary_key=True)
-    hndset_pet_nm = Column(String(100), primary_key=True)
-    bprod_maint_sbscr_cascnt = Column(Integer)
-
