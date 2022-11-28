@@ -51,6 +51,9 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.VolteFailBts.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
@@ -62,16 +65,16 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         if "지하철엔지니어링부" in txt_l:
             stmt = stmt.where(models.VolteFailBts.oper_team_nm.in_(txt_l))
         else:
-            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_where = select(models.OrgCode.area_jo_nm).distinct().where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(stmt_where))
             stmt = stmt.where(models.VolteFailBts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(txt_l))
@@ -144,6 +147,9 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.VolteFailHndset.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(stmt_where))
@@ -151,10 +157,10 @@ async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=Non
     elif code == "팀별":
         stmt = stmt.where(models.VolteFailHndset.oper_team_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.VolteFailHndset.eup_myun_dong_nm.in_(txt_l))
@@ -219,6 +225,9 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
     # 선택 조건
     if code == "제조사별":
         stmt_cut = stmt_cut.where(models.VolteFail.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
@@ -230,17 +239,17 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
         if "지하철엔지니어링부" in txt_l:
             stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm.in_(txt_l))
         else:
-            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_where = select(models.OrgCode.area_jo_nm).distinct().where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
             stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
 
     elif code == "조별":
         stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.sido_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt_cut = stmt_cut.where(models.VolteFail.eup_myun_dong_nm.in_(txt_l))
@@ -303,6 +312,12 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
     if code == "제조사별":
         stmt_sel_nm = models.VolteFail.mkng_cmpn_nm
 
+    elif code == "본부별":
+        code_tbl_nm = models.OrgCode
+        code_sel_nm = models.OrgCode.oper_team_nm
+        code_where_nm = models.OrgCode.bonbu_nm
+
+        stmt_sel_nm = models.VolteFail.oper_team_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm

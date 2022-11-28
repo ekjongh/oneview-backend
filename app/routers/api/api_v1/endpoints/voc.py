@@ -106,6 +106,13 @@ async def get_voc_trend_month(prod:str=None, code:str=None, group:str="",start_m
 @router.get("/trend-item-month", response_model=List[schemas.VocTrendItemMonthOutput])
 async def get_voc_trend_item_month(prod:str=None, code:str=None, group:str="",start_month:str="202101", end_month:str=None
                               , db: SessionLocal = Depends(get_db)):
+    """
+    천회선당VOC(월별) group 비교 그래프
+
+    code: 센터별,팀별,시도별,시군구별
+    out: date,value(천회선당voc), voc_cnt, sbscr_cnt
+        
+    """
     voc_trend_month = await get_voc_trend_item_by_group_month(db=db, prod=prod, code=code, group=group,
                                                  start_month=start_month, end_month=end_month)
     return voc_trend_month

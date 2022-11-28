@@ -48,6 +48,9 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.Offloading_Bts.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
@@ -86,7 +89,7 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
     list_offloading_trend = list(map(lambda x: schemas.OffloadingTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_trend
 
-# 주요단말(데이터량기준)
+# worst주요단말(데이터량기준)
 async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(models.Offloading_Hndset.g5d_upld_data_qnt +
@@ -131,6 +134,9 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.Offloading_Hndset.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Hndset.oper_team_nm.in_(stmt_where))
@@ -218,6 +224,9 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
     # 선택 조건
     if code == "제조사별":
         stmt_cut = stmt.where(models.Offloading_Bts.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
@@ -298,7 +307,12 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
     # 선택 조건
     if code == "제조사별":
         stmt_sel_nm = models.Offloading_Bts.mkng_cmpn_nm
+    elif code == "본부별":
+        code_tbl_nm = models.OrgCode
+        code_sel_nm = models.OrgCode.oper_team_nm
+        code_where_nm = models.OrgCode.bonbu_nm
 
+        stmt_sel_nm = models.Offloading_Bts.oper_team_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm
@@ -357,6 +371,8 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
         st_in = select(
             stmt_sel_nm.label("code"),
             models.Offloading_Bts.base_date,
+            sum_3g_data,
+            sum_lte_data,
             sum_5g_data,
             sum_sru_data,
             sum_total_data,
@@ -367,6 +383,11 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
         stmt = select(
             code_where_nm.label("code"),
             st_in.c.base_date.label("date"),
+            func.sum(st_in.c.sum_3g_data).label("sum_3g_data"),
+            func.sum(st_in.c.sum_lte_data).label("sum_lte_data"),
+            func.sum(st_in.c.sum_5g_data).label("sum_5g_data"),
+            func.sum(st_in.c.sum_sru_data).label("sum_sru_data"),
+            func.sum(st_in.c.sum_total_data).label("sum_total_data"),
             func.round((func.sum(st_in.c.sum_5g_data)+func.sum(st_in.c.sum_sru_data))/
                         (func.sum(st_in.c.sum_total_data) + 1e-6) * 100, 4).label("value"),
         ).outerjoin(
@@ -384,9 +405,6 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
     code_set = set([r[0] for r in query_result])
     list_items = []
     for code in code_set:
-        t_l = [schemas.OffloadingTrendOutput(date=r[1], value=r[2]) for r in query_result if r[0] == code]
+        t_l = [schemas.OffloadingTrendOutput(**r) for r in query_result if r[0] == code]
         list_items.append(schemas.OffloadingTrendItemOutput(title=code, data=t_l))
     return list_items
-
-
-

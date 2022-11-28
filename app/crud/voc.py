@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors import exceptions as ex
 from app import schemas
-from sqlalchemy import func, select, between, case, and_, Column
+from sqlalchemy import func, select, between, case, and_, Column, distinct
 from datetime import datetime, timedelta
 
 from app import models
@@ -48,6 +48,9 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(distinct(models.OrgCode.oper_team_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         stmt = stmt.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -57,16 +60,16 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
         if "지하철엔지니어링부" in txt_l:
             stmt = stmt.where(models.VocList.oper_team_nm.in_(txt_l))
         else:
-            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_where = select(distinct(models.OrgCode.area_jo_nm)).where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt = stmt.where(models.VocList.area_jo_nm.in_(stmt_where))
             stmt = stmt.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         code_val = models.VocList.area_jo_nm
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(distinct(models.AddrCode.eup_myun_dong_nm)).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(distinct(models.AddrCode.eup_myun_dong_nm)).where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
@@ -75,7 +78,7 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
 
 
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     # stmt_rk = select([
     #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('RANK'),
@@ -124,6 +127,9 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(distinct(models.OrgCode.oper_team_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         stmt = stmt.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -132,31 +138,26 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
         if "지하철엔지니어링부" in txt_l:
             stmt = stmt.where(models.VocList.oper_team_nm.in_(txt_l))
         else:
-            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_where = select(distinct(models.OrgCode.area_jo_nm)).where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt = stmt.where(models.VocList.area_jo_nm.in_(stmt_where))
             stmt = stmt.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.VocList.area_jo_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(distinct(models.AddrCode.eup_myun_dong_nm)).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(distinct(models.AddrCode.eup_myun_dong_nm)).where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
     else:
         code_val = None
 
-    # stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).subquery()
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
 
-    # stmt_rk = select([
-    #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label("RANK"),
-    #     *stmt.c
-    # ])
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
     query_result = query.fetchall()
     query_keys = query.keys()
@@ -238,6 +239,9 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
     # 선택 조건
     if code == "제조사별":
         stmt_voc = stmt_voc.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(distinct(models.OrgCode.oper_team_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -246,7 +250,7 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
         if "지하철엔지니어링부" in txt_l:
             stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(txt_l))
         else:
-            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            stmt_where = select(distinct(models.OrgCode.area_jo_nm)).where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt_voc = stmt_voc.where(models.VocList.area_jo_nm.in_(stmt_where))
             stmt_voc = stmt_voc.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
@@ -541,7 +545,12 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
     # 선택 조건
     if code == "제조사별":
         stmt_sel_nm = models.VocList.mkng_cmpn_nm
+    elif code == "본부별":
+        code_tbl_nm = models.OrgCode
+        code_sel_nm = models.OrgCode.oper_team_nm
+        code_where_nm = models.OrgCode.bonbu_nm
 
+        stmt_sel_nm = models.VocList.oper_team_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm
@@ -651,7 +660,10 @@ async def get_voc_trend_by_group_month(db: AsyncSession, prod: str = None, code:
         txt_l = group.split("|")
 
     # 선택 조건(센터,팀,시,군구)
-    if code == "센터별":
+    if code == "본부별":
+        stmt_sbscr = stmt_sbscr.where(models.SubscrMM.new_hq_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocListMM.new_hq_nm.in_(txt_l))
+    elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt_sbscr = stmt_sbscr.where(models.Subscr.oper_team_nm.in_(stmt_where))
         stmt_sbscr = stmt_sbscr.where(models.SubscrMM.biz_hq_nm.in_(txt_l))
@@ -730,7 +742,10 @@ async def get_voc_trend_item_by_group_month(db: AsyncSession, prod: str = None, 
         where_ins = group.split("|")
 
     # 선택 조건
-    if code == "센터별":
+    if code == "본부별":
+        sbscr_sel_nm = models.SubscrMM.new_hq_nm
+        voc_sel_nm = models.VocListMM.new_hq_nm  # voc 테이블 select 변수
+    elif code == "센터별":
         sbscr_sel_nm = models.SubscrMM.biz_hq_nm
         voc_sel_nm = models.VocListMM.biz_hq_nm  # voc 테이블 select 변수
     elif code == "팀별":

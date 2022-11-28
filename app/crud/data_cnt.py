@@ -42,6 +42,9 @@ async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: s
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
@@ -51,10 +54,10 @@ async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: s
         # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
         stmt = stmt.where(models.DataCnt.oper_team_nm.in_(txt_l))
     elif code == "시도별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
-        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(txt_l))
@@ -113,6 +116,9 @@ async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, s
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))

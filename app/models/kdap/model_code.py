@@ -16,12 +16,14 @@ class AddrCode(Base):
 
 class OrgCode(Base):
     __tablename__ = "CODE_ORG"
+
     seq_no = Column(Integer)
     biz_hq_nm = Column(String(100))
     oper_team_nm = Column(String(100))
     area_center_nm = Column(String(100), primary_key=True)
     area_team_nm = Column(String(100))
     area_jo_nm = Column(String(100))
+    bonbu_nm = Column(String(50))
 
 
 class MenuCode(Base):
