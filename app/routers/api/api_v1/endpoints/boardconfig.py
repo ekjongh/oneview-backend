@@ -80,8 +80,8 @@ def create_dashboard_config_by_id(user_id: str, board_config: DashboardConfigIn,
     새로운 이름의 나의 대시보드 컨피그 생성 ( 나의 컨피그 5개가 넘을 시, 생성 불가 )
     """
     cnt = db_count_dashboard_config_by_id(user_id=user_id, db=db)
-    if cnt >= 5:
-        return {"result": "ERROR! 개인 Config는 최대 5개입니다.", "data": None}
+    if cnt > 5:
+        return {"result": "ERROR! 개인 Config 개수 초과", "data": None}
     else:
         data = db_insert_dashboard_config_by_id(user_id=user_id, db=db, board_config=board_config)
         return {"result": "create Success!", "data": data}
