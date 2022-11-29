@@ -77,10 +77,10 @@ def make_org_dict(org_data:[], no:int, data_list:[]):
     if len(fl) > 0:
         data_item = fl[0]
     else :
-        data_item = dict(id=org_data[no], label=org_data[no], child=[])
+        data_item = dict(id=org_data[no], label=org_data[no], children=[])
         data_list.append(data_item)
 
-    data_item["child"]=make_org_dict(org_data, no+1, data_item["child"]) if len(org_data) > no+1 else None
+    data_item["children"]=make_org_dict(org_data, no+1, data_item["children"]) if len(org_data) > no+1 else []
 
     return data_list
 
@@ -107,7 +107,7 @@ async def get_org_code_center(db: AsyncSession):
             if len(j_l) > 0 :
                 list_teams.append({"id": team, "label": team, "children": j_l})
             else:
-                list_teams.append({"id":team, "label":team, "children": None})
+                list_teams.append({"id":team, "label":team, "children": []})
 
         list_center.append({"id":center, "label":center, "children":list_teams})
 
