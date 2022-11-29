@@ -253,6 +253,8 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
             stmt_where = select(distinct(models.OrgCode.area_jo_nm)).where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt_voc = stmt_voc.where(models.VocList.area_jo_nm.in_(stmt_where))
             stmt_voc = stmt_voc.where(models.VocList.oper_team_nm != "지하철엔지니어링부")
+    elif code== "조별":
+        stmt_voc = stmt_voc.where(models.VocList.area_jo_nm.in_(txt_l))
     elif code == "시도별":
         stmt_voc = stmt_voc.where(models.VocList.sido_nm.in_(txt_l))
     elif code == "시군구별":
