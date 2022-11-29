@@ -36,7 +36,7 @@ class MenuCode(Base):
 
 
 class OrgGroup(Base):
-    __tablename__ = "ORG_GROUP_TMP"
+    __tablename__ = "ORG_GROUP"
 
     EX_ORG_CD = Column(String(20), primary_key=True)
     NAME = Column(String(100))
@@ -50,7 +50,7 @@ class OrgGroup(Base):
 
 
 class OrgUser(Base):
-    __tablename__ = "ORG_USER_TMP"
+    __tablename__ = "ORG_USER"
 
     LOGIN_ID = Column(String(10), primary_key=True)
     NAME = Column(String(128))
