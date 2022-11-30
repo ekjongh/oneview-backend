@@ -68,10 +68,32 @@ def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db
     if board_config is None:
         # raise HTTPException(status_code=404, detail="config not found")
         return {"result":None}
+    if board_config.owner_id != "admin" and client.user_id != board_config.owner_id:
+        return {"result":None}
     if board_config.owner_id == "admin" and client.user_id != board_config.owner_id:
-        schema_config = change_dashboard_config_group(board_config.board_module, client)
-        board_config.board_module = boardconfig_schema_to_model(schema_config)
+        pass
+        # schema_config = change_dashboard_config_group(board_config.board_module, client)
+        # board_config.board_module = boardconfig_schema_to_model(schema_config)
     return board_config
+
+
+@router.get("/boardconfig/test/{board_id}", response_model=DashboardConfigOut)
+def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync)):
+    """
+    내가 선택한 대시보드 컨피그 상세 조회
+    """
+    board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
+
+    if board_config is None:
+        # raise HTTPException(status_code=404, detail="config not found")
+        return {"result":None}
+    if board_config.owner_id == "admin":
+        pass
+        # schema_config = change_dashboard_config_group(board_config.board_module, client)
+        # board_config.board_module = boardconfig_schema_to_model(schema_config)
+    return board_config
+
+
 
 
 @router.post("/boardconfig/{user_id}")

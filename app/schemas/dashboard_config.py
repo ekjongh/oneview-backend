@@ -36,6 +36,7 @@ class ModuleConfigBase(BaseModel):
 class DashboardConfigIn(BaseModel):
     name: Union[str, None]
     board_module: Union[str, None]
+    login_config: Union[bool, None]
     # board_module: Union[ModuleConfigBase, None]
 
 
@@ -44,6 +45,7 @@ class DashboardConfigOut(BaseModel):
     name: Union[str, None]
     owner_id: Union[str, None]
     update_yn: Union[bool, None]
+    login_config: Union[bool, None]
     board_module: Union[str, None]
 
 
@@ -52,3 +54,4 @@ class DashboardConfigList(BaseModel):
     name: Union[str, None]
     owner_id: Union[str, None]
     update_yn: Union[bool, None]
+    login_config: Union[bool, None]

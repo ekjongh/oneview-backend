@@ -41,6 +41,7 @@ def db_get_dashboard_configs_by_userid(db: Session, user_id: str):
         models.DashboardConfig.name,
         models.DashboardConfig.update_yn,
         models.DashboardConfig.owner_id,
+        models.DashboardConfig.login_config,
     ]
     stmt = select(*entities).filter(or_(models.DashboardConfig.owner_id == user_id, models.DashboardConfig.owner_id == "admin"))
     query = db.execute(stmt)
@@ -57,12 +58,8 @@ def db_get_dashboard_config_by_id(db: Session, board_id: int):
     if not result:
         return None
 
-    boardconfig = schemas.DashboardConfigOut(board_id=board_id,
-                                            name=result.name,
-                                            owner_id=result.owner_id,
-                                            update_yn=result.update_yn,
-                                            board_module=result.board_module)
-
+    boardconfig = schemas.DashboardConfigOut(**result.__dict__)
+    # boardconfig = schemas.DashboardConfigOut(result)
     return boardconfig
 
 
@@ -71,11 +68,7 @@ def db_get_dashboard_config_by_name(db: Session, board_name: str):
     if not result:
         return None
 
-    boardconfig = schemas.DashboardConfigOut(board_id=result.board_id,
-                                             name=result.name,
-                                             owner_id=result.owner_id,
-                                             update_yn=result.update_yn,
-                                             board_module=result.board_module)
+    boardconfig = schemas.DashboardConfigOut(**result.__dict__)
 
     return boardconfig
 
@@ -127,12 +120,12 @@ def db_is_my_config_by_id(db: Session, board_id: str, user_id:str):
 def db_insert_dashboard_config_by_default(db: Session, user: models.User ):
     if get_org_code_by_team(db=db, dept_nm=user.group_3):
         #엔지부 소속
-        # board_config= db_get_dashboard_config_by_name(db, board_name="masterProfile4Employees")
-        board_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.name == "masterProfile4Employees").first()
+        # board_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.name == "masterProfile4Employees").first()
+        board_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.board_id == 107).first()
     else:
         #staff
-        # board_config= db_get_dashboard_config_by_name(db, board_name="masterProfile4Management")
-        board_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.name == "masterProfile4Management").first()
+        # board_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.name == "masterProfile4Management").first()
+        board_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.board_id == 108).first()
 
     if not board_config:
         return None
@@ -140,7 +133,7 @@ def db_insert_dashboard_config_by_default(db: Session, user: models.User ):
     board_module = change_dashboard_config_group(board_config.board_module, user)
     board_module = boardconfig_schema_to_model(board_module)
     db_board_config = models.DashboardConfig(owner_id=user.user_id,
-                                             name="workingprofile",
+                                             name="workingProfile",
                                              board_module=board_module)
 
     db.add(db_board_config)

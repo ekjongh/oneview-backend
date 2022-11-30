@@ -10,5 +10,6 @@ class DashboardConfig(Base):
     name = Column(String(100))
     board_module = Column(String(5000))
     update_yn = Column(Boolean, default=True)
+    login_config = Column(Boolean, default=False)
     owner_id = Column(String(100), ForeignKey("users.user_id"))
     owner = relationship("User", back_populates="dashboardconfig")
