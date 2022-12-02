@@ -10,9 +10,10 @@ from app.crud.dashboard_config import db_insert_dashboard_config_by_id,\
     db_get_dashboard_config_by_id, \
     db_update_dashboard_config_by_id, \
     db_delete_dashboard_config_by_id,\
-    db_count_dashboard_config_by_id,\
-    change_dashboard_config_group,\
-    db_is_my_config_by_id
+    db_count_dashboard_config_by_id, \
+    db_get_dashboard_default_config_by_id,\
+    db_is_my_config_by_id, \
+    db_get_dashboard_default_configs_by_user
 from app.routers.api.deps import get_db, get_current_user, get_current_active_user, get_db_sync
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserOutput
 from app.schemas.dashboard_config import DashboardConfigIn, DashboardConfigOut,  DashboardConfigList
@@ -43,7 +44,11 @@ def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_active_
     """
     내가 선택할 수 있는 대시보드 컨피그 목록 조회
     """
-    return db_get_dashboard_configs_by_userid(db, user_id=user.user_id)
+    result_list = []
+    result_list.extend(db_get_dashboard_configs_by_userid(db, user_id=user.user_id))
+    result_list.extend(db_get_dashboard_default_configs_by_user(db,user=user))
+
+    return result_list
 
 
 @router.get("/boardconfigs/{user_id}", response_model=List[DashboardConfigList])
@@ -59,40 +64,17 @@ def read_dashboard_config_by_userid(user_id: str, db: SessionLocal = Depends(get
 
 
 @router.get("/boardconfig/{board_id}", response_model=DashboardConfigOut)
-def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync), client: UserBase = Depends(get_current_active_user)):
+def read_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync), client: UserBase = Depends(get_current_active_user)):
     """
     내가 선택한 대시보드 컨피그 상세 조회
     """
-    board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
+    if board_id > 10 :
+        board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
+    else:
+        board_config = db_get_dashboard_default_config_by_id(db=db, board_id=board_id, client=client)
 
-    if board_config is None:
-        # raise HTTPException(status_code=404, detail="config not found")
-        return {"result":None}
-    if board_config.owner_id != "admin" and client.user_id != board_config.owner_id:
-        return {"result":None}
-    if board_config.owner_id == "admin" and client.user_id != board_config.owner_id:
-        pass
-        # schema_config = change_dashboard_config_group(board_config.board_module, client)
-        # board_config.board_module = boardconfig_schema_to_model(schema_config)
+
     return board_config
-
-
-@router.get("/boardconfig/test/{board_id}", response_model=DashboardConfigOut)
-def read_dashboard_config_by_id(board_id: str, db: SessionLocal = Depends(get_db_sync)):
-    """
-    내가 선택한 대시보드 컨피그 상세 조회
-    """
-    board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
-
-    if board_config is None:
-        # raise HTTPException(status_code=404, detail="config not found")
-        return {"result":None}
-    if board_config.owner_id == "admin":
-        pass
-        # schema_config = change_dashboard_config_group(board_config.board_module, client)
-        # board_config.board_module = boardconfig_schema_to_model(schema_config)
-    return board_config
-
 
 
 

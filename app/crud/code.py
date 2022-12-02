@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from .. import schemas, models
-from sqlalchemy import func, select, between, case,literal
+from sqlalchemy import func, select, between, case,literal, or_
 from datetime import datetime, timedelta
 from app.errors import exceptions as ex
 
@@ -52,6 +52,33 @@ async def get_addr_code_all(db: AsyncSession, sido:str=None, gungu:str=None, don
 def get_org_code_by_team(db:Session, dept_nm:str):
     return db.query(models.OrgCode.oper_team_nm).filter(models.OrgCode.oper_team_nm==dept_nm).first()
 
+
+def get_org_code_lvl(db:Session, user:models.User):
+    # lvl : jo=0, team=1, center=2, bonbu=3, all=4
+    model_list = [models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm,
+                  models.OrgCode.biz_hq_nm, models.OrgCode.bonbu_nm]
+    group_list = [user.group_4, user.group_3, user.group_2, user.group_1]
+    for idx, item in enumerate(group_list):
+        result = db.query(func.count(models.OrgCode.area_jo_nm)).filter(
+                    model_list[idx]==item).scalar()
+        if result>0 and item:
+            return idx
+    return 4
+
+
+def get_sub_orgs(db:Session, dept_nm:str ):
+    if dept_nm.endswith("팀") or dept_nm.endswith("부"):
+        result = db.query(models.OrgCode.area_jo_nm).distinct().filter(models.OrgCode.oper_team_nm==dept_nm).all()
+    elif dept_nm.endswith("센터"):
+        result = db.query(models.OrgCode.oper_team_nm).distinct().filter(models.OrgCode.biz_hq_nm==dept_nm).all()
+    elif dept_nm.endswith("본부"):
+        result = db.query(models.OrgCode.biz_hq_nm).distinct().filter(models.OrgCode.bonbu_nm==dept_nm).all()
+
+    str = [r[0] for r in result]
+    if str:
+        return '|'.join(str)
+
+    return None
 
 async def get_org_code_all(db: AsyncSession):
     entities = [

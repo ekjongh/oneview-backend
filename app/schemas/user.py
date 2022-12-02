@@ -40,6 +40,7 @@ class UserUpdate(UserBase):
     group_4: Union[str, None] = None
     # board_modules: List[ModuleConfigBase]
     board_id: Union[int, None]
+    start_board_id: Union[str, None] = None
 
 
     class Config:
@@ -78,6 +79,7 @@ class UserOutput(UserBase):
     is_active: Union[bool, None] = None
     is_superuser: Union[bool, None] = None
     board_id : Union[int, None] = None
+    start_board_id: Union[str, None] = None
     auth: Union[str, None] = None
     level: Union[str, None] = None
     board_modules: Union[str, None] = None

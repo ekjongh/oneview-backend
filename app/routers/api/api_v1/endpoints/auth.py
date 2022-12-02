@@ -127,7 +127,8 @@ def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str
         register_user = UserCreate(user_id = user_id_decoded)
         user = create_user(db, register_user)
         config = db_insert_dashboard_config_by_default(db,user)
-        _ = update_user(db, user.user_id,schemas.UserUpdate(board_id=config.board_id))
+        if config :
+            _ = update_user(db, user.user_id,schemas.UserUpdate(board_id=config.board_id, start_board_id=config.board_id ))
 
     # access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))

@@ -98,11 +98,8 @@ def create_user(db: Session, user: schemas.UserCreate):
         db_user.phone = query_result["MOBILE"]
         db_user.level = query_result["EX_LEVEL_NM"]
         depts = query_result["EX_POSITION_NM"].split(" ")
-        j=0
-        for i in range(4-min(3, len(depts)), 4):
-            setattr(db_user, f"group_{i}", depts[j])
-            j = j+1
-        # db_user["group_1"] = query_result["EX_POSITION_NM"]
+        for i in range(0,min(3, len(depts))):
+            setattr(db_user, f"group_{i+1}", depts[i])
 
     db.add(db_user)
     db.commit()

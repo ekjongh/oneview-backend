@@ -25,7 +25,8 @@ class User(Base):
 
     level = Column(String(50), default="")
     auth = Column(String(30), default="직원") #직원, 팀장, 광역본부장/센터장, 부문장/스텝본부장
-    board_id = Column(Integer)
+    board_id = Column(Integer) # 동기화 board id
+    start_board_id = Column(Integer) # 로그인시 사용할 config id
 
     blacklists = relationship("Blacklist", back_populates="owner")
     dashboardconfig = relationship("DashboardConfig", back_populates="owner")
