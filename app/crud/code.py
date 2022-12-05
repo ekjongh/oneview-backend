@@ -67,18 +67,45 @@ def get_org_code_lvl(db:Session, user:models.User):
 
 
 def get_sub_orgs(db:Session, dept_nm:str ):
-    if dept_nm.endswith("팀") or dept_nm.endswith("부"):
+    result = []
+    if dept_nm.endswith("본부"):
+        result = db.query(models.OrgCode.biz_hq_nm).distinct().filter(models.OrgCode.bonbu_nm == dept_nm).all()
+    elif dept_nm.endswith("팀") or dept_nm.endswith("부"):
         result = db.query(models.OrgCode.area_jo_nm).distinct().filter(models.OrgCode.oper_team_nm==dept_nm).all()
     elif dept_nm.endswith("센터"):
         result = db.query(models.OrgCode.oper_team_nm).distinct().filter(models.OrgCode.biz_hq_nm==dept_nm).all()
-    elif dept_nm.endswith("본부"):
-        result = db.query(models.OrgCode.biz_hq_nm).distinct().filter(models.OrgCode.bonbu_nm==dept_nm).all()
 
     str = [r[0] for r in result]
     if str:
         return '|'.join(str)
 
     return None
+
+
+
+def get_sub_org_ord(db:Session, dept_nm:str ):
+    # 부서 순서 구하기
+    # select dept_nm from DASHBOARD_CONFIG
+    result = []
+
+    if dept_nm.endswith("팀") or dept_nm.endswith("부"):
+        # result = db.query(models.OrgCode.area_jo_nm).distinct().filter(models.OrgCode.oper_team_nm==dept_nm).all()
+        sub_stmt = select(models.OrgCode.biz_hq_nm).filter(models.OrgCode.oper_team_nm == dept_nm)
+        stmt = select(models.OrgCode.oper_team_nm.label("dept")).distinct().filter(models.OrgCode.biz_hq_nm.in_(sub_stmt))
+    elif dept_nm.endswith("센터"):
+        sub_stmt = select(models.OrgCode.bonbu_nm).filter(models.OrgCode.biz_hq_nm == dept_nm)
+        stmt = select(models.OrgCode.biz_hq_nm.label("dept")).distinct().filter(models.OrgCode.bonbu_nm.in_(sub_stmt))
+    elif dept_nm.endswith("본부"):
+        stmt = select(models.OrgCode.biz_hq_nm.label("dept")).distinct()
+
+    result = db.execute(stmt).all()
+    print("RESULT", result)
+    for idx, r in enumerate(result):
+        if dept_nm == r[0]:
+            print("ORDER !!!! ", idx, r, dept_nm)
+            return idx
+    return 0
+
 
 async def get_org_code_all(db: AsyncSession):
     entities = [

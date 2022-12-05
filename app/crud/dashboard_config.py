@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select, between, case,literal, or_, and_
 
 from app.errors import exceptions as ex
-from app.crud.code import get_org_code_by_team, get_org_code_lvl, get_sub_orgs
+from app.crud.code import get_org_code_by_team, get_org_code_lvl, get_sub_orgs, get_sub_org_ord
 from .. import models, schemas
 from app.utils.internel.user import boardconfig_schema_to_model, boardconfig_model_to_schema
 
@@ -52,6 +52,7 @@ def db_get_dashboard_configs_by_userid(db: Session, user_id: str):
         return []
     return list(map(lambda x: schemas.DashboardConfigList(**dict(zip(query_keys, x))), query_result))
 
+
 def db_get_dashboard_default_configs_by_user(db:Session, user:models.User):
     # default config 중에 조회가능한 목록
     lvl = get_org_code_lvl(db, user)
@@ -75,9 +76,6 @@ def db_get_dashboard_default_configs_by_user(db:Session, user:models.User):
     if not query_result:
         return []
     return list(map(lambda x: schemas.DashboardConfigList(**dict(zip(query_keys, x))), query_result))
-
-
-
 
 
 def db_get_dashboard_config_by_id(db: Session, board_id: int):
@@ -133,6 +131,7 @@ def db_count_dashboard_config_by_id(db: Session, user_id: str):
     stmt = select(func.count(models.DashboardConfig.board_id)).filter(models.DashboardConfig.owner_id == user_id)
     return db.execute(stmt).scalar()
 
+
 def db_is_my_config_by_id(db: Session, board_id: str, user_id:str):
     stmt = select(models.User.board_id).filter(models.User.user_id==user_id)
     # stmt = select(func.count(models.DashboardConfig.board_id)).\
@@ -142,7 +141,6 @@ def db_is_my_config_by_id(db: Session, board_id: str, user_id:str):
         return True
     else:
         return False
-
 
 
 def db_insert_dashboard_config_by_default(db: Session, user: models.User ):
@@ -162,7 +160,7 @@ def db_insert_dashboard_config_by_default(db: Session, user: models.User ):
 
 
 def make_dashboard_config_group(db:Session, lvl:str, user: models.User):
-    def get_group(item):
+    def get_group2(item):
         if item.catScope == "조별" and orgs[0]:
             item.group = orgs[0]
         elif item.catScope == "팀별" and orgs[1]:
@@ -170,7 +168,25 @@ def make_dashboard_config_group(db:Session, lvl:str, user: models.User):
         elif item.catScope == "센터별" and orgs[2]:
             item.group = orgs[2]
         return item
+    def get_group(item):
+        if item.catScope == "조별" and orgs[0]:
+            item.group = orgs[0]
+        elif item.catScope == "팀별" and orgs[1]:
+            item.group = orgs[1]
+        elif item.catScope == "센터별" and orgs[2]:
+            # 본부 뷰의 경우 KPI가 각센터별로 표시되어야 함
+            grp_list = item.group.split("|")
 
+            if len(grp_list) == 1:
+                # 샘플config의 센터명순서 조회 -> sub_org에서 해당 순서조직 return
+                    ordno= get_sub_org_ord(db, item.group)
+                    suborg_list = orgs[2].split("|")
+                    if len(suborg_list) > ordno :
+                        item.group = suborg_list[ordno]
+            else:
+                item.group = orgs[2]
+
+        return item
 
     board_module = db.query(models.DashboardConfig.board_module).filter(models.DashboardConfig.board_id == lvl).first()
 
@@ -193,7 +209,7 @@ def make_dashboard_config_group(db:Session, lvl:str, user: models.User):
        orgs[1] = get_sub_orgs(db, dept_nm=user.group_2)
        orgs[2] = user.group_2
        orgs[3] = user.group_1
-    elif lvl == 3:
+    elif lvl == 3: #본부프로파일은 본부와 센터 변경
        orgs[2] = get_sub_orgs(db, dept_nm=user.group_1)
        orgs[3] = user.group_1
 
