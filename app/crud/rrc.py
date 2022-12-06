@@ -54,6 +54,7 @@ async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, st
             stmt = stmt.where(models.Rrc.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.Rrc.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.Rrc.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(stmt_where))
@@ -130,6 +131,7 @@ async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, prod:str, code:st
             stmt = stmt.where(models.Rrc.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.Rrc.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.Rrc.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(stmt_where))
@@ -152,6 +154,7 @@ async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, prod:str, code:st
         order_col = rrc_rate.asc()
 
     # stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(rrc_rate.desc()).subquery()
+    stmt = stmt.where(models.Rrc.area_jo_nm!="값없음")
     stmt = stmt.group_by(*entities).having(sum_rrc_try>0).order_by(order_col).limit(limit)
 
     stmt_rk = select([
@@ -224,6 +227,7 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
             stmt_where_and.append(models.Rrc.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt_sel_nm = models.Rrc.area_jo_nm
+        stmt_where_and.append(models.Rrc.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         code_tbl_nm = models.AddrCode
         code_sel_nm = models.AddrCode.eup_myun_dong_nm

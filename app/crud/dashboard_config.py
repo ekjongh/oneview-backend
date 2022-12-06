@@ -9,9 +9,6 @@ from .. import models, schemas
 from app.utils.internel.user import boardconfig_schema_to_model, boardconfig_model_to_schema
 
 
-
-
-
 def db_insert_dashboard_config_by_id(db: Session, user_id: str, board_config: schemas.DashboardConfigIn):
     """
     Dashboard Profile Create...
@@ -152,71 +149,60 @@ def db_insert_dashboard_config_by_default(db: Session, user: models.User ):
     db_board_config = models.DashboardConfig(owner_id=user.user_id,
                                              name="workingProfile",
                                              board_module=board_module)
-
     db.add(db_board_config)
     db.commit()
     db.refresh(db_board_config)
     return db_board_config
 
+def get_group(group:str, lst:[], val:str):
+    # 배너,카드의 그룹명 변경: all-> list, 0~4-> list[0~4], !-> user.group_1~4
+    if group == "all":
+        group = "|".join(lst)
+    elif group == "!" and val:
+        group = val
+    elif group.isdigit():
+        if int(group) < len(lst):
+            group = lst[int(group)]
+        else:
+            group = None
+    return group
+
+def get_item(item, orgs):
+    # 배너,카드의 그룹명 변경: all-> list, 0~4-> list[0~4], str-> user.group_1~4
+    if item.catScope == "조별":
+        item.group = get_group(item.group, orgs["jo_list"], orgs["jo"])
+    elif item.catScope == "팀별":
+        item.group = get_group(item.group, orgs["team_list"], orgs["team"])
+    elif item.catScope == "센터별":
+        item.group = get_group(item.group, orgs["center_list"], orgs["center"])
+    elif item.catScope == "본부별":
+        item.group = orgs["bonbu"]
+
+    return item
+
 
 def make_dashboard_config_group(db:Session, lvl:str, user: models.User):
-    def get_group2(item):
-        if item.catScope == "조별" and orgs[0]:
-            item.group = orgs[0]
-        elif item.catScope == "팀별" and orgs[1]:
-            item.group = orgs[1]
-        elif item.catScope == "센터별" and orgs[2]:
-            item.group = orgs[2]
-        return item
-    def get_group(item):
-        if item.catScope == "조별" and orgs[0]:
-            item.group = orgs[0]
-        elif item.catScope == "팀별" and orgs[1]:
-            item.group = orgs[1]
-        elif item.catScope == "센터별" and orgs[2]:
-            # 본부 뷰의 경우 KPI가 각센터별로 표시되어야 함
-            grp_list = item.group.split("|")
-
-            if len(grp_list) == 1:
-                # 샘플config의 센터명순서 조회 -> sub_org에서 해당 순서조직 return
-                    ordno= get_sub_org_ord(db, item.group)
-                    suborg_list = orgs[2].split("|")
-                    if len(suborg_list) > ordno :
-                        item.group = suborg_list[ordno]
-            else:
-                item.group = orgs[2]
-
-        return item
-
     board_module = db.query(models.DashboardConfig.board_module).filter(models.DashboardConfig.board_id == lvl).first()
 
     if not board_module:
         return None
 
-    # 저장된 부서명을 대체할 user기준 부서명
-    orgs = [None for i in range(5)]
-    if lvl==0: #조
-        orgs[0] = user.group_4
-        orgs[1] = user.group_3
-        orgs[2] = user.group_2
-        orgs[3] = user.group_1
-    elif lvl==1: #팀프로파일은 팀과 조(하위조들) 변경
-       orgs[0] = get_sub_orgs(db, dept_nm=user.group_3)
-       orgs[1] = user.group_3
-       orgs[2] = user.group_2
-       orgs[3] = user.group_1
-    elif lvl == 2: #센터프로파일은 센터와 팀(하위팀들) 변경
-       orgs[1] = get_sub_orgs(db, dept_nm=user.group_2)
-       orgs[2] = user.group_2
-       orgs[3] = user.group_1
-    elif lvl == 3: #본부프로파일은 본부와 센터 변경
-       orgs[2] = get_sub_orgs(db, dept_nm=user.group_1)
-       orgs[3] = user.group_1
+    # 저장된 부서명을 대체할 user기준 부서명 :
+    orgs = {}
+    orgs["jo"] = user.group_4
+    orgs["jo_list"] = get_sub_orgs(db, dept_nm=user.group_3)
+    orgs["team"] = user.group_3
+    orgs["team_list"] = get_sub_orgs(db, dept_nm=user.group_2)
+    orgs["center"] = user.group_2
+    orgs["center_list"] = get_sub_orgs(db, dept_nm=user.group_1)
+    orgs["bonbu"] = user.group_1
 
     board_module = boardconfig_model_to_schema(board_module[0])
 
-    board_module.banners = list(map(get_group, board_module.banners))
-    board_module.cards = list(map(get_group, board_module.cards))
+    board_module.banners = list(map(lambda p: get_item(p, orgs), board_module.banners))
+    board_module.banners = [item for item in board_module.banners if item.group]
+    board_module.cards = list(map(lambda p: get_item(p, orgs), board_module.cards))
+    board_module.cards = [item for item in board_module.cards if item.group]
 
     m_board_config = boardconfig_schema_to_model(board_module)
 

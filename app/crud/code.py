@@ -76,10 +76,12 @@ def get_sub_orgs(db:Session, dept_nm:str ):
         result = db.query(models.OrgCode.oper_team_nm).distinct().filter(models.OrgCode.biz_hq_nm==dept_nm).all()
 
     str = [r[0] for r in result]
-    if str:
-        return '|'.join(str)
 
-    return None
+    # if str:
+    #     return '|'.join(str)
+    if not str:
+        return []
+    return str
 
 
 

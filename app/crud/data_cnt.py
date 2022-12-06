@@ -4,7 +4,7 @@ from .. import schemas, models
 from sqlalchemy import func, select, between, case,literal
 from datetime import datetime, timedelta
 
-
+#조기준 X
 async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: str, start_date: str = None,
                                               end_date: str = None):
     sum_5g_data = (func.ifnull(models.DataCnt.g5d_upld_data_qnt, 0.0) +
@@ -75,7 +75,7 @@ async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: s
     result = list(map(lambda x: schemas.DataCntTrendOutput(**dict(zip(query_keys, x))), query_result))
     return result
 
-
+#조기준 X
 async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20220901', limit: int = 10):
     if not start_date:
         start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
@@ -104,9 +104,11 @@ async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, s
     ]
 
     stmt = select(*entities, *entities_groupby)
+    stmt_total = select(literal("합계").label("prod"), *entities_groupby)
 
     #날짜
     stmt = stmt.where(models.DataCnt.base_date.in_([start_date, lastweek]))
+    stmt_total = stmt_total.where(models.DataCnt.base_date.in_([start_date, lastweek]))
 
     txt_l = []
     # code의 값목록 : 삼성|노키아
@@ -116,33 +118,48 @@ async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, s
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
         stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
         stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.DataCnt.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
         stmt = stmt.where(models.DataCnt.biz_hq_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.DataCnt.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         stmt = stmt.where(models.DataCnt.oper_team_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.DataCnt.oper_team_nm.in_(txt_l))
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.DataCnt.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
         stmt = stmt.where(models.DataCnt.eup_myun_dong_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.DataCnt.eup_myun_dong_nm.in_(txt_l))
     else: # 전국
         pass
 
+    stmt = stmt.where(models.DataCnt.anals_3_prod_level_nm!="MVNO")
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc())
+    stmt_total = stmt_total.where(models.DataCnt.anals_3_prod_level_nm != "MVNO")
+    stmt_total = stmt_total.order_by(sum_cnt.desc())
 
     query = await db.execute(stmt)
     query_result = query.fetchmany(size=limit)
     query_keys = query.keys()
-
     query_keys = list(query_keys)
+
+    #합계 query 실행
+    query_total = await db.execute(stmt_total)
+    query_result_total = query_total.fetchall()
+
+    query_result = query_result + query_result_total
 
     list_subscr_compare = list(map(lambda x: schemas.DataCntCompareProdOutput(**dict(zip(query_keys, x))), query_result))
     return list_subscr_compare

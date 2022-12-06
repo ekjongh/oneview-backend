@@ -4,7 +4,7 @@ from .. import schemas, models
 from sqlalchemy import func, select, between, case,literal
 from datetime import datetime, timedelta
 
-
+# 5G단말별 가입자수: 조기준X
 async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, start_date: str = '20220901', limit: int=10 ):
     if not start_date:
         start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
@@ -25,7 +25,7 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
     ]
 
     stmt = select(*entities, *entities_groupby).where(models.Subscr.anals_3_prod_level_nm == '5G')
-    stmt_total = select(literal("전국5G").label("hndset_pet_nm"), *entities_groupby) # 전국5g단말합계
+    stmt_total = select(literal("합계").label("hndset_pet_nm"), *entities_groupby) # 전국5g단말합계
     stmt_total = stmt_total.where(models.Subscr.anals_3_prod_level_nm == '5G')
 
     # 날짜
@@ -40,22 +40,28 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
         stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
         stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.oper_team_nm.in_(stmt_where))
         # stmt = stmt.where(models.Subscr.biz_hq_nm.in_(txt_l))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
         stmt = stmt.where(models.Subscr.biz_hq_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         stmt = stmt.where(models.Subscr.oper_team_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.oper_team_nm.in_(txt_l))
     elif code == "시도별":
         stmt_where = select(models.AddrCode.gun_gu_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Subscr.gun_gu_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.gun_gu_nm.in_(stmt_where))
     elif code == "시군구별":
         stmt_where = select(models.AddrCode.gun_gu_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
         stmt = stmt.where(models.Subscr.gun_gu_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.gun_gu_nm.in_(stmt_where))
     else: # 전국
         pass
 
@@ -78,7 +84,7 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
     list_subscr_compare = list(map(lambda x: schemas.SubscrCompareOutput(**dict(zip(query_keys, x))), query_result))
     return list_subscr_compare
 
-
+#상품별가입자수(5g, lte, 3g, 합계)
 async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20220901', limit: int = 10):
     if not start_date:
         start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
@@ -99,8 +105,7 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
     ]
 
     stmt = select(*entities, *entities_groupby)
-    stmt_total = select(literal("전국").label("prod"), *entities_groupby)  # 전국5g단말합계
-    stmt_total = stmt_total.where(models.Subscr.anals_3_prod_level_nm == '5G')
+    stmt_total = select(literal("합계").label("prod"), *entities_groupby)  # 전국5g단말합계
 
 
     #날짜
@@ -115,20 +120,26 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
     # 선택 조건
     if code == "제조사별":
         stmt = stmt.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
         stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
         stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.oper_team_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
         stmt = stmt.where(models.Subscr.biz_hq_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         stmt = stmt.where(models.Subscr.oper_team_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.oper_team_nm.in_(txt_l))
     elif code == "시도별":
         stmt_where = select(models.AddrCode.gun_gu_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Subscr.gun_gu_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.gun_gu_nm.in_(stmt_where))
     elif code == "시군구별":
         stmt = stmt.where(models.Subscr.gun_gu_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.Subscr.gun_gu_nm.in_(txt_l))
     else: # 전국
         pass
 

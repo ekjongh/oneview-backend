@@ -67,6 +67,7 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
             stmt = stmt.where(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(stmt_where))
@@ -89,7 +90,7 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
     list_offloading_trend = list(map(lambda x: schemas.OffloadingTrendOutput(**dict(zip(query_keys, x))), query_result))
     return list_offloading_trend
 
-# worst주요단말(데이터량기준)
+# worst주요단말(데이터량기준) : 조 기준 X,
 async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None,
                                             limit: int = 10):
     sum_5g_data = func.sum(models.Offloading_Hndset.g5d_upld_data_qnt +
@@ -243,6 +244,7 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
             stmt = stmt.where(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Offloading_Bts.eup_myun_dong_nm.in_(stmt_where))
@@ -255,6 +257,7 @@ async def get_worst10_offloading_dong_by_group_date(db: AsyncSession, code: str,
         pass
 
     # stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).subquery()
+    stmt = stmt.where(models.Offloading_Bts.area_jo_nm!="값없음")
     stmt = stmt.group_by(*entities).having(g5_off_ratio > 0).order_by(g5_off_ratio.asc()).limit(limit)
 
     stmt_rk = select([
@@ -335,6 +338,7 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
             stmt_where_and.append(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt_sel_nm = models.Offloading_Bts.area_jo_nm
+        stmt_where_and.append(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         code_tbl_nm = models.AddrCode
         code_sel_nm = models.AddrCode.eup_myun_dong_nm

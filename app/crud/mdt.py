@@ -211,6 +211,7 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
 
     elif code == "조별":
         stmt = stmt.where(models.Mdt.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.Mdt.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.Mdt.eup_myun_dong_nm.in_(stmt_where))
@@ -223,6 +224,7 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
         pass
 
     # stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).subquery()
+    stmt = stmt.where(models.Mdt.area_jo_nm!='값없음')
     stmt = stmt.group_by(*entities).having(sum_rsrp_cnt > 0).order_by(rsrp_bad_rate.desc()).limit(limit)
 
     stmt_rk = select([
@@ -326,6 +328,7 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
 
     elif code == "조별":
         stmt_sel_nm = models.Mdt.area_jo_nm
+        stmt_where_and.append(models.Mdt.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         code_tbl_nm = models.AddrCode
         code_sel_nm = models.AddrCode.eup_myun_dong_nm

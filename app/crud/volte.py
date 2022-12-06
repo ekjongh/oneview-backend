@@ -70,6 +70,7 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
             stmt = stmt.where(models.VolteFailBts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.VolteFailBts.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFailBts.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.sido_nm.in_(txt_l))
         stmt = stmt.where(models.VolteFailBts.eup_myun_dong_nm.in_(stmt_where))
@@ -86,6 +87,7 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
         stmt = stmt.where(models.VolteFailBts.anals_3_prod_level_nm == prod)
 
     # stmt = stmt.group_by(*entities).having(sum_try>100).order_by(sum_cut.desc()).subquery()
+    stmt = stmt.where(models.VolteFailBts.area_jo_nm!="값없음")
     stmt = stmt.group_by(*entities).having(sum_try>100).order_by(cut_ratio.desc()).limit(limit)
     stmt_rk = select([
         func.rank().over(order_by=stmt.c.cut_ratio.desc()).label("RANK"),
@@ -101,6 +103,7 @@ async def get_worst10_volte_bts_by_group_date2(db: AsyncSession, prod:str=None, 
     return list_worst_volte_bts
 
 
+# 조기준X
 async def get_worst10_volte_hndset_by_group_date2(db: AsyncSession, prod:str=None, code:str=None, group: str=None,
                                            start_date: str = None, end_date: str=None, limit: int = 10):
     # VOLTE 절단율 worst 10 단말기
@@ -239,9 +242,9 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
             stmt_where = select(models.OrgCode.area_jo_nm).distinct().where(models.OrgCode.oper_team_nm.in_(txt_l))
             stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(stmt_where))
             stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
-
     elif code == "조별":
         stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm.in_(txt_l))
+        stmt_cut = stmt_cut.where(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).distinct().where(models.AddrCode.sido_nm.in_(txt_l))
         stmt_cut = stmt_cut.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
@@ -257,6 +260,7 @@ async def get_volte_trend_by_group_date2(db: AsyncSession, prod:str=None, code:s
     if prod and prod != "전체":
         stmt_cut = stmt_cut.where(models.VolteFail.anals_3_prod_level_nm == prod)
 
+    stmt_cut = stmt_cut.where(models.VolteFail.area_jo_nm!="값없음")
     stmt_cut = stmt_cut.group_by(*entities_cut).order_by(models.VolteFail.base_date.asc())
 
     query_cut = await db.execute(stmt_cut)
@@ -330,6 +334,7 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
             stmt_where_and.append(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt_sel_nm = models.VolteFail.area_jo_nm
+        stmt_where_and.append(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         code_tbl_nm = models.AddrCode
         code_sel_nm = models.AddrCode.eup_myun_dong_nm
