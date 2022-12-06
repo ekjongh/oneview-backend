@@ -308,9 +308,10 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         stmt_sel_nm = models.VolteFail.mkng_cmpn_nm
 
     elif code == "본부별":
-        code_tbl_nm = models.OrgCode
-        code_sel_nm = models.OrgCode.oper_team_nm
-        code_where_nm = models.OrgCode.bonbu_nm
+        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).\
+                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).subquery()
+        code_sel_nm = code_tbl_nm.c.oper_team_nm
+        code_where_nm = code_tbl_nm.c.bonbu_nm
 
         stmt_sel_nm = models.VolteFail.oper_team_nm
     elif code == "센터별":
@@ -326,9 +327,10 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         if "지하철엔지니어링부" in where_ins:
             stmt_sel_nm = models.VolteFail.oper_team_nm
         else:
-            code_tbl_nm = models.OrgCode
-            code_sel_nm = models.OrgCode.area_jo_nm
-            code_where_nm = models.OrgCode.oper_team_nm
+            code_tbl_nm = select(models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm).\
+                    group_by(models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm).subquery()
+            code_sel_nm = code_tbl_nm.c.area_jo_nm
+            code_where_nm = code_tbl_nm.c.oper_team_nm
 
             stmt_sel_nm = models.VolteFail.area_jo_nm
             stmt_where_and.append(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
@@ -336,15 +338,17 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         stmt_sel_nm = models.VolteFail.area_jo_nm
         stmt_where_and.append(models.VolteFail.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
-        code_tbl_nm = models.AddrCode
-        code_sel_nm = models.AddrCode.eup_myun_dong_nm
-        code_where_nm = models.AddrCode.sido_nm
+        code_tbl_nm = select(models.AddrCode.eup_myun_dong_nm, models.AddrCode.sido_nm). \
+            group_by(models.AddrCode.eup_myun_dong_nm, models.AddrCode.sido_nm).subquery()
+        code_sel_nm = code_tbl_nm.c.eup_myun_dong_nm
+        code_where_nm = code_tbl_nm.c.sido_nm
 
         stmt_sel_nm = models.VolteFail.eup_myun_dong_nm
     elif code == "시군구별":
-        code_tbl_nm = models.AddrCode
-        code_sel_nm = models.AddrCode.eup_myun_dong_nm
-        code_where_nm = models.AddrCode.gun_gu_nm
+        code_tbl_nm = select(models.AddrCode.eup_myun_dong_nm, models.AddrCode.gun_gu_nm). \
+            group_by(models.AddrCode.eup_myun_dong_nm, models.AddrCode.gun_gu_nm).subquery()
+        code_sel_nm = code_tbl_nm.c.eup_myun_dong_nm
+        code_where_nm = code_tbl_nm.c.gun_gu_nm
 
         stmt_sel_nm = models.VolteFail.eup_myun_dong_nm
     elif code == "읍면동별":
@@ -353,7 +357,7 @@ async def get_volte_trend_item_by_group_date(db: AsyncSession, prod:str=None, co
         raise ex.SqlFailureEx
 
     # stmt 생성
-    if not code_tbl_nm:  # code table 미사용시
+    if code_tbl_nm == None:  # code table 미사용시
         stmt_where_and.append(stmt_sel_nm.in_(where_ins))
 
         stmt = select(
