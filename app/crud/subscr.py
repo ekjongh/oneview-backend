@@ -42,9 +42,9 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
         stmt = stmt.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
         stmt_total = stmt_total.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
-        stmt_total = stmt_total.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Subscr.biz_hq_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.biz_hq_nm.in_(stmt_where))
         # stmt = stmt.where(models.Subscr.biz_hq_nm.in_(txt_l))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
@@ -84,6 +84,7 @@ async def get_subscr_compare_by_hndset2(db: AsyncSession, code:str, group: str, 
     list_subscr_compare = list(map(lambda x: schemas.SubscrCompareOutput(**dict(zip(query_keys, x))), query_result))
     return list_subscr_compare
 
+
 #상품별가입자수(5g, lte, 3g, 합계)
 async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20220901', limit: int = 10):
     if not start_date:
@@ -122,9 +123,9 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
         stmt = stmt.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
         stmt_total = stmt_total.where(models.Subscr.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
-        stmt_total = stmt_total.where(models.Subscr.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Subscr.biz_hq_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.Subscr.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Subscr.oper_team_nm.in_(stmt_where))
@@ -145,6 +146,7 @@ async def get_subscr_compare_by_prod(db: AsyncSession, code: str, group: str, st
 
     stmt = stmt.group_by(*entities).order_by(sum_cnt.desc()).limit(limit)
 
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.fetchall()

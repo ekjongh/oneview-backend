@@ -15,7 +15,6 @@ async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: s
                     func.ifnull(models.DataCnt.ld_upld_data_qnt, 0.0)).label("sum_lte_data")
     sum_total_data = (sum_3g_data + sum_lte_data + sum_5g_data).label("value")
 
-
     entities = [
         models.DataCnt.base_date.label("date"),
     ]
@@ -43,8 +42,8 @@ async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: s
     if code == "제조사별":
         stmt = stmt.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
@@ -74,6 +73,7 @@ async def get_datacnt_trend_by_group_date2(db: AsyncSession, code: str, group: s
 
     result = list(map(lambda x: schemas.DataCntTrendOutput(**dict(zip(query_keys, x))), query_result))
     return result
+
 
 #조기준 X
 async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20220901', limit: int = 10):
@@ -120,9 +120,9 @@ async def get_datacnt_compare_by_prod(db: AsyncSession, code: str, group: str, s
         stmt = stmt.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
         stmt_total = stmt_total.where(models.DataCnt.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))
-        stmt_total = stmt_total.where(models.DataCnt.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.DataCnt.biz_hq_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.DataCnt.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.oper_team_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.DataCnt.oper_team_nm.in_(stmt_where))

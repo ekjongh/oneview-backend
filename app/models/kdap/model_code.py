@@ -24,7 +24,7 @@ class OrgCode(Base):
     area_team_nm = Column(String(100))
     area_jo_nm = Column(String(100))
     bonbu_nm = Column(String(50))
-
+    eng_sosok = Column(Boolean)
 
 class MenuCode(Base):
     __tablename__ = "CODE_MENU"

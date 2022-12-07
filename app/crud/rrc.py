@@ -39,8 +39,8 @@ async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, st
     if code == "제조사별":
         stmt = stmt.where(models.Rrc.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Rrc.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Rrc.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         stmt = stmt.where(models.Rrc.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -116,8 +116,8 @@ async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, prod:str, code:st
     if code == "제조사별":
         stmt = stmt.where(models.Rrc.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Rrc.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Rrc.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         stmt = stmt.where(models.Rrc.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -200,12 +200,12 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
     if code == "제조사별":
         stmt_sel_nm = models.Rrc.mkng_cmpn_nm
     elif code == "본부별":
-        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).\
-                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).subquery()
-        code_sel_nm = code_tbl_nm.c.oper_team_nm
+        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).\
+                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).subquery()
+        code_sel_nm = code_tbl_nm.c.biz_hq_nm
         code_where_nm = code_tbl_nm.c.bonbu_nm
 
-        stmt_sel_nm = models.Rrc.oper_team_nm
+        stmt_sel_nm = models.Rrc.biz_hq_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm
@@ -283,7 +283,7 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
             st_in.c.base_date.label("date"),
             func.sum(st_in.c.rrc_try).label("rrc_try"),
             # func.sum(st_in.c.sum_rrc_suc).label("rrc_suc"),
-            func.sum(st_in.c.prbusage_mean).label("prbusage_mean"),
+            func.avg(st_in.c.prbusage_mean).label("prbusage_mean"),
             func.round(func.sum(st_in.c.rrc_suc) / (func.sum(st_in.c.rrc_try) + 1e-6) * 100, 4).label("rrc_rate"),
         ).outerjoin(
             code_tbl_nm,

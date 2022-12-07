@@ -75,8 +75,8 @@ async def get_mdt_trend_by_group_date2(db: AsyncSession, code:str, group: str, s
     if code == "제조사별":
         stmt_cut = stmt.where(models.Mdt.bts_maker_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Mdt.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Mdt.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
@@ -193,8 +193,8 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
     if code == "제조사별":
         stmt_cut = stmt.where(models.Mdt.bts_maker_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.oper_team_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Mdt.oper_team_nm.in_(stmt_where))
+        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.Mdt.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Mdt.area_jo_nm.in_(stmt_where))
@@ -238,6 +238,7 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
 
     list_worst_mdt_bts = list(map(lambda x: schemas.MdtBtsOutput(**dict(zip(query_keys, x))), query_result))
     return list_worst_mdt_bts
+
 
 async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: str, start_date: str = None, end_date: str = None):
     code_tbl_nm = None
@@ -302,12 +303,12 @@ async def get_mdt_trend_item_by_group_date(db: AsyncSession, code:str, group: st
     if code == "제조사별":
         stmt_sel_nm = models.Mdt.bts_maker_nm
     elif code == "본부별":
-        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).\
-                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).subquery()
-        code_sel_nm = code_tbl_nm.c.oper_team_nm
+        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).\
+                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).subquery()
+        code_sel_nm = code_tbl_nm.c.biz_hq_nm
         code_where_nm = code_tbl_nm.c.bonbu_nm
 
-        stmt_sel_nm = models.Mdt.oper_team_nm
+        stmt_sel_nm = models.Mdt.biz_hq_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm

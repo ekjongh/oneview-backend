@@ -49,8 +49,8 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
     if code == "제조사별":
         stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(distinct(models.OrgCode.oper_team_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.VocList.oper_team_nm.in_(stmt_where))
+        stmt_where = select(distinct(models.OrgCode.biz_hq_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         stmt = stmt.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -81,12 +81,6 @@ async def get_worst10_bts_by_group_date2(db: AsyncSession, prod: str = None, cod
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
-    # stmt_rk = select([
-    #     func.rank().over(order_by=stmt.c.voc_cnt.desc()).label('RANK'),
-    #     *stmt.c,
-    # ])
-
-    # query = db.execute(stmt_rk)
     query = await db.execute(stmt)
     query_result = query.fetchall()
     query_keys = query.keys()
@@ -129,8 +123,8 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
     if code == "제조사별":
         stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(distinct(models.OrgCode.oper_team_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.VocList.oper_team_nm.in_(stmt_where))
+        stmt_where = select(distinct(models.OrgCode.biz_hq_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         stmt = stmt.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -159,7 +153,7 @@ async def get_worst10_hndset_by_group_date2(db: AsyncSession, prod: str = None, 
     stmt = stmt.where(models.VocList.area_jo_nm!="값없음")
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.fetchall()
@@ -243,8 +237,8 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
     if code == "제조사별":
         stmt_voc = stmt_voc.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(distinct(models.OrgCode.oper_team_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt_voc = stmt_voc.where(models.VocList.oper_team_nm.in_(stmt_where))
+        stmt_where = select(distinct(models.OrgCode.biz_hq_nm)).where(models.OrgCode.bonbu_nm.in_(txt_l))
+        stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
         stmt_voc = stmt_voc.where(models.VocList.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
@@ -270,12 +264,9 @@ async def get_voc_trend_by_group_date2(db: AsyncSession, prod: str = None, code:
     if prod and prod != "전체":
         stmt_voc = stmt_voc.where(models.VocList.anals_3_prod_level_nm == prod)
 
-    stmt_voc = stmt_voc.where(models.VocList.area_jo_nm != "값없음")
     stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc())
 
-
-
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt_voc.compile(compile_kwargs={"literal_binds": True}))
     query = await db.execute(stmt_voc)
     query_result = query.all()
     query_keys = query.keys()
@@ -485,12 +476,12 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
     if code == "제조사별":
         stmt_sel_nm = models.VocList.mkng_cmpn_nm
     elif code == "본부별":
-        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).\
-                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.oper_team_nm).subquery()
-        code_sel_nm = code_tbl_nm.c.oper_team_nm
+        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).\
+                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).subquery()
+        code_sel_nm = code_tbl_nm.c.biz_hq_nm
         code_where_nm = code_tbl_nm.c.bonbu_nm
 
-        stmt_sel_nm = models.VocList.oper_team_nm
+        stmt_sel_nm = models.VocList.biz_hq_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm
@@ -567,7 +558,7 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
             st_in.c.base_date,
             code_where_nm
         )
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = await db.execute(stmt)
     query_result = query_cut.all()
@@ -741,7 +732,7 @@ async def get_voc_trend_item_by_group_month(db: AsyncSession, prod: str = None, 
         st_voc,
         and_(st_sbscr.c.base_ym == st_voc.c.base_ym, st_sbscr.c.code == st_voc.c.code)
     )
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = await db.execute(stmt)
     query_result = query_cut.all()
