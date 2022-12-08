@@ -5,6 +5,26 @@ from .. import schemas, models
 from sqlalchemy import func, select, between, case, Column, and_
 from datetime import datetime, timedelta
 
+def date_range(start, end):
+    start = datetime.strptime(start, '%Y%m%d')
+    end = datetime.strptime(end, '%Y%m%d')
+    dates = [(start + timedelta(days=i)).strftime("%Y%m%d") for i in range((end-start).days+1)]
+    return dates
+
+
+def make_case_code(query_result):
+    # query result : [(bonbu, center),()]
+    case_dict = {}
+    suborg_list = []
+    for r in query_result:
+        suborg_list.append(r[1])
+        if r[0] in case_dict:
+            case_dict[r[0]].append(r[1])
+        else:
+            case_dict[r[0]] = [r[1]]
+
+    return case_dict, suborg_list
+
 
 async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group: str, start_date: str=None, end_date: str=None):
     sum_5g_data = func.sum(func.ifnull(models.Offloading_Bts.g5d_upld_data_qnt, 0.0) +
@@ -38,7 +58,10 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
         end_date = start_date
         
     if start_date:
-        stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
+        # base_date list 생성
+        # stmt = stmt.where(between(models.Offloading_Bts.base_date, start_date, end_date))
+        date_list = date_range(start_date, end_date)
+        stmt = stmt.where(models.Offloading_Bts.base_date.in_(date_list))
 
     txt_l = []
     # code의 값목록 : 삼성|노키아
@@ -49,8 +72,15 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
     if code == "제조사별":
         stmt = stmt.where(models.Offloading_Bts.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
-        stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Offloading_Bts.biz_hq_nm.in_(stmt_where))
+        # biz_hq_nm 조회 ->
+        stmt_where= select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        query = await db.execute(stmt_where)
+        query_result = query.all()
+        orglist = [r[0] for r in query_result]
+
+        # stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
+        # stmt = stmt.where(models.Offloading_Bts.biz_hq_nm.in_(stmt_where))
+        stmt = stmt.where(models.Offloading_Bts.biz_hq_nm.in_(orglist))
     elif code == "센터별":
         # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.biz_hq_nm.in_(txt_l))
         # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
@@ -62,8 +92,14 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
         if "지하철엔지니어링부" in txt_l:
             stmt = stmt.where(models.Offloading_Bts.oper_team_nm.in_(txt_l))
         else:
-            stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-            stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
+            stmt_where = select(models.OrgCode.area_jo_nm).distinct().where(models.OrgCode.oper_team_nm.in_(txt_l))
+            query = await db.execute(stmt_where)
+            query_result = query.all()
+            orglist = [r[0] for r in query_result]
+
+            # stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
+            # stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(stmt_where))
+            stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(orglist))
             stmt = stmt.where(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt = stmt.where(models.Offloading_Bts.area_jo_nm.in_(txt_l))
@@ -302,22 +338,38 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
     if not end_date:
         end_date = start_date
 
-    stmt_where_and.append(between(models.Offloading_Bts.base_date, start_date, end_date))
+    # stmt_where_and.append(between(models.Offloading_Bts.base_date, start_date, end_date))
+    date_list = date_range(start_date, end_date)
+    stmt_where_and.append(models.Offloading_Bts.base_date.in_(date_list))
 
     # code의 값목록 : 삼성|노키아
     if group != '':
         where_ins = group.split("|")
 
     # 선택 조건
+    # where 에 codetbl 조회결과...
+    # 디비실행
+    # orglist 사용시에는 끝에 추가.
     if code == "제조사별":
         stmt_sel_nm = models.Offloading_Bts.mkng_cmpn_nm
     elif code == "본부별":
-        code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).\
-                    group_by(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).subquery()
-        code_sel_nm = code_tbl_nm.c.biz_hq_nm
-        code_where_nm = code_tbl_nm.c.bonbu_nm
+        # stmt_sel_nm = models.Offloading_Bts.biz_hq_nm
+        stmt_where = select(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).distinct().\
+                where(models.OrgCode.bonbu_nm.in_(where_ins)).\
+                order_by(models.OrgCode.bonbu_nm)
+        query = await db.execute(stmt_where)
+        query_result = query.all()
 
-        stmt_sel_nm = models.Offloading_Bts.biz_hq_nm
+        # case_dict, suborg_list 생성
+        case_dict, suborg_list = make_case_code(query_result)
+
+        case_list = []
+        for key in case_dict.keys():
+            item = case_dict[key]
+            case_list.append((models.Offloading_Bts.biz_hq_nm.in_(item), key))
+
+        stmt_sel_nm = case(case_list).label("code")
+        stmt_where_and.append(models.Offloading_Bts.biz_hq_nm.in_(suborg_list))
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm
@@ -326,95 +378,96 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
         stmt_sel_nm = models.Offloading_Bts.biz_hq_nm
     elif code == "팀별":
         # stmt_sel_nm = models.Offloading_Bts.oper_team_nm
-
         # 22.11.22
         # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
         if "지하철엔지니어링부" in where_ins:
             stmt_sel_nm = models.Offloading_Bts.oper_team_nm
         else:
-            code_tbl_nm = select(models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm).\
-                    group_by(models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm).subquery()
-            code_sel_nm = code_tbl_nm.c.area_jo_nm
-            code_where_nm = code_tbl_nm.c.oper_team_nm
+            stmt_where = select(models.OrgCode.oper_team_nm, models.OrgCode.area_jo_nm).distinct(). \
+                where(models.OrgCode.oper_team_nm.in_(where_ins)). \
+                order_by(models.OrgCode.oper_team_nm)
+            query = await db.execute(stmt_where)
+            query_result = query.all()
 
-            stmt_sel_nm = models.Offloading_Bts.area_jo_nm
+            # case_dict, suborg_list(jo목록) 생성
+            case_dict, suborg_list = make_case_code(query_result)
+
+            case_list = [] # case when jo in (1,2,3) then team,
+            for key in case_dict.keys():
+                item = case_dict[key]
+                case_list.append((models.Offloading_Bts.area_jo_nm.in_(item), key))
+
+            stmt_sel_nm = case(case_list).label("code")
+            stmt_where_and.append(models.Offloading_Bts.area_jo_nm.in_(suborg_list))
             stmt_where_and.append(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt_sel_nm = models.Offloading_Bts.area_jo_nm
         stmt_where_and.append(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
-        code_tbl_nm = select(models.AddrCode.eup_myun_dong_nm, models.AddrCode.sido_nm). \
-            group_by(models.AddrCode.eup_myun_dong_nm, models.AddrCode.sido_nm).subquery()
-        code_sel_nm = code_tbl_nm.c.eup_myun_dong_nm
-        code_where_nm = code_tbl_nm.c.sido_nm
+        stmt_where = select(models.AddrCode.sido_nm, models.AddrCode.eup_myun_dong_nm).distinct().\
+                where(models.AddrCode.sido_nm.in_(where_ins)).\
+                order_by(models.AddrCode.sido_nm)
+        query = await db.execute(stmt_where)
+        query_result = query.all()
 
-        stmt_sel_nm = models.Offloading_Bts.eup_myun_dong_nm
+        # case_dict, suborg_list 생성
+        case_dict, suborg_list = make_case_code(query_result)
+
+        case_list = []
+        for key in case_dict.keys():
+            item = case_dict[key]
+            case_list.append((models.Offloading_Bts.eup_myun_dong_nm.in_(item), key))
+
+        stmt_sel_nm = case(case_list).label("code")
+        stmt_where_and.append(models.Offloading_Bts.eup_myun_dong_nm.in_(suborg_list))
+
     elif code == "시군구별":
-        code_tbl_nm = select(models.AddrCode.eup_myun_dong_nm, models.AddrCode.gun_gu_nm). \
-            group_by(models.AddrCode.eup_myun_dong_nm, models.AddrCode.gun_gu_nm).subquery()
-        code_sel_nm = code_tbl_nm.c.eup_myun_dong_nm
-        code_where_nm = code_tbl_nm.c.gun_gu_nm
+        stmt_where = select(models.AddrCode.gun_gu_nm, models.AddrCode.eup_myun_dong_nm).distinct().\
+                where(models.AddrCode.gun_gu_nm.in_(where_ins)).\
+                order_by(models.AddrCode.gun_gu_nm)
+        query = await db.execute(stmt_where)
+        query_result = query.all()
 
-        stmt_sel_nm = models.Offloading_Bts.eup_myun_dong_nm
+        # case_dict, suborg_list 생성
+        case_dict, suborg_list = make_case_code(query_result)
+
+        case_list = []
+        for key in case_dict.keys():
+            item = case_dict[key]
+            case_list.append((models.Offloading_Bts.eup_myun_dong_nm.in_(item), key))
+
+        stmt_sel_nm = case(case_list).label("code")
+        stmt_where_and.append(models.Offloading_Bts.eup_myun_dong_nm.in_(suborg_list))
     elif code == "읍면동별":
         stmt_sel_nm = models.Offloading_Bts.eup_myun_dong_nm
     else:
         raise ex.SqlFailureEx
 
-    # stmt 생성
-    if code_tbl_nm == None:  # code table 미사용시
-        stmt_where_and.append(stmt_sel_nm.in_(where_ins))
-
-        stmt = select(
-            stmt_sel_nm.label("code"),
-            models.Offloading_Bts.base_date.label("date"),
-            g5_off_ratio,
-        ).where(
-            and_(*stmt_where_and)
-        ).group_by(models.Offloading_Bts.base_date, stmt_sel_nm)
-
-    else:  # code table 사용시
-        stmt_wh = select(code_sel_nm).distinct().where(code_where_nm.in_(where_ins))
-        stmt_where_and.append(stmt_sel_nm.in_(stmt_wh))
-
-        st_in = select(
-            stmt_sel_nm.label("code"),
-            models.Offloading_Bts.base_date,
-            sum_3g_data,
-            sum_lte_data,
-            sum_5g_data,
-            sum_sru_data,
-            sum_total_data,
-        ).where(
-            and_(*stmt_where_and)
-        ).group_by(models.Offloading_Bts.base_date, stmt_sel_nm)
-
-        stmt = select(
-            code_where_nm.label("code"),
-            st_in.c.base_date.label("date"),
-            func.sum(st_in.c.sum_3g_data).label("sum_3g_data"),
-            func.sum(st_in.c.sum_lte_data).label("sum_lte_data"),
-            func.sum(st_in.c.sum_5g_data).label("sum_5g_data"),
-            func.sum(st_in.c.sum_sru_data).label("sum_sru_data"),
-            func.sum(st_in.c.sum_total_data).label("sum_total_data"),
-            func.round((func.sum(st_in.c.sum_5g_data)+func.sum(st_in.c.sum_sru_data))/
-                        (func.sum(st_in.c.sum_total_data) + 1e-6) * 100, 4).label("value"),
-        ).outerjoin(
-            code_tbl_nm,
-            code_sel_nm == st_in.c.code
-        ).group_by(
-            st_in.c.base_date,
-            code_where_nm
-        )
+    # db실행
+    stmt = select(
+        stmt_sel_nm.label("code"),
+        models.Offloading_Bts.base_date.label("date"),
+        sum_3g_data,
+        sum_lte_data,
+        sum_5g_data,
+        sum_sru_data,
+        sum_total_data,
+        g5_off_ratio,
+    ).where(
+        and_(*stmt_where_and)
+    ).group_by(models.Offloading_Bts.base_date, stmt_sel_nm)
 
     print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.all()
 
+    print(query_result)
+
     code_set = set([r[0] for r in query_result])
     list_items = []
     for code in code_set:
         t_l = [schemas.OffloadingTrendOutput(**r) for r in query_result if r[0] == code]
         list_items.append(schemas.OffloadingTrendItemOutput(title=code, data=t_l))
+
     return list_items

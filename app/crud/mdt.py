@@ -173,7 +173,8 @@ async def get_worst10_mdt_bts_by_group_date2(db: AsyncSession, code:str, group: 
         rsrq_bad_rate,
         rip_bad_rate,
         phr_bad_rate,
-        nr_rsrp_mean
+        nr_rsrp_mean,
+        rsrp_mean
     ]
 
     stmt = select(*entities, *entities_groupby)

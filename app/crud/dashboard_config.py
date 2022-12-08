@@ -176,7 +176,7 @@ def get_item(item, orgs):
     elif item.catScope == "센터별":
         item.group = get_group(item.group, orgs["center_list"], orgs["center"])
     elif item.catScope == "본부별":
-        item.group = orgs["bonbu"]
+        item.group = get_group(item.group, orgs["bonbu_list"], orgs["bonbu"])
 
     return item
 
@@ -196,6 +196,7 @@ def make_dashboard_config_group(db:Session, lvl:str, user: models.User):
     orgs["center"] = user.group_2
     orgs["center_list"] = get_sub_orgs(db, dept_nm=user.group_1)
     orgs["bonbu"] = user.group_1
+    orgs["bonbu_list"] = get_sub_orgs(db, dept_nm='')
 
     board_module = boardconfig_model_to_schema(board_module[0])
 

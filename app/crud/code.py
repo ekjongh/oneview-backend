@@ -77,6 +77,9 @@ def get_sub_orgs(db:Session, dept_nm:str ):
     elif dept_nm.endswith("센터"):
         result = db.query(models.OrgCode.oper_team_nm).distinct()\
             .filter(models.OrgCode.biz_hq_nm==dept_nm).filter(models.OrgCode.eng_sosok == True).all()
+    else:
+        result = db.query(models.OrgCode.bonbu_nm).distinct()\
+            .filter(models.OrgCode.eng_sosok == True).all()
 
     str = [r[0] for r in result]
 

@@ -26,6 +26,7 @@ class MdtBtsOutput(BaseModel):
     rip_bad_rate: Union[float, None]      # RIP불량률
     phr_bad_rate: Union[float, None]      # PHR불량률
     nr_rsrp_mean: Union[float, None]     # 5G RSRP평균
+    rsrp_mean: Union[float, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
