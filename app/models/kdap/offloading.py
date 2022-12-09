@@ -88,3 +88,32 @@ class OffloadingMM(KBase):
     sru_usagecountul = Column(Integer)
     new_hq_nm = Column(String(50))
     new_center_nm = Column(String(50))
+
+
+
+class Offloading(KBase):
+    __tablename__ = "SUM_5G_OFF_LOAD_RATE_TMP"
+
+    base_ym = Column(String(100))
+    year_base_week_nm = Column(String(100))
+    base_date = Column(String(100), primary_key=True)
+    dow_nm = Column(String(100))
+    wday_eweek_div_nm = Column(String(100))
+    mkng_cmpn_nm = Column(String(100))
+    biz_hq_nm = Column(String(100))
+    oper_team_nm = Column(String(100))
+    area_hq_nm = Column(String(100))
+    area_center_nm = Column(String(100))
+    area_team_nm = Column(String(100))
+    area_jo_nm = Column(String(100), primary_key=True)
+    sido_nm = Column(String(100))
+    gun_gu_nm = Column(String(100))
+    eup_myun_dong_nm = Column(String(100))
+    g3d_upld_data_qnt = Column(Integer)
+    ld_downl_data_qnt = Column(Integer)
+    g3d_downl_data_qnt = Column(Integer)
+    g5d_upld_data_qnt = Column(Integer)
+    sru_usagecountdl = Column(Integer)
+    g5d_downl_data_qnt = Column(Integer)
+    ld_upld_data_qnt = Column(Integer)
+    sru_usagecountul = Column(Integer)

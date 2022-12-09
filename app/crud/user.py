@@ -120,13 +120,13 @@ def create_superuser(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-def update_user(db: Session, user_id: str, user: schemas.UserUpdate):
+def update_user(db: Session, user_id: str, user: schemas.UserUpdate, is_superuser:bool):
     stmt = select(models.User).filter(models.User.user_id == user_id)
     query = db.execute(stmt)
     db_user = query.scalar()
     if db_user is None:
         raise ex.NotFoundUserEx
-    elif db_user.is_superuser:
+    elif is_superuser:
         update_key = {"user_name", "email","group_1","group_2","group_3","group_4","is_active", "is_superuser"}
     else:
         update_key = {"group_4"}
