@@ -118,7 +118,6 @@ async def get_offloading_trend_by_group_date2(db: AsyncSession, code:str, group:
     stmt = stmt.group_by(*entities).order_by(models.Offloading_Bts.base_date.asc())
 
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
-
     query = await db.execute(stmt)
     query_result = query.all()
     query_keys = query.keys()
@@ -203,8 +202,6 @@ async def get_worst10_offloading_hndset_by_group_date2(db: AsyncSession, code:st
         *stmt.c
     ]).order_by(stmt.c.g5_off_ratio.asc()).limit(limit)
     # print(stmt_rk.compile(compile_kwargs={"literal_binds": True}))
-
-    # query = db.execute(stmt_rk)
     query = await db.execute(stmt_rk)
     query_result = query.all()
     query_keys = query.keys()
@@ -351,6 +348,7 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
     # 디비실행
     # orglist 사용시에는 끝에 추가.
     if code == "제조사별":
+        stmt_where_and.append(models.Offloading_Bts.mkng_cmpn_nm.in_(where_ins))
         stmt_sel_nm = models.Offloading_Bts.mkng_cmpn_nm
     elif code == "본부별":
         # stmt_sel_nm = models.Offloading_Bts.biz_hq_nm
@@ -376,11 +374,13 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
         # code_where_nm = models.OrgCode.biz_hq_nm
 
         stmt_sel_nm = models.Offloading_Bts.biz_hq_nm
+        stmt_where_and.append(models.Offloading_Bts.biz_hq_nm.in_(where_ins))
     elif code == "팀별":
         # stmt_sel_nm = models.Offloading_Bts.oper_team_nm
         # 22.11.22
         # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
         if "지하철엔지니어링부" in where_ins:
+            stmt_where_and.append(models.Offloading_Bts.oper_team_nm.in_(where_ins))
             stmt_sel_nm = models.Offloading_Bts.oper_team_nm
         else:
             stmt_where = select(models.OrgCode.oper_team_nm, models.OrgCode.area_jo_nm).distinct(). \
@@ -402,6 +402,7 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
             stmt_where_and.append(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
         stmt_sel_nm = models.Offloading_Bts.area_jo_nm
+        stmt_where_and.append(models.Offloading_Bts.area_jo_nm.in_(where_ins))
         stmt_where_and.append(models.Offloading_Bts.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.sido_nm, models.AddrCode.eup_myun_dong_nm).distinct().\
@@ -439,6 +440,7 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
         stmt_sel_nm = case(case_list).label("code")
         stmt_where_and.append(models.Offloading_Bts.eup_myun_dong_nm.in_(suborg_list))
     elif code == "읍면동별":
+        stmt_where_and.append(models.Offloading_Bts.eup_myun_dong_nm.in_(where_ins))
         stmt_sel_nm = models.Offloading_Bts.eup_myun_dong_nm
     else:
         raise ex.SqlFailureEx
@@ -455,14 +457,12 @@ async def get_offloading_trend_item_by_group_date(db: AsyncSession, code: str, g
         g5_off_ratio,
     ).where(
         and_(*stmt_where_and)
-    ).group_by(models.Offloading_Bts.base_date, stmt_sel_nm)
+    ).group_by(models.Offloading_Bts.base_date, stmt_sel_nm
+    ).order_by()
 
-    print(stmt.compile(compile_kwargs={"literal_binds": True}))
-
+    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
     query = await db.execute(stmt)
     query_result = query.all()
-
-    print(query_result)
 
     code_set = set([r[0] for r in query_result])
     list_items = []

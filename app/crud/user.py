@@ -124,15 +124,17 @@ def update_user(db: Session, user_id: str, user: schemas.UserUpdate):
     stmt = select(models.User).filter(models.User.user_id == user_id)
     query = db.execute(stmt)
     db_user = query.scalar()
-
     if db_user is None:
         raise ex.NotFoundUserEx
-
+    elif db_user.is_superuser:
+        update_key = {"user_name", "email","group_1","group_2","group_3","group_4","is_active", "is_superuser"}
+    else:
+        update_key = {"group_4"}
     user_data = user.dict(exclude_unset=True)
 
     for k, v in user_data.items():
-        setattr(db_user, k, v)
-
+        if k in update_key:
+            setattr(db_user, k, v)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

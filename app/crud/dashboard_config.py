@@ -61,10 +61,10 @@ def db_get_dashboard_default_configs_by_user(db:Session, user:models.User):
         models.DashboardConfig.owner_id,
         models.DashboardConfig.login_config,
     ]
-    # stmt = select(*entities).filter(and_(models.DashboardConfig.owner_id == "admin",
-    #                                      models.DashboardConfig.board_id>=lvl,
-    #                                      models.DashboardConfig.board_id<=10))
-    stmt = select(*entities).filter(models.DashboardConfig.owner_id == "admin")
+    stmt = select(*entities).filter(and_(models.DashboardConfig.owner_id == "admin",
+                                         models.DashboardConfig.board_id>=lvl,
+                                         models.DashboardConfig.board_id<=10))
+    # stmt = select(*entities).filter(models.DashboardConfig.owner_id == "admin")
 
     query = db.execute(stmt)
     query_result = query.fetchall()
