@@ -72,7 +72,7 @@ def update_user_by_id(id: str, user:UserUpdate, db: SessionLocal = Depends(get_d
     if not client.is_superuser:
         if client.user_id != id:
             raise ex.NotAuthorized
-    _user = update_user(db, user_id=id, user=user)
+    _user = update_user(db, user_id=id, user=user, is_superuser=client.is_superuser)
 
     return {"result": "Update Success!", "user": _user}
 
