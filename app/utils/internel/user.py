@@ -16,8 +16,10 @@ def boardconfig_model_to_schema(model: str):
     schema = ModuleConfigBase()
     model = json.loads(model)
 
-    schema.banners = list(map(lambda x:ModuleConfigBanner(**x), model["banners"]))
-    schema.cards = list(map(lambda x:ModuleConfigCard(**x), model["cards"]))
+    if "banners" in model.keys() :
+        schema.banners = list(map(lambda x:ModuleConfigBanner(**x), model["banners"]))
+    if "cards" in model.keys() :
+        schema.cards = list(map(lambda x:ModuleConfigCard(**x), model["cards"]))
 
     return schema
 

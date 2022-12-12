@@ -118,9 +118,10 @@ def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str
     client_ip_decoded = java.decode_value(VOC_CLIENT_IP)
     user_id_decoded = java.decode_value(VOC_USER_ID)
     org_nm_decoded = java.decode_value(VOC_ORG_NM)
-    # if client_ip != client_ip_decoded:
+    # print("IPCHK", client_ip_decoded, client_ip)
+    if client_ip != client_ip_decoded:
     #     raise HTTPException(status_code=401, detail="Bad user ip")
-    #
+        return RedirectResponse(url="/#/fail", status_code=status.HTTP_303_SEE_OTHER)
 
     login_user = get_user_by_id(db, user_id_decoded)
     if not login_user:

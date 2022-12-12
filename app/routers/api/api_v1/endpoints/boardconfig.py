@@ -13,7 +13,8 @@ from app.crud.dashboard_config import db_insert_dashboard_config_by_id,\
     db_count_dashboard_config_by_id, \
     db_get_dashboard_default_config_by_id,\
     db_is_my_config_by_id, \
-    db_get_dashboard_default_configs_by_user
+    db_get_dashboard_default_configs_by_user, \
+    db_get_dashboard_configs
 from app.routers.api.deps import get_db, get_current_user, get_current_active_user, get_db_sync
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserOutput
 from app.schemas.dashboard_config import DashboardConfigIn, DashboardConfigOut,  DashboardConfigList
@@ -26,19 +27,23 @@ router = APIRouter()
 # # ------------------------------- User DashBoard Config ... -------------------------------------- #
 #
 #
-# @router.get("/boardconfig/all")
-# async def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db)):
-#     """
-#     사용자 대시보드 설정 전체 가져오기(관리자 페이지용)
-#     :param skip:
-#     :param limit:
-#     :return: List(board_config)
-#     """
-#     board_configs = get_dashboard_configs(db=db, skip=skip, limit=limit)
-#     result = [dashboard_model_to_schema(board_config) for board_config in board_configs]
-#     return result
-#
-#
+@router.get("/boardconfig/all")
+def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db_sync), client=Depends(get_current_active_user)):
+    """
+    사용자 대시보드 설정 전체 가져오기(관리자 페이지용)
+    :param skip:
+    :param limit:
+    :return: List(board_config)
+    """
+    if not client.is_superuser:
+        raise ex.NotAuthorized
+
+    board_configs = db_get_dashboard_configs(db=db, skip=skip, limit=limit)
+    # result = [dashboard_model_to_schema(board_config) for board_config in board_configs]
+    print(board_configs)
+    return board_configs
+
+
 @router.get("/boardconfigs/me", response_model=List[DashboardConfigList])
 def read_dashboard_config_by_userid(user: UserBase = Depends(get_current_active_user), db: SessionLocal = Depends(get_db_sync)):
     """
@@ -96,6 +101,7 @@ def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn
     """
     선택한 board_id에 대한 대시보드 컨피그 수정
     """
+    print("UPD", board_id, board_config)
     db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
 
     if not client.is_superuser:

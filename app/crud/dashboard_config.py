@@ -10,10 +10,6 @@ from app.utils.internel.user import boardconfig_schema_to_model, boardconfig_mod
 
 
 def db_insert_dashboard_config_by_id(db: Session, user_id: str, board_config: schemas.DashboardConfigIn):
-    """
-    Dashboard Profile Create...
-    권한 별 Default Dashboard profile 설정 추가작업 필요...
-    """
     db_board_config = models.DashboardConfig(owner_id=user_id)
 
     board_config_data = board_config.dict(exclude_unset=True)
@@ -29,7 +25,12 @@ def db_insert_dashboard_config_by_id(db: Session, user_id: str, board_config: sc
 
 
 def db_get_dashboard_configs(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.DashboardConfig).offset(skip).limit(limit).all()
+    result = db.query(models.DashboardConfig).offset(skip).limit(limit).all()
+    for config in result:
+        print(config.board_module)
+        config.board_module = boardconfig_model_to_schema(config.board_module)
+    # boardconfig_model_to_schema
+    return result
 
 
 def db_get_dashboard_configs_by_userid(db: Session, user_id: str):
@@ -99,7 +100,6 @@ def db_update_dashboard_config_by_id(board_id:int, db: Session, board_config: sc
     db_dashboard_config = db.query(models.DashboardConfig).filter(models.DashboardConfig.board_id == board_id).first()
     if db_dashboard_config is None:
         raise ex.NotFoundUserEx
-
     # board_config.board_module = boardconfig_schema_to_model(board_config.board_module)
     board_config_data = board_config.dict(exclude_unset=True)
 
