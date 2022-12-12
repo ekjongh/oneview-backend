@@ -51,44 +51,20 @@ async def access_control(request: Request, call_next):
     #     return response
 
     try:
-        if url.startswith("/api"):
-            # api 인경우 헤더로 토큰 검사
-            if not url.startswith("/api/v1/jwt"):
-                print("url jwt not include...")
-                print("header keys: ", headers.keys())
-                if "authorization" in headers.keys():
-                    token_info = await token_decode(access_token=headers.get("Authorization"))
-                    request.state.user = token_info["sub"]
-            else:
-                if url.startswith("/api/v1/jwt/login"):
-                    pass
-                if url.startswith("/api/v1/jwt/logout"):
-                    pass
-        #             request.state.user = UserToken(**token_info)
-        #             # 토큰 없음
-        #         else:
-        #             if "Authorization" not in headers.keys():
-        #                 raise ex.NotAuthorized()
-        # else:
-        #     # 템플릿 렌더링인 경우 쿠키에서 토큰 검사
-        #     cookies[
-        #         "Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTQsImVtYWlsIjoia29hbGFAZGluZ3JyLmNvbSIsIm5hbWUiOm51bGwsInBob25lX251bWJlciI6bnVsbCwicHJvZmlsZV9pbWciOm51bGwsInNuc190eXBlIjpudWxsfQ.4vgrFvxgH8odoXMvV70BBqyqXOFa2NDQtzYkGywhV48"
-        #
-        #     if "Authorization" not in cookies.keys():
-        #         raise ex.NotAuthorized()
-        #
-        #     token_info = await token_decode(access_token=cookies.get("Authorization"))
-        #     request.state.user = UserToken(**token_info)
-        response = await call_next(request)
-        await api_logger(request=request, response=response)
+        if url.startswith("/api/v1/jwt") or request.method != "GET":
+            res = await call_next(request)
+            await api_logger(request=request, response=res)
+            return res
+        else:
+            res = await call_next(request)
+            return res
+
     except Exception as e:
-        print("access control exception ...")
         error = await exception_handler(e)
         error_dict = dict(status=error.status_code, msg=error.msg, detail=error.detail, code=error.code)
-        response = JSONResponse(status_code=error.status_code, content=error_dict)
+        res = JSONResponse(status_code=error.status_code, content=error_dict)
         await api_logger(request=request, error=error)
-
-    return response
+    return res
 
 
 async def url_pattern_check(path, pattern):

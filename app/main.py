@@ -49,7 +49,7 @@ origins = [
     "https://ownview.kt.co.kr",
 ]
 
-# app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
+app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -57,7 +57,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# app.add_middleware(TrustedHostMiddleware, allowed_hosts=conf().TRUSTED_HOSTS, except_path=["/health"])
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=conf().TRUSTED_HOSTS, except_path=["/health"])
 
 class Settings(BaseModel):
     authjwt_secret_key: str = JWT_SECRET_CODE
