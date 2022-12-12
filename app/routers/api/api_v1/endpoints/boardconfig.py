@@ -114,6 +114,7 @@ def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn
     return {"result": "Update Success!", "data": data}
 
 
+
 @router.delete("/boardconfig/{board_id}")
 def delete_dashboard_config_by_id(board_id: int, db: SessionLocal = Depends(get_db_sync),
                                             client: UserBase = Depends(get_current_user)):
