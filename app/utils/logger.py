@@ -6,12 +6,12 @@ from fastapi.requests import Request
 from fastapi import Body
 from fastapi.logger import logger
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 async def api_logger(request: Request, response=None, error=None):
-    # print("api_loger start ....")
-    # print("request state: ", request.state)
+    print("api_loger start ....")
+    print("request state: ", request.state)
     time_format = "%Y/%m/%d %H:%M:%S"
     t = time() - request.state.start
     status_code = error.status_code if error else response.status_code
@@ -53,9 +53,9 @@ async def api_logger(request: Request, response=None, error=None):
         datetimeUTC=datetime.utcnow().strftime(time_format),
         datetimeKST=(datetime.utcnow() + timedelta(hours=9)).strftime(time_format),
     )
-    # print("logging complete")
-    # print("user log: ", user_log)
-    # print("log dict", log_dict)
+    print("logging complete")
+    print("user log: ", user_log)
+    print("log dict", log_dict)
     # print("body: ", body)
     # if body:
     #     log_dict["body"] = body
@@ -63,14 +63,15 @@ async def api_logger(request: Request, response=None, error=None):
     # log 출력 형식
     formatter = logging.Formatter('[LOG / %(asctime)s / %(levelname)s]: %(name)s - %(message)s')
 
-    # log print    # stream_handler = logging.StreamHandler()
+    # # log print
+    # stream_handler = logging.StreamHandler()
     # stream_handler.setFormatter(formatter)
     # logger.addHandler(stream_handler)
 
     # log를 파일에 출력
-    # file_handler = logging.FileHandler('my.log')
-    # file_handler.setFormatter(formatter)
-    # logger.addHandler(file_handler)
+    file_handler = logging.FileHandler('logs/ownview.log')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
     if error and error.status_code >= 500:
         logger.error(json.dumps(log_dict))
