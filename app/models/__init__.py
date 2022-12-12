@@ -10,5 +10,5 @@ from app.models.kdap.mdt import Mdt
 from app.models.kdap.data_cnt import DataCnt
 from app.models.kdap.voc_list import VocList, VocSpec, VocListMM
 from app.models.kdap.model_code import AddrCode, OrgCode, MenuCode, OrgUser, OrgGroup
-from app.models.kdap.rrc import Rrc
+from app.models.kdap.rrc import Rrc, RrcTrend
 from app.models.kdap.subscr import Subscr, SubscrMM

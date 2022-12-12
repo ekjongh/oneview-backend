@@ -27,7 +27,6 @@ def db_insert_dashboard_config_by_id(db: Session, user_id: str, board_config: sc
 def db_get_dashboard_configs(db: Session, skip: int = 0, limit: int = 100):
     result = db.query(models.DashboardConfig).offset(skip).limit(limit).all()
     for config in result:
-        print(config.board_module)
         config.board_module = boardconfig_model_to_schema(config.board_module)
     # boardconfig_model_to_schema
     return result

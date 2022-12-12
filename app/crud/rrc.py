@@ -7,13 +7,15 @@ from datetime import datetime, timedelta
 
 
 async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, start_date:str = None, end_date: str = None):
-    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrc_att_sum, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_suces_sum, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.RrcTrend.rrc_att_sum, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.RrcTrend.rrc_suces_sum, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
-    prbusage_mean = func.round(func.avg(models.Rrc.prb_avg) * 100, 4).label("prbusage_mean")
+    sum_prb_avg = func.sum(func.ifnull(models.RrcTrend.sum_prb_avg, 0.0))
+    cnt_prb_avg = func.sum(func.ifnull(models.RrcTrend.cnt_prb_avg, 0.0))
+    prbusage_mean = func.round((sum_prb_avg/cnt_prb_avg+ 1e-6) * 100, 4).label("prbusage_mean")
 
     entities = [
-        models.Rrc.base_date.label("date"),
+        models.RrcTrend.base_date.label("date"),
     ]
     entities_groupby = [
         sum_rrc_try,
@@ -28,7 +30,7 @@ async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, st
         end_date = start_date
 
     if start_date:
-        stmt = stmt.where(between(models.Rrc.base_date, start_date, end_date))
+        stmt = stmt.where(between(models.RrcTrend.base_date, start_date, end_date))
 
     txt_l = []
     # code의 값목록 : 삼성|노키아
@@ -37,36 +39,36 @@ async def get_rrc_trend_by_group_date2(db: AsyncSession, code:str, group:str, st
 
     # 선택 조건
     if code == "제조사별":
-        stmt = stmt.where(models.Rrc.mkng_cmpn_nm.in_(txt_l))
+        stmt = stmt.where(models.RrcTrend.mkng_cmpn_nm.in_(txt_l))
     elif code == "본부별":
         stmt_where = select(models.OrgCode.biz_hq_nm).distinct().where(models.OrgCode.bonbu_nm.in_(txt_l))
-        stmt = stmt.where(models.Rrc.biz_hq_nm.in_(stmt_where))
+        stmt = stmt.where(models.RrcTrend.biz_hq_nm.in_(stmt_where))
     elif code == "센터별":
-        stmt = stmt.where(models.Rrc.biz_hq_nm.in_(txt_l))
+        stmt = stmt.where(models.RrcTrend.biz_hq_nm.in_(txt_l))
     elif code == "팀별":
         # 22.11.22
         # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
         if "지하철엔지니어링부" in txt_l:
-            stmt = stmt.where(models.Rrc.oper_team_nm.in_(txt_l))
+            stmt = stmt.where(models.RrcTrend.oper_team_nm.in_(txt_l))
         else:
             stmt_where = select(models.OrgCode.area_jo_nm).where(models.OrgCode.oper_team_nm.in_(txt_l))
-            stmt = stmt.where(models.Rrc.area_jo_nm.in_(stmt_where))
-            stmt = stmt.where(models.Rrc.oper_team_nm != "지하철엔지니어링부")
+            stmt = stmt.where(models.RrcTrend.area_jo_nm.in_(stmt_where))
+            stmt = stmt.where(models.RrcTrend.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
-        stmt = stmt.where(models.Rrc.area_jo_nm.in_(txt_l))
-        stmt = stmt.where(models.Rrc.oper_team_nm != "지하철엔지니어링부")
+        stmt = stmt.where(models.RrcTrend.area_jo_nm.in_(txt_l))
+        stmt = stmt.where(models.RrcTrend.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
-        stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(stmt_where))
+        stmt = stmt.where(models.RrcTrend.eup_myun_dong_nm.in_(stmt_where))
     elif code == "시군구별":
         stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
-        stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(stmt_where))
+        stmt = stmt.where(models.RrcTrend.eup_myun_dong_nm.in_(stmt_where))
     elif code == "읍면동별":
-        stmt = stmt.where(models.Rrc.eup_myun_dong_nm.in_(txt_l))
+        stmt = stmt.where(models.RrcTrend.eup_myun_dong_nm.in_(txt_l))
     else: # 전국
         pass
 
-    stmt = stmt.group_by(*entities).order_by(models.Rrc.base_date.asc())
+    stmt = stmt.group_by(*entities).order_by(models.RrcTrend.base_date.asc())
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
@@ -171,6 +173,7 @@ async def get_worst10_rrc_bts_by_group_date2(db: AsyncSession, prod:str, code:st
     list_worst_rrc_bts = list(map(lambda x: schemas.RrcBtsOutput(**dict(zip(query_keys, x))), query_result))
     return list_worst_rrc_bts
 
+
 async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str, start_date:str = None, end_date: str = None):
     code_tbl_nm = None
     code_sel_nm = Column()  # code테이블 select()
@@ -179,18 +182,20 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
     where_ins = []  # code테이블, volte 테이블 where in (a, b, c)
     stmt_where_and = []  # where list
 
-    sum_rrc_try = func.sum(func.ifnull(models.Rrc.rrc_att_sum, 0.0)).label("rrc_try")
-    sum_rrc_suc = func.sum(func.ifnull(models.Rrc.rrc_suces_sum, 0.0)).label("rrc_suc")
+    sum_rrc_try = func.sum(func.ifnull(models.RrcTrend.rrc_att_sum, 0.0)).label("rrc_try")
+    sum_rrc_suc = func.sum(func.ifnull(models.RrcTrend.rrc_suces_sum, 0.0)).label("rrc_suc")
     rrc_rate = func.round(sum_rrc_suc / (sum_rrc_try + 1e-6) * 100, 4).label("rrc_rate")
-    prbusage_mean = func.round(func.avg(models.Rrc.prb_avg) * 100, 4).label("prbusage_mean")
-
+    # prbusage_mean = func.round(func.avg(models.Rrc.prb_avg) * 100, 4).label("prbusage_mean")
+    sum_prb_avg = func.sum(func.ifnull(models.RrcTrend.sum_prb_avg, 0.0))
+    cnt_prb_avg = func.sum(func.ifnull(models.RrcTrend.cnt_prb_avg, 0.0))
+    prbusage_mean = func.round((sum_prb_avg / cnt_prb_avg + 1e-6) * 100, 4).label("prbusage_mean")
     # 기간조건
     if not start_date:
         start_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
     if not end_date:
         end_date = start_date
 
-    stmt_where_and.append(between(models.Rrc.base_date, start_date, end_date))
+    stmt_where_and.append(between(models.RrcTrend.base_date, start_date, end_date))
 
     # code의 값목록 : 삼성|노키아
     if group != '':
@@ -198,54 +203,54 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
 
     # 선택 조건
     if code == "제조사별":
-        stmt_sel_nm = models.Rrc.mkng_cmpn_nm
+        stmt_sel_nm = models.RrcTrend.mkng_cmpn_nm
     elif code == "본부별":
         code_tbl_nm = select(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).\
                     group_by(models.OrgCode.bonbu_nm, models.OrgCode.biz_hq_nm).subquery()
         code_sel_nm = code_tbl_nm.c.biz_hq_nm
         code_where_nm = code_tbl_nm.c.bonbu_nm
 
-        stmt_sel_nm = models.Rrc.biz_hq_nm
+        stmt_sel_nm = models.RrcTrend.biz_hq_nm
     elif code == "센터별":
         # code_tbl_nm = models.OrgCode
         # code_sel_nm = models.OrgCode.area_jo_nm
         # code_where_nm = models.OrgCode.biz_hq_nm
         #
         # stmt_sel_nm = models.Rrc.area_jo_nm
-        stmt_sel_nm = models.Rrc.biz_hq_nm
+        stmt_sel_nm = models.RrcTrend.biz_hq_nm
 
     elif code == "팀별":
         # 22.11.22
         # 지하철엔지니어링부->oper_team_nm사용,그외->area_team_nm&&not지하철
         if "지하철엔지니어링부" in where_ins:
-            stmt_sel_nm = models.Rrc.oper_team_nm
+            stmt_sel_nm = models.RrcTrend.oper_team_nm
         else:
             code_tbl_nm = select(models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm).\
                     group_by(models.OrgCode.area_jo_nm, models.OrgCode.oper_team_nm).subquery()
             code_sel_nm = code_tbl_nm.c.area_jo_nm
             code_where_nm = code_tbl_nm.c.oper_team_nm
 
-            stmt_sel_nm = models.Rrc.area_jo_nm
-            stmt_where_and.append(models.Rrc.oper_team_nm != "지하철엔지니어링부")
+            stmt_sel_nm = models.RrcTrend.area_jo_nm
+            stmt_where_and.append(models.RrcTrend.oper_team_nm != "지하철엔지니어링부")
     elif code == "조별":
-        stmt_sel_nm = models.Rrc.area_jo_nm
-        stmt_where_and.append(models.Rrc.oper_team_nm != "지하철엔지니어링부")
+        stmt_sel_nm = models.RrcTrend.area_jo_nm
+        stmt_where_and.append(models.RrcTrend.oper_team_nm != "지하철엔지니어링부")
     elif code == "시도별":
         code_tbl_nm = select(models.AddrCode.eup_myun_dong_nm, models.AddrCode.sido_nm). \
             group_by(models.AddrCode.eup_myun_dong_nm, models.AddrCode.sido_nm).subquery()
         code_sel_nm = code_tbl_nm.c.eup_myun_dong_nm
         code_where_nm = code_tbl_nm.c.sido_nm
 
-        stmt_sel_nm = models.Rrc.eup_myun_dong_nm
+        stmt_sel_nm = models.RrcTrend.eup_myun_dong_nm
     elif code == "시군구별":
         code_tbl_nm = select(models.AddrCode.eup_myun_dong_nm, models.AddrCode.gun_gu_nm). \
             group_by(models.AddrCode.eup_myun_dong_nm, models.AddrCode.gun_gu_nm).subquery()
         code_sel_nm = code_tbl_nm.c.eup_myun_dong_nm
         code_where_nm = code_tbl_nm.c.gun_gu_nm
 
-        stmt_sel_nm = models.Rrc.eup_myun_dong_nm
+        stmt_sel_nm = models.RrcTrend.eup_myun_dong_nm
     elif code == "읍면동별":
-        stmt_sel_nm = models.Rrc.eup_myun_dong_nm
+        stmt_sel_nm = models.RrcTrend.eup_myun_dong_nm
     else:
         raise ex.SqlFailureEx
 
@@ -255,14 +260,14 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
 
         stmt = select(
             stmt_sel_nm.label("code"),
-            models.Rrc.base_date.label("date"),
+            models.RrcTrend.base_date.label("date"),
             sum_rrc_try,
             # sum_rrc_suc,
             rrc_rate,
             prbusage_mean,
         ).where(
             and_(*stmt_where_and)
-        ).group_by(models.Rrc.base_date, stmt_sel_nm)
+        ).group_by(models.RrcTrend.base_date, stmt_sel_nm)
 
     else:  # code table 사용시
         stmt_wh = select(code_sel_nm).distinct().where(code_where_nm.in_(where_ins))
@@ -270,13 +275,13 @@ async def get_rrc_trend_item_by_group_date(db: AsyncSession, code:str, group:str
 
         st_in = select(
             stmt_sel_nm.label("code"),
-            models.Rrc.base_date,
+            models.RrcTrend.base_date,
             sum_rrc_try,
             sum_rrc_suc,
             prbusage_mean,
         ).where(
             and_(*stmt_where_and)
-        ).group_by(models.Rrc.base_date, stmt_sel_nm)
+        ).group_by(models.RrcTrend.base_date, stmt_sel_nm)
 
         stmt = select(
             code_where_nm.label("code"),
