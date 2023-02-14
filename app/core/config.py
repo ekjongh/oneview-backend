@@ -8,6 +8,7 @@ load_dotenv()
 SQLALCHEMY_DATABASE_URL = environ.get("SQLALCHEMY_DATABASE_URL")
 SQLALCHEMY_DATABASE_URL_SYNC = environ.get("SQLALCHEMY_DATABASE_URL_SYNC")
 
+
 @dataclass
 class Config:
     """
