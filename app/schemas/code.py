@@ -8,6 +8,7 @@ class AddrCodeOutput(BaseModel):
     val: Union[str, None]
 
 
+
 class SubMenuCode(BaseModel):
     name: Union[str, None]
     prods: List[str] = []
