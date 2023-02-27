@@ -18,6 +18,7 @@ class RrcBtsOutput(BaseModel):
     rrc_suc: Union[float, None]
     rrc_rate: Union[float, None]
     prbusage_mean: Union[float, None]
+    juso: Union[str, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]

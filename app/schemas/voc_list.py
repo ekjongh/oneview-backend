@@ -23,7 +23,7 @@ class VocBtsOutput(BaseModel):
     equip_cd: Union[str, None]         # 기지국ID
     equip_nm: Union[str, None]          # 기지국명
     voc_cnt: Union[int, None]            # VOC건수
-    # juso: Union[str, None]
+    juso: Union[str, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
@@ -39,6 +39,12 @@ class VocTrendOutput(BaseModel):
     date: Union[str, None]
     value: Union[float, None]
 
+
+class VocHourTrendOutput(BaseModel):
+    hour: Union[str, None]
+    today_cnt: Union[float, None]
+    a_week_ago_cnt:Union[int, None]
+    two_weeks_ago_cnt: Union[int, None]
 
 class VocTrendMonthOutput(BaseModel):
     date: Union[str, None]
@@ -66,6 +72,7 @@ class VocListOutput(BaseModel):
     bprod_nm: Union[str, None]          # 요금제
     # TT번호: Union[str, None]
     # TT발행주소: Union[str, None]
+    equip_cd: Union[str, None]
     equip_nm: Union[str, None]          # 주기지국
     biz_hq_nm: Union[str, None]         # 주기지국센터
     oper_team_nm: Union[str, None]      # 주기지국팀
@@ -152,16 +159,69 @@ class BtsSummary(BaseModel):
     volte_fail_cacnt: Union[int, None]  #
 
 
+class InbldgSummary(BaseModel):
+    base_date: Union[str, None]
+    svc_cont_id: Union[str, None]
+    bld_id: Union[str, None]
+    addr_div: Union[str, None]
+    bldg_info: Union[str, None]
+    adr_utmkx: Union[str, None]
+    adr_utmky: Union[str, None]
+
+    bldg_rsrp_m105d_cnt: Union[int, None]    ###
+    bldg_rsrp_m110d_cnt: Union[int, None]    ###
+    bldg_rsrp_cnt: Union[int, None]        # rsrp 건수
+    bldg_rsrp_sum: Union[int, None]  # rsrp 합
+
+    bldg_rip_maxd_cnt: Union[int, None]       # rip 불량
+    bldg_rip_sum: Union[int, None]         # rip 합
+    bldg_rip_cnt: Union[int, None]         # rip 건수
+
+    bldg_phr_m3d_cnt: Union[int, None]
+    bldg_phr_mind_cnt: Union[int, None]
+    bldg_phr_sum: Union[int, None]         # phr 합
+    bldg_phr_cnt: Union[int, None]         # phr 건수
+
+    bldg_nr_rsrp_cnt: Union[int, None]
+    bldg_nr_rsrp_sum: Union[int, None]
+
+    bldg_nsinr_cnt: Union[int, None]
+    bldg_nsinr_sum: Union[int, None]
+
+    bldg_rscp_bad_cnt : Union[int, None]
+    bldg_rscp_sum : Union[int, None]
+    bldg_rscp_cnt : Union[int, None]
+
 class VocSpecOutput(BaseModel):
     voc_user_info: VocUserInfo
     bts_summary: List[BtsSummary]
-
+    inbldg_summary: List[InbldgSummary]
 
 class VocTrendItemOutput(BaseModel):
     title: Union[str,None]
     data: List[VocTrendOutput]
 
+class VocSummaryOutput(BaseModel):
+    date: Union[str, None]
+    last_time: Union[str, None]
+
+    g5_voc: Union[int, None]
+    g5_compare_1w: Union[int, None]
+    g5_compare_2w: Union[int, None]
+    g5_all_cnt: Union[int, None]
+    g5_all_ratio: Union[float, None]
+
+    lte_voc: Union[int, None]
+    lte_compare_1w: Union[int, None]
+    lte_compare_2w: Union[int, None]
+    lte_all_cnt: Union[int, None]
+    lte_all_ratio: Union[float, None]
+
 
 class VocTrendItemMonthOutput(BaseModel):
     title: Union[str,None]
     data: List[VocTrendMonthOutput]
+
+class VocHourTrendItemOutput(BaseModel):
+    name: Union[str, None]
+    data: List[int]

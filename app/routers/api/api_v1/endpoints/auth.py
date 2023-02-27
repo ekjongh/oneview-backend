@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
@@ -118,10 +118,10 @@ def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str
     client_ip_decoded = java.decode_value(VOC_CLIENT_IP)
     user_id_decoded = java.decode_value(VOC_USER_ID)
     org_nm_decoded = java.decode_value(VOC_ORG_NM)
-    print("AUTH", user_id_decoded, client_ip_decoded, org_nm_decoded)
-    if client_ip != client_ip_decoded:
+    print(f"AUTH:{user_id_decoded}:{client_ip_decoded}:{client_ip}:{org_nm_decoded}:{datetime.now()}")
+    # if client_ip != client_ip_decoded:
     #     raise HTTPException(status_code=401, detail="Bad user ip")
-        return RedirectResponse(url="/#/fail", status_code=status.HTTP_303_SEE_OTHER)
+    #    return RedirectResponse(url="/#/fail", status_code=status.HTTP_303_SEE_OTHER)
 
     login_user = get_user_by_id(db, user_id_decoded)
     if not login_user:
@@ -129,7 +129,10 @@ def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str
         user = create_user(db, register_user)
         config = db_insert_dashboard_config_by_default(db,user)
         if config :
-            _ = update_user(db, user.user_id,schemas.UserUpdate(board_id=config.board_id, start_board_id=config.board_id ))
+            _ = update_user(db, user.user_id,
+                            schemas.UserUpdate(board_id=config.board_id,
+                                               start_board_id=config.board_id),
+                            is_superuser=False )
 
     # access_token = Authorize.create_access_token(subject=user_id_decoded, expires_time=timedelta(minutes=60))
     refresh_token = Authorize.create_refresh_token(subject=user_id_decoded, expires_time=timedelta(days=1))
@@ -138,4 +141,13 @@ def login_by_kdap(request:Request, VOC_USER_ID: str=Form(...), VOC_CLIENT_IP:str
     # r.set_cookie(key="refresh_token", value=refresh_token, httponly=False )
 
     return r
+
+
+
+# 복호화 test , pip install python-multipart, pip3 install JPype1, import jpype,form
+@router.get('/jwt/auth')
+def login_by_kdap(request:Request, db: Session = Depends(get_db_sync)):
+    r = RedirectResponse(url=f"/get_error.html", status_code=status.HTTP_303_SEE_OTHER)
+    return r
+
 

@@ -8,7 +8,6 @@ load_dotenv()
 SQLALCHEMY_DATABASE_URL = environ.get("SQLALCHEMY_DATABASE_URL")
 SQLALCHEMY_DATABASE_URL_SYNC = environ.get("SQLALCHEMY_DATABASE_URL_SYNC")
 
-
 @dataclass
 class Config:
     """
@@ -50,4 +49,4 @@ def conf():
     :return:
     """
     config = dict(prod=ProdConfig, local=LocalConfig, test=TestConfig)
-    return config[environ.get("API_ENV", "local")]()
+    return config[environ.get("API_ENV", "local")]()()

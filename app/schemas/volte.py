@@ -10,7 +10,7 @@ class VolteBtsOutput(BaseModel):
     sum_try: Union[float, None]         # 시도호
     sum_suc: Union[float, None]         # 완료호
     sum_cut: Union[float, None]         # 절단호
-    # juso: Union[str, None]
+    juso: Union[str, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
@@ -39,4 +39,4 @@ class VolteEventOutput(BaseModel):
 
 class VolteTrendItemOutput(BaseModel):
     title: Union[str,None]
-    data: List[VolteTrendOutput]
+    data: List[VolteTrendOutput]t]

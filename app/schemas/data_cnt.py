@@ -12,6 +12,11 @@ class DataCntCompareProdOutput(BaseModel):
 class DataCntTrendOutput(BaseModel):
     date: Union[str, None]
     value: Union[float, None]
-    sum_3g_data: Union[float, None]
-    sum_lte_data: Union[float, None]
-    sum_5g_data: Union[float, None]
+    # sum_3g_data: Union[float, None]
+    # sum_lte_data: Union[float, None]
+    # sum_5g_data: Union[float, None]
+
+
+class DataCntTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[DataCntTrendOutput]

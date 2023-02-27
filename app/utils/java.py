@@ -15,3 +15,9 @@ def decode_value(input, key="euc-kr"):
     jpkg = jpype.JPackage('crypto')
     crypto = jpkg.Crypto()
     return crypto.decript(input, key)
+)
+
+def decode_value(input, key="euc-kr"):
+    jpkg = jpype.JPackage('crypto')
+    crypto = jpkg.Crypto()
+    return crypto.decript(input, key)

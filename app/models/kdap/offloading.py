@@ -34,6 +34,8 @@ class Offloading_Bts(KBase):
     ld_upld_data_qnt = Column(Integer)
     sru_usagecountul = Column(Integer)
 
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
 
 
 class Offloading_Hndset(KBase):
@@ -60,7 +62,8 @@ class Offloading_Hndset(KBase):
     g5d_downl_data_qnt = Column(Integer)
     ld_upld_data_qnt = Column(Integer)
     sru_usagecountul = Column(Integer)
-
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
 
 class OffloadingMM(KBase):
     __tablename__ = "SUM_5G_OFF_LOAD_RATE_MM"
@@ -88,11 +91,12 @@ class OffloadingMM(KBase):
     sru_usagecountul = Column(Integer)
     new_hq_nm = Column(String(50))
     new_center_nm = Column(String(50))
-
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
 
 
 class Offloading(KBase):
-    __tablename__ = "SUM_5G_OFF_LOAD_RATE_TMP"
+    __tablename__ = "SUM_5G_OFF_LOAD_RATE"
 
     base_ym = Column(String(100))
     year_base_week_nm = Column(String(100))
@@ -117,3 +121,5 @@ class Offloading(KBase):
     g5d_downl_data_qnt = Column(Integer)
     ld_upld_data_qnt = Column(Integer)
     sru_usagecountul = Column(Integer)
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))

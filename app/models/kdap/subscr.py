@@ -22,7 +22,8 @@ class Subscr(KBase):
     hndset_pet_nm = Column(String(100), primary_key=True)
     sa_5g_suprt_div_nm = Column(String(100))
     bprod_maint_sbscr_cascnt = Column(Integer)
-
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
 
 class SubscrMM(KBase):
     __tablename__ = "SUM_SBSTR_CNT_MM"

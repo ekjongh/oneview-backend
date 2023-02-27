@@ -26,3 +26,6 @@ class DataCnt(KBase):
     g5d_downl_data_qnt = Column(Integer)
     ld_upld_data_qnt = Column(Integer)
     sru_usagecountul = Column(Integer)
+
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))

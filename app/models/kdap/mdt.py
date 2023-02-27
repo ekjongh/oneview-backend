@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import KBase
@@ -41,3 +41,44 @@ class Mdt(KBase):
     phr_sum = Column(Integer)
     nr_rsrp_cnt = Column(Integer)
     nr_rsrp_sum = Column(Integer)
+
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
+
+class MdtInbldg(KBase):
+    __tablename__ = "SUM_MDT_INBLDG_DD"
+
+    base_date = Column(String(8), primary_key=True)
+    svc_cont_id = Column(String(20), primary_key=True)
+    bld_id = Column(String(30))
+    tr_bld_name_dong = Column(String(50))
+    adr_utmkx = Column(String(50))
+    adr_utmky = Column(String(50))
+    sido_nm = Column(String(100))
+    gun_gu_nm = Column(String(100))
+    eup_myun_dong_nm = Column(String(100))
+    adr_bldg_type_desc = Column(String(30))
+    addr_div = Column(String(30))
+    addr_div_nm = Column(String(30))
+    bld_flr = Column(String(10))
+    bld_flr_desc = Column(String(10))
+    bldg_addr = Column(String(200))
+    bldg_rscp_cnt = Column(Integer)
+    bldg_rscp_sum = Column(Integer)
+    bldg_rscp_0_m100d_cnt = Column(Integer)
+    bldg_rscp_0_m105d_cnt = Column(Integer)
+    bldg_rsrp_m105d_cnt = Column(Integer)
+    bldg_rsrp_m110d_cnt = Column(Integer)
+    bldg_rsrp_cnt = Column(Integer)
+    bldg_rsrp_sum = Column(Integer)
+    bldg_nsinr_cnt = Column(Integer)
+    bldg_nsinr_sum = Column(Float)
+    bldg_new_phr_mind_cnt = Column(Integer)
+    bldg_new_phr_m3d_cnt = Column(Integer)
+    bldg_phr_cnt = Column(Integer)
+    bldg_phr_sum = Column(Float)
+    bldg_new_rip_maxd_cnt = Column(Integer)
+    bldg_rip_cnt = Column(Integer)
+    bldg_rip_sum = Column(Integer)
+    bldg_nr_rsrp_cnt = Column(Integer)
+    bldg_nr_rsrp_sum = Column(Float)

@@ -75,3 +75,4 @@ class OffloadingDongOutput(BaseModel):
 class OffloadingTrendItemOutput(BaseModel):
     title: Union[str,None]
     data: List[OffloadingTrendOutput]
+

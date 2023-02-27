@@ -72,7 +72,6 @@ async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-
     # db_user = models.User(user_id=user.user_id,
     #                       board_modules=json.dumps(list()))
     db_user = models.User(user_id=user.user_id)
@@ -109,7 +108,7 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 def create_superuser(db: Session, user: schemas.UserCreate):
     db_user = models.User(user_id=user.user_id,
-                          board_modules=json.dumps(list()),
+                          # board_modules=json.dumps(list()),
                           # username=user.username,
                           # email=user.email,
                           # phone=user.phone,
@@ -120,7 +119,7 @@ def create_superuser(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-def update_user(db: Session, user_id: str, user: schemas.UserUpdate, is_superuser:bool):
+def update_user(db: Session, user_id: str, user: schemas.UserUpdate, is_superuser:bool=False):
     stmt = select(models.User).filter(models.User.user_id == user_id)
     query = db.execute(stmt)
     db_user = query.scalar()
@@ -129,7 +128,7 @@ def update_user(db: Session, user_id: str, user: schemas.UserUpdate, is_superuse
     elif is_superuser:
         update_key = {"user_name", "email","group_1","group_2","group_3","group_4","is_active", "is_superuser"}
     else:
-        update_key = {"group_4"}
+        update_key = {"group_4", "board_id", "start_board_id"}
     user_data = user.dict(exclude_unset=True)
 
     for k, v in user_data.items():
@@ -149,6 +148,10 @@ def delete_user(db: Session, user_id: str):
     if db_user is None:
         raise ex.NotFoundUserEx
     db.delete(db_user)
+    db.commit()
+    return db_user
+
+r)
     db.commit()
     return db_user
 

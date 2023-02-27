@@ -9,6 +9,7 @@ from app.crud.user import create_user, get_users, get_user_by_id, update_user, d
 from app.crud.dashboard_config import db_get_dashboard_config_by_id
 from app.routers.api.deps import get_db, get_current_user, get_current_active_user, get_db_sync
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserOutput
+from app.crud.code import get_org_code_lvl
 # from app.utils.internel.user import dashboard_model_to_schema
 from fastapi.responses import RedirectResponse
 
@@ -41,6 +42,8 @@ def read_my_config(user: UserBase = Depends(get_current_user), db: SessionLocal 
         return None
     else:
         user_me = UserOutput(**user.__dict__)
+        user_me.org_lvl = get_org_code_lvl(db, user)
+        print("LEVEL CHK> " , user_me.org_lvl)
         board_config = db_get_dashboard_config_by_id(db=db, board_id=user.start_board_id)
         if board_config:
             user_me.board_modules = board_config.board_module
@@ -51,7 +54,7 @@ def read_my_config(user: UserBase = Depends(get_current_user), db: SessionLocal 
 def update_my_config(user_in:UserUpdate, db: SessionLocal = Depends(get_db_sync), user:UserBase = Depends(get_current_user)):
     if not user:
         return {"result": "Update Fail!"}
-    _user = update_user(db=db, user_id=user.user_id, user=user_in)
+    _user = update_user(db=db, user_id=user.user_id, user=user_in, is_superuser=False)
 
     return {"result": "Update Success!", "user": _user}
 

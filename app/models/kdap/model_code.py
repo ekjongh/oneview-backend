@@ -75,3 +75,7 @@ class OrgUser(Base):
 
 
 
+class CodeHour(Base):
+    __tablename__ = "CODE_HOUR"
+
+    hh = Column(String(2), primary_key=True)

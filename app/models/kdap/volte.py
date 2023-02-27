@@ -35,6 +35,10 @@ class VolteFailBts(KBase):
     fc417_cnt = Column(Integer)
     fc8210_cnt = Column(Integer)
 
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
+
+
 class VolteFailHndset(KBase):
     __tablename__ = "SUM_VOLTE_FAIL_RATE_HNDSET"
 
@@ -62,6 +66,9 @@ class VolteFailHndset(KBase):
     fc417_cnt = Column(Integer)
     fc8210_cnt = Column(Integer)
 
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
+
 
 class VolteFail(KBase):
     __tablename__ = "SUM_VOLTE_FAIL_RATE"
@@ -84,6 +91,10 @@ class VolteFail(KBase):
     fc8501_cnt = Column(Integer)
     fc417_cnt = Column(Integer)
     fc8210_cnt = Column(Integer)
+
+    new_hq_nm = Column(String(50))
+    new_center_nm = Column(String(50))
+
 
 
 class VolteFailMM(KBase):

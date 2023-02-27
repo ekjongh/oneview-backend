@@ -101,7 +101,7 @@ def update_dashboard_config_by_id(board_id: str, board_config: DashboardConfigIn
     """
     선택한 board_id에 대한 대시보드 컨피그 수정
     """
-    print("UPD", board_id, board_config)
+    # print("UPD", board_id, board_config)
     db_board_config = db_get_dashboard_config_by_id(db, board_id=board_id)
 
     if not client.is_superuser:

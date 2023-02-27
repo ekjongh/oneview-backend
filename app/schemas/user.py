@@ -42,7 +42,6 @@ class UserUpdate(UserBase):
     board_id: Union[int, None]
     start_board_id: Union[str, None] = None
 
-
     class Config:
         schema_extra = {
             "example": {
@@ -83,6 +82,7 @@ class UserOutput(UserBase):
     auth: Union[str, None] = None
     level: Union[str, None] = None
     board_modules: Union[str, None] = None
+    org_lvl: Union[int, None] = None
 
     class Config:
         schema_extra = {

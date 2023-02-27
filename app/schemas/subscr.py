@@ -13,4 +13,11 @@ class SubscrCompareProdOutput(BaseModel):
     sum_cnt: Union[float, None]        # 금주
     sum_cnt_ref: Union[float, None]       # 전주
 
+class SubscrTrendOutput(BaseModel):
+    date:Union[str, None]
+    sum_cnt: Union[float, None]
 
+
+class SubscrTrendItemOutput(BaseModel):
+    title: Union[str,None]
+    data: List[SubscrTrendOutput]

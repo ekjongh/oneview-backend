@@ -27,6 +27,7 @@ class MdtBtsOutput(BaseModel):
     phr_bad_rate: Union[float, None]      # PHR불량률
     nr_rsrp_mean: Union[float, None]     # 5G RSRP평균
     rsrp_mean: Union[float, None]
+    juso: Union[str, None]
     center: Union[str, None]
     team: Union[str, None]
     jo: Union[str, None]
@@ -34,3 +35,5 @@ class MdtBtsOutput(BaseModel):
 class MdtTrendItemOutput(BaseModel):
     title: Union[str,None]
     data: List[MdtTrendOutput]
+
+
