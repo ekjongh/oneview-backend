@@ -8,6 +8,7 @@ CREATE TABLE blacklists (
   KEY owner_id (owner_id),
   CONSTRAINT blacklists_ibfk_1 FOREIGN KEY (owner_id) REFERENCES users (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+;
 
 CREATE TABLE users (
   created_at datetime DEFAULT NULL,
@@ -29,6 +30,7 @@ CREATE TABLE users (
   start_board_id int(11) DEFAULT NULL,
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+;
 
 CREATE TABLE CODE_ADDR (
   SIDO_NM varchar(20) DEFAULT NULL,
