@@ -10,7 +10,8 @@ from app.crud.volte import get_worst10_volte_bts_by_group_date, \
         get_volte_trend_by_group_date, \
         get_volte_trend_item_by_group_date, \
         get_volte_trend_by_group_month, \
-        get_volte_trend_item_by_group_month
+        get_volte_trend_item_by_group_month, \
+        get_volte_compare_by_prod
 
 router = APIRouter()
 
@@ -61,3 +62,9 @@ async def get_volte_trend_item_month(prod:str=None, code:str=None, group:str="",
     volte_trend_months = await get_volte_trend_item_by_group_month(db=db, prod=prod, code=code, group=group,by=by,
                                                      start_month=start_month, end_month=end_month)
     return volte_trend_months
+
+
+@router.get("/compare-prod", response_model=List[schemas.VolteCompareProdOutput])
+async def get_volte_by_prod(code:str=None, group:str="", start_date: str = "20220905", db: SessionLocal = Depends(get_db)):
+    list_compare = await get_volte_compare_by_prod(db=db, code=code, group=group, start_date=start_date)
+    return list_compare

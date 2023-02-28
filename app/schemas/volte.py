@@ -40,3 +40,9 @@ class VolteEventOutput(BaseModel):
 class VolteTrendItemOutput(BaseModel):
     title: Union[str,None]
     data: List[VolteTrendOutput]
+
+
+class VolteCompareProdOutput(BaseModel):
+    prod: Union[str, None]      # 분석상품3
+    sum_cnt: Union[float, None]        # 금주
+    sum_cnt_ref: Union[float, None]       # 전주
