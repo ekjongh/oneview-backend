@@ -1,3 +1,22 @@
+########################################################################################################################
+# VOC 서비스 모듈
+#
+# [ 서비스 목록 ]
+# * 기지국별 VOC Worst TOP 10 : get_worst10_bts_by_group_date
+# * 단말별 품질 VOC Worst TOP10 : get_worst10_hndset_by_group_date
+# * 일자별 VOC 리스트 : get_voc_list_by_group_date <- 정확한 내용 확인 필요
+# * 전일데이터까지 VOC 트랜드 : get_voc_trend_by_group_date
+# * (KPI용) VOC 요약(이력 or 실시간) : get_voc_summary_by_group_date
+#     ├- 이력 : get_voc_summary_by_group_past
+#     └- 시시간 : get_voc_summary_by_group_today
+# * VOC 상세 : get_voc_spec_by_srno
+# * 일자별 VOC 트랜드 : get_voc_trend_item_by_group_date <- 정확한 내용 확인 필요
+# * 1000명 가입자당 VOC 건수 : get_voc_trend_by_group_month
+# * XXXXX : get_voc_trend_item_by_group_month <-- 정확안 내용 확인 필요
+# ----------------------------------------------------------------------------------------------------------------------
+# 2023.02.29 - 주석추가 (작업중)
+#
+########################################################################################################################
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +31,16 @@ from app.utils.query_utils import band_to_equipcd2
 
 async def get_worst10_bts_by_group_date(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                    band:str=None, start_date: str = None, end_date: str = None, limit: int = 10):
+    """ 기지국별 VOC Worst Top 10을 제공하는 함수
+        [ 파라미터 ]
+        - prod :
+        - code :
+        - band :
+        - start_date :  조회기간(시작일자, 예: 20230201)
+        - end_date :  조회기간(종료일자, 예: 20230229)
+        - limit : 데이터 조회제약 건수
+        [ 반환값 ]
+    """
     # 기지국별 VOC Worst TOP 10
     voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
