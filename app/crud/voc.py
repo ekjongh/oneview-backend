@@ -24,6 +24,14 @@
 #   - 주2) 서비스 유사 + 그룹핑 항목 추가 가능(조직별,제조사, 상품,...)
 # * XXXXXX : get_voc_trend_by_group_hour_stack
 # * XXXXXX : get_voc_count_item_by_group_hour
+#
+# [ 관련 테이블 리스트 ]
+# * SUM_VOC_DTL_TXN : VOC 상세 분석 / VOC 고객품질(사용자기지국품질요약, 상세품질조회)
+# * SUM_VOC_TEST :
+# * SUM_VOC_TXN : VOC 일별추이 WORST(기지국, 단말)
+# * SUM_VOC_TXN_MM : VOC 월별추이(단말별 가입자수 월합계)
+# * SUM_VOC_TXN_RT_TMP :
+#
 # ----------------------------------------------------------------------------------------------------------------------
 # 2023.02.29 - 주석추가 (작업중)
 # 2023.03.02 - 김아영 차장님께 모듈 설명 듣고 1차 주석 추가
@@ -52,6 +60,8 @@ async def get_worst10_bts_by_group_date(db: AsyncSession, prod: str = None, code
         - end_date :  조회기간(종료일자, 예: 20230229)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
+        - SUM_VOC_TXN
     """
     # 기지국별 VOC Worst TOP 10
     voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
@@ -129,6 +139,8 @@ async def get_worst10_bts_by_group_date(db: AsyncSession, prod: str = None, code
     stmt = stmt.group_by(*entities).order_by(voc_cnt.desc()).limit(limit)
     # print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
+    print(stmt)
+
     query = await db.execute(stmt)
     query_result = query.fetchall()
     query_keys = query.keys()
@@ -149,6 +161,8 @@ async def get_worst10_hndset_by_group_date(db: AsyncSession, prod: str = None, c
         - end_date :  조회기간(종료일자, 예: 20230229)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
+        - SUM_VOC_TXN
     """
     voc_cnt = func.count(func.ifnull(models.VocList.sr_tt_rcp_no_cnt, 0))
     voc_cnt = func.coalesce(voc_cnt, 0).label("voc_cnt")
@@ -227,6 +241,7 @@ async def get_voc_list_by_group_date(db: AsyncSession, group: str, start_date: s
         - end_date : 조회종료일자(예: 20230303)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     juso = models.VocList.trobl_rgn_broad_sido_nm + ' ' \
            + models.VocList.trobl_rgn_sgg_nm + ' ' \
@@ -290,6 +305,7 @@ async def get_voc_trend_by_group_date(db: AsyncSession, prod: str = None, code: 
         - end_date :  조회기간(종료일자, 예: 20230229)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     # 전일데이터까지 voc trend
 
@@ -359,6 +375,7 @@ async def get_voc_summary_by_group_date(db: AsyncSession, code: str = None, grou
         - group :
         - start_date :  조회기간(시작일자, 예: 20230201)
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     today = datetime.today().strftime("%Y%m%d")
     if start_date==today:
@@ -375,6 +392,7 @@ async def get_voc_summary_by_group_past(db: AsyncSession, code: str = None, grou
         - group :
         - start_date :  조회기간(시작일자, 예: 20230201)
          [ 반환값 ]
+         [ 관련 테이블 ]
     """
     stmt_where_and = []
     ## voc cnt, last time,
@@ -504,6 +522,7 @@ async def get_voc_summary_by_group_today(db: AsyncSession, code: str = None, gro
         - group :
         - start_date :  조회기간(시작일자, 예: 20230201)
          [ 반환값 ]
+         [ 관련 테이블 ]
     """
     stmt_where_and = []
 
@@ -662,6 +681,7 @@ async def get_voc_spec_by_srno(db: AsyncSession, sr_tt_rcp_no: str = "", limit: 
         - sr_tt_rcp_no : T/T 접수번호
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     juso = models.VocList.trobl_rgn_broad_sido_nm + ' ' \
            + models.VocList.trobl_rgn_sgg_nm + ' ' \
@@ -939,6 +959,7 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
         - end_date :  조회기간(종료일자, 예: 20230229)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     where_ins = []  # code테이블, volte 테이블 where in (a, b, c)
     stmt_where_and = []  # where list
@@ -1053,6 +1074,7 @@ async def get_voc_trend_by_group_month(db: AsyncSession, prod: str = None, code:
         - end_month :  조회기간(종료일자, 예: 202302)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     # 1000가입자당  VOC건수
     voc_cnt = func.count(func.ifnull(models.VocListMM.sr_tt_rcp_no, 0)).label("voc_cnt")
@@ -1137,6 +1159,7 @@ async def get_voc_trend_item_by_group_month(db: AsyncSession, prod: str = None, 
         - end_month :  조회기간(종료일자, 예: 202302)
         - limit : 데이터 조회제약 건수
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     where_ins = []  # code테이블, voc 테이블 where in (a, b, c)
     sbscr_where_and = [] # sbscr table where list
@@ -1280,6 +1303,7 @@ async def get_voc_trend_by_group_hour_stack(db: AsyncSession, prod: str = None, 
         - group :
         - start_date :  조회기간(시작일자, 예: 20230201)
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     ## CODE_HOUR.hh left outer join voctbl
     today = datetime.today().strftime("%Y%m%d")
@@ -1410,6 +1434,7 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
         - end_date :  조회기간(종료일자, 예: 20230229)
         - by :
         [ 반환값 ]
+        [ 관련 테이블 ]
     """
     ## def : 아이템별 VOC건수 heatmap용 (시간별) 
     stmt_where_and = []
