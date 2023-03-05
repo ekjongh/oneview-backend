@@ -28,7 +28,7 @@ router = APIRouter()
 #
 #
 @router.get("/boardconfig/all")
-def read_dashboard_all_configs(skip: int = 0, limit: int = 100, db: SessionLocal = Depends(get_db_sync), client=Depends(get_current_active_user)):
+def read_dashboard_all_configs(skip: int = 0, limit: int = 1000, db: SessionLocal = Depends(get_db_sync), client=Depends(get_current_active_user)):
     """
     사용자 대시보드 설정 전체 가져오기(관리자 페이지용)
     :param skip:
