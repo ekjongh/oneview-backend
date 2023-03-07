@@ -356,7 +356,7 @@ async def get_voc_trend_by_group_date(db: AsyncSession, prod: str = None, code: 
 
     stmt_voc = stmt_voc.group_by(models.VocList.base_date).order_by(models.VocList.base_date.asc())
 
-    # print(stmt_voc.compile(compile_kwargs={"literal_binds": True}))
+    print(stmt_voc.compile(compile_kwargs={"literal_binds": True}))
     query = await db.execute(stmt_voc)
     query_result = query.all()
     query_keys = query.keys()
@@ -1053,7 +1053,7 @@ async def get_voc_trend_item_by_group_date(db: AsyncSession, prod: str = None, c
     ).group_by(models.VocList.base_date,
                by_column)
 
-    # print(stmt.compile(compile_kwargs={"literal_binds": True}))
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query_cut = await db.execute(stmt)
     query_result = query_cut.all()
