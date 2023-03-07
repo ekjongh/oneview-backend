@@ -62,7 +62,7 @@ class VocList(KBase):
 
 
 class VocListHH(KBase):
-    __tablename__ = "SUM_VOC_TEST"
+    __tablename__ = "SUM_VOC_TXN_RTIME"
 
     base_date = Column(String(100))
     sr_tt_rcp_no = Column(String(100), primary_key=True)
