@@ -1,3 +1,15 @@
+########################################################################################################################
+# VOC 서비스 모듈
+#
+# [ 테이블 리스트 ]
+#   * SUM_VOC_TXN : VOC
+#   * SUM_VOC_TXN_RTIME : VOC 실시간
+#   * SUM_VOC_DTL_TXN : VOC 상세
+#   * SUM_VOC_TXN_MM : VOC 월별누적
+# ----------------------------------------------------------------------------------------------------------------------
+# 2023.03.08 - 항목명 주석 추가
+#
+########################################################################################################################
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -62,49 +74,50 @@ class VocList(KBase):
 
 
 class VocListHH(KBase):
+    """ VOC 실시간 (20분단위 업데이트) """
     __tablename__ = "SUM_VOC_TXN_RTIME"
 
-    base_date = Column(String(100))
-    sr_tt_rcp_no = Column(String(100), primary_key=True)
-    svc_cont_id = Column("svc_cont_sorc_id", String(100))
-    voc_wjt_prmr_nm = Column(String(100))
-    voc_wjt_scnd_nm = Column(String(100))
-    voc_wjt_tert_nm = Column(String(100))
-    voc_wjt_qrtc_nm = Column(String(100))
-    voc_type_nm = Column("voc_type_sorc_nm", String(100))
-    hndset_pet_nm = Column(String(100))
-    mf_cd_nm = Column(String(50))
-    bss_org_nm = Column(String(20))
-    emp_bizr_nm = Column(String(20))
-    biz_hq_nm = Column(String(100))
-    leg_sido_nm = Column(String(100))
-    leg_gun_gu_nm = Column(String(100))
-    leg_dong_nm = Column(String(100))
-    equip_nm = Column(String(100))
-    equip_nm_rt = Column(String(100))
-    anals_3_prod_level_nm = Column(String(100))
-    sido_nm = Column(String(100))
-    gun_gu_nm = Column(String(100))
-    eup_myun_dong_nm = Column(String(100))
-    trobl_bas_adr =Column(String(150))
-    trobl_dtl_adr =Column(String(150))
-    adm_sido_nm = Column(String(100))
-    adm_gun_gu_nm = Column(String(100))
-    adm_dong_nm = Column(String(100))
-    sa_5g_suprt_div_nm = Column(String(50))
-    latit_val_rt = Column(String(100))
-    lngit_val_rt = Column(String(100))
-    latit_val = Column(String(100))
-    lngit_val = Column(String(100))
-    voc_rcp_txn = Column(String(1000))
-    sr_tt_rcp_no_cnt = Column(Integer)
-    mkng_cmpn_nm = Column(String(100))
-    oper_team_nm = Column(String(100))
-    equip_cd = Column(String(100))
-    area_hq_nm = Column(String(100))
-    area_center_nm = Column(String(100))
-    area_team_nm = Column(String(100))
-    area_jo_nm = Column(String(100))
+    base_date = Column(String(100))                         # 기준일자
+    sr_tt_rcp_no = Column(String(100), primary_key=True)    # T/T접수번호
+    svc_cont_id = Column("svc_cont_sorc_id", String(100))   # 서비스계약번호
+    voc_wjt_prmr_nm = Column(String(100))                   # VOC 업무유형(1차) - 사용X
+    voc_wjt_scnd_nm = Column(String(100))                   # VOC 업무유형(2차) - 유형대
+    voc_wjt_tert_nm = Column(String(100))                   # VOC 업무유형(3차) - 유형중
+    voc_wjt_qrtc_nm = Column(String(100))                   # VOC 업무유형(4차) - 유형소
+    voc_type_nm = Column("voc_type_sorc_nm", String(100))   # VOC유형명
+    hndset_pet_nm = Column(String(100))                     # (K)단말기별칭명
+    mf_cd_nm = Column(String(50))                   # 단말SW MF코드명
+    bss_org_nm = Column(String(20))                 # VOC 접수자조직
+    emp_bizr_nm = Column(String(20))                # VOC 접수자(실시간)
+    biz_hq_nm = Column(String(100))                 # 기지국사업본부(신주사용지지국01(음성(월)))
+    leg_sido_nm = Column(String(100))               # 법정시도(주사용기지국01(음성(월)))
+    leg_gun_gu_nm = Column(String(100))             # 법정군구(주사용기지국01(음성(월)))
+    leg_dong_nm = Column(String(100))               # 법정동(주사용기지국01(음성(월)))
+    equip_nm = Column(String(100))                  # 주사용기지국명(주사용기지국01(음성(월)))
+    equip_nm_rt = Column(String(100))               # 기지국명(F)(실시간주사용기지국01(음성))
+    anals_3_prod_level_nm = Column(String(100))     # 분석상품레벨3
+    sido_nm = Column(String(100))                   # 시도명
+    gun_gu_nm = Column(String(100))                 # 구군명
+    eup_myun_dong_nm = Column(String(100))          # 읍면동명
+    trobl_bas_adr =Column(String(150))              # 장애기본주소
+    trobl_dtl_adr =Column(String(150))              # 장애상세주소
+    adm_sido_nm = Column(String(100))               # 행정시도(주사용기지국01(음성(월)))
+    adm_gun_gu_nm = Column(String(100))             # 행정군구(주사용기지국01(음성(월)))
+    adm_dong_nm = Column(String(100))               # 행정동(주사용기지국01(음성(월)))
+    sa_5g_suprt_div_nm = Column(String(50))         # 5G SA/NSA 지원구분
+    latit_val_rt = Column(String(100))              # 위도값(실시간주사용기지국01(음성))
+    lngit_val_rt = Column(String(100))              # 경도값(실시간주사용기지국01(음성))
+    latit_val = Column(String(100))                 # 위도값(주사용기지국01(음성(월)))
+    lngit_val = Column(String(100))                 # 경도값(주사용기지국01(음성(월)))
+    voc_rcp_txn = Column(String(1000))              # 상담처리내역(필터)
+    sr_tt_rcp_no_cnt = Column(Integer)              # VOC접수건수
+    mkng_cmpn_nm = Column(String(100))              # 제조회사명
+    oper_team_nm = Column(String(100))              # 운용팀명
+    equip_cd = Column(String(100))                  # 장비번호
+    area_hq_nm = Column(String(100))                # 최적화본부명 - 지역 H/Q명
+    area_center_nm = Column(String(100))            # 최적화센터명 - 지역 센터명
+    area_team_nm = Column(String(100))              # 최적화팀명 - 지역 팀명
+    area_jo_nm = Column(String(100))                # 최적화조명 - 지역 조명
 
     # utmkx = Column(String(20))
     # utmky = Column(String(20))

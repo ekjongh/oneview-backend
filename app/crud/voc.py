@@ -1445,7 +1445,7 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
         [ 관련 테이블 ]
         - SUM_VOC_TXN, SUM_VOC_TEST
     """
-    ## def : 아이템별 VOC건수 heatmap용 (시간별)
+    # def : 아이템별 VOC건수 heatmap용 (시간별)
     stmt_where_and = []
 
     # start_Date가 없으면 당일로 조회
@@ -1465,21 +1465,28 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
     # x축 : hour
     voc_hour = func.substring(tbl_name.sr_tt_rcp_no, 11, 2).label("hour")
 
-    # y축 : by
-    if by == "유형대":
+    # y축 : by  유형대, 유형중, 유형소, 단말기종, SA구분, 시군구
+    by_dic = { '유형대': 'voc_wjt_scnd_nm' , '유형중': 'voc_wjt_tert_nm', '유형소': 'voc_wjt_qrtc_nm',
+               'SA구분': 'sa_5g_suprt_div_nm', '단말기종': 'hndset_pet_nm', '시군구': 'gun_gu_nm' }
+    if by in by_dic.keys():
+        grp_col = tbl_name.__table__.c[by_dic.get(by)]
+    else:
         grp_col = tbl_name.voc_wjt_scnd_nm
-    elif by == "유형중":
-        grp_col = tbl_name.voc_wjt_tert_nm
-    elif by == "유형소":
-        grp_col = tbl_name.voc_wjt_qrtc_nm
-    elif by == "SA구분":
-        grp_col = tbl_name.sa_5g_suprt_div_nm
-    elif by  == "단말기종":
-        grp_col = tbl_name.hndset_pet_nm
-    elif by == "시군구":
-        grp_col = tbl_name.gun_gu_nm
-    else :
-        grp_col = tbl_name.voc_wjt_scnd_nm
+
+    # if by == "유형대":
+    #     grp_col = tbl_name.voc_wjt_scnd_nm
+    # elif by == "유형중":
+    #     grp_col = tbl_name.voc_wjt_tert_nm
+    # elif by == "유형소":
+    #     grp_col = tbl_name.voc_wjt_qrtc_nm
+    # elif by == "SA구분":
+    #     grp_col = tbl_name.sa_5g_suprt_div_nm
+    # elif by  == "단말기종":
+    #     grp_col = tbl_name.hndset_pet_nm
+    # elif by == "시군구":
+    #     grp_col = tbl_name.gun_gu_nm
+    # else :
+    #     grp_col = tbl_name.voc_wjt_scnd_nm
 
     # where : prod + code + group+ start_date+ end_date
     ## 날짜 조건
@@ -1489,40 +1496,53 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
         prod_l = prod.split("|")
         stmt_where_and.append(tbl_name.anals_3_prod_level_nm.in_(prod_l))
 
-    ## 선택조건(code+ group)
+    # ------------------------------------------------------------------------------------------------------------------
+    # 쿼리문 조건선택 (code + group)
+    # code - 조회컬럼명 결정
+    # group - 조회값 결정 / 값들이 버티컬바(|)로 구분되어 넘어옴 (예: 값1|값2|값3,..)
+    # ------------------------------------------------------------------------------------------------------------------
     txt_l = []
-    ## code의 값목록 : 삼성|노키아
     if group != "":
         txt_l = group.split("|")
-
-    if code == "제조사별":
-        pass
-        # stmt_where_and.append(tbl_name.mkng_cmpn_nm.in_(txt_l))
-        # stmt_voc = stmt_voc.where(tbl_name.mkng_cmpn_nm.in_(txt_l))
-    elif code == "본부별":
-        txt_l = [txt.replace("NW운용본부", "") for txt in txt_l]
-        stmt_where_and.append(tbl_name.new_hq_nm.in_(txt_l))
-    elif code == "센터별":
-        txt_l = [txt.replace("액세스운용센터", "") for txt in txt_l]
-        stmt_where_and.append(tbl_name.new_center_nm.in_(txt_l))
-    elif code == "팀별":
-        pass
-        # stmt_where_and.append(tbl_name.oper_team_nm.in_(txt_l))
-    elif code == "조별":
-        pass
-        # stmt_where_and.append(tbl_name.area_jo_nm.in_(txt_l))
-        # stmt_where_and.append(models.tbl_name.oper_team_nm != "지하철엔지니어링부")
-    elif code == "시도별":
-        stmt_where_and.append(tbl_name.sido_nm.in_(txt_l))
-    elif code == "시군구별":
-        pass
-        stmt_where_and.append(tbl_name.gun_gu_nm.in_(txt_l))
-    elif code == "읍면동별":
-        stmt_where_and.append(tbl_name.eup_myun_dong_nm.in_(txt_l))
+    code_dic = {'본부별': 'new_hq_nm', '센터별': 'new_center_nm', '팀별': 'oper_team_nm', '조별': 'area_jo_nm',
+                '시도별': 'sido_nm', '시군구별': 'gun_gu_nm', '': '읍면동별'}
+    if code in code_dic.keys():
+        if code == '본부별':
+            txt_l = [txt.replace("NW운용본부", "") for txt in txt_l]
+        elif code == "센터별":
+            txt_l = [txt.replace("액세스운용센터", "") for txt in txt_l]
+        stmt_where_and.append(tbl_name.__table__.c[code_dic.get(code)].in_(txt_l))
     elif code == "전국" or code =="전체" or code =="all":
         pass
     else:
         raise ex.NotFoundAccessKeyEx
+
+    # if code == "제조사별":
+    #     pass
+    #     # stmt_where_and.append(tbl_name.mkng_cmpn_nm.in_(txt_l))
+    #     # stmt_voc = stmt_voc.where(tbl_name.mkng_cmpn_nm.in_(txt_l))
+    # elif code == "본부별":
+    #     txt_l = [txt.replace("NW운용본부", "") for txt in txt_l]
+    #     stmt_where_and.append(tbl_name.new_hq_nm.in_(txt_l))
+    # elif code == "센터별":
+    #     txt_l = [txt.replace("액세스운용센터", "") for txt in txt_l]
+    #     stmt_where_and.append(tbl_name.new_center_nm.in_(txt_l))
+    # elif code == "팀별":
+    #     stmt_where_and.append(tbl_name.oper_team_nm.in_(txt_l))
+    # elif code == "조별":
+    #     stmt_where_and.append(tbl_name.area_jo_nm.in_(txt_l))
+    #     # stmt_where_and.append(models.tbl_name.oper_team_nm != "지하철엔지니어링부")
+    # elif code == "시도별":
+    #     stmt_where_and.append(tbl_name.sido_nm.in_(txt_l))
+    # elif code == "시군구별":
+    #     pass
+    #     stmt_where_and.append(tbl_name.gun_gu_nm.in_(txt_l))
+    # elif code == "읍면동별":
+    #     stmt_where_and.append(tbl_name.eup_myun_dong_nm.in_(txt_l))
+    # elif code == "전국" or code =="전체" or code =="all":
+    #     pass
+    # else:
+    #     raise ex.NotFoundAccessKeyEx
 
     # stmt 생성
     entities = [
