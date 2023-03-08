@@ -3,8 +3,10 @@ from .user import User, UserCreate, UserBase, UserUpdate, UserOutput, UserEnc
 from .token import Token, TokenCreate
 from .voc_list import VocBtsOutput, VocHndsetOutput, VocListOutput, VocTrendOutput, VocEventOutput, \
                       VocUserInfo, BtsSummary, InbldgSummary, VocSpecOutput, VocTrendItemOutput, VocTrendMonthOutput, \
-                      VocTrendItemMonthOutput, VocHourTrendOutput, VocHourTrendItemOutput, VocSummaryOutput
-from .volte import VolteBtsOutput, VolteHndsetOutput, VolteEventOutput, VolteTrendOutput, VolteTrendItemOutput
+                      VocTrendItemMonthOutput, VocHourTrendOutput, VocHourTrendItemOutput, VocSummaryOutput, \
+                      VocCompareProdOutput
+from .volte import VolteBtsOutput, VolteHndsetOutput, VolteEventOutput, VolteTrendOutput, VolteTrendItemOutput, \
+                        VolteCompareProdOutput
 from .offloading import OffloadingTrendOutput, OffloadingBtsOutput, OffloadingHndsetOutput, OffloadingEventOutput, \
                 OffloadingCompareOutput, OffloadingDongOutput, OffloadingTrendItemOutput
 from .mdt import MdtTrendOutput, MdtBtsOutput,MdtTrendItemOutput

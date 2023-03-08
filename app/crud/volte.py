@@ -563,3 +563,100 @@ async def get_volte_trend_item_by_group_month(db: AsyncSession, prod:str=None, c
         t_l = [schemas.VolteTrendOutput(**r) for r in query_result_cut if r[0] == code]
         list_items.append(schemas.VolteTrendItemOutput(title=code, data=t_l))
     return list_items
+
+
+async def get_volte_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20230224', limit: int = 10):
+    if not start_date:
+        start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+
+    lastweek = (datetime.strptime(start_date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
+
+    # 집계항목
+    sum_suc_cnt = func.sum(case((models.VolteFail.base_date == start_date, models.VolteFail.comp_cacnt)
+                                , else_=0)).label("sum_suc_cnt")
+    sum_cut_cnt = func.sum(case((models.VolteFail.base_date == start_date, models.VolteFail.fail_cacnt)
+                                , else_=0)).label("sum_cut_cnt")
+    cut_ratio = sum_cut_cnt / (sum_suc_cnt + 1e-6) * 100
+    cut_ratio = func.round(cut_ratio, 4).label("cut_ratio")
+
+    sum_suc_cnt_ref = func.sum(case((models.VolteFail.base_date == lastweek, models.VolteFail.comp_cacnt)
+                                , else_=0)).label("sum_suc_cnt_ref")
+    sum_cut_cnt_ref = func.sum(case((models.VolteFail.base_date == lastweek, models.VolteFail.fail_cacnt)
+                                , else_=0)).label("sum_cut_cnt_ref")
+    cut_ratio_ref = sum_cut_cnt_ref / (sum_suc_cnt_ref + 1e-6) * 100
+    cut_ratio_ref = func.round(cut_ratio_ref, 4).label("cut_ratio_ref")
+
+    entities = [
+        models.VolteFail.anals_3_prod_level_nm.label("prod"),
+    ]
+    entities_groupby = [
+        cut_ratio.label("sum_cnt"),
+        cut_ratio_ref.label("sum_cnt_ref"),
+    ]
+
+    stmt = select(*entities, *entities_groupby)
+    stmt_total = select(literal("합계").label("prod"), *entities_groupby)
+
+    #날짜
+    stmt = stmt.where(models.VolteFail.base_date.in_([start_date, lastweek]))
+    stmt_total = stmt_total.where(models.VolteFail.base_date.in_([start_date, lastweek]))
+
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
+    # 선택 조건
+    if code == "제조사별":
+        stmt = stmt.where(models.VolteFail.mkng_cmpn_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VolteFail.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        txt_l = [txt.replace("NW운용본부", "") for txt in txt_l]
+        stmt = stmt.where(models.VolteFail.new_hq_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VolteFail.new_hq_nm.in_(txt_l))
+    elif code == "센터별":
+        txt_l = [txt.replace("액세스운용센터","") for txt in txt_l]
+        stmt = stmt.where(models.VolteFail.new_center_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VolteFail.new_center_nm.in_(txt_l))
+    elif code == "팀별":
+        stmt = stmt.where(models.VolteFail.oper_team_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VolteFail.oper_team_nm.in_(txt_l))
+    elif code == "조별":
+        stmt = stmt.where(models.VolteFail.area_jo_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VolteFail.area_jo_nm.in_(txt_l))
+    elif code == "시도별":
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
+    elif code == "시군구별":
+        stmt_where = select(models.VolteFail.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.VolteFail.eup_myun_dong_nm.in_(stmt_where))
+    elif code == "읍면동별":
+        stmt = stmt.where(models.VolteFail.eup_myun_dong_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VolteFail.eup_myun_dong_nm.in_(txt_l))
+    elif code == "전국" or code == "전체" or code == "all":
+        pass
+    else:
+        raise ex.NotFoundAccessKeyEx
+
+    stmt = stmt.where(models.VolteFail.anals_3_prod_level_nm!="MVNO")
+    stmt = stmt.group_by(*entities).order_by(cut_ratio.desc())
+    stmt_total = stmt_total.where(models.VolteFail.anals_3_prod_level_nm != "MVNO")
+    stmt_total = stmt_total.order_by(cut_ratio.desc())
+
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    query = await db.execute(stmt)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
+    query_keys = list(query_keys)
+
+    #합계 query 실행
+    query_total = await db.execute(stmt_total)
+    query_result_total = query_total.fetchall()
+
+    query_result = query_result + query_result_total
+
+    list_compare = list(map(lambda x: schemas.VolteCompareProdOutput(**dict(zip(query_keys, x))), query_result))
+    return list_compare

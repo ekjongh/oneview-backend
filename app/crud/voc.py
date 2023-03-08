@@ -1552,3 +1552,90 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
         list_items.append(schemas.VocHourTrendItemOutput(name=code, data=list(dict_hour.values())))
 
     return list_items
+
+
+async def get_voc_compare_by_prod(db: AsyncSession, code: str, group: str, start_date: str = '20230224', limit: int = 10):
+    if not start_date:
+        start_date = (datetime.today() - timedelta(1)).strftime("%Y%m%d")
+
+    lastweek = (datetime.strptime(start_date, "%Y%m%d") - timedelta(7)).strftime("%Y%m%d")
+
+    sum_cnt = func.sum(case((models.VocList.base_date == start_date, models.VocList.sr_tt_rcp_no_cnt)
+                            , else_=0)).label("sum_cnt")
+    sum_cnt_ref = func.sum(case((models.VocList.base_date == lastweek, models.VocList.sr_tt_rcp_no_cnt)
+                                , else_=0)).label("sum_cnt_ref")
+
+    entities = [
+        models.VocList.anals_3_prod_level_nm.label("prod"),
+    ]
+    entities_groupby = [
+        sum_cnt,
+        sum_cnt_ref,
+    ]
+
+    stmt = select(*entities, *entities_groupby)
+    stmt_total = select(literal("합계").label("prod"), *entities_groupby)
+
+    #날짜
+    stmt = stmt.where(models.VocList.base_date.in_([start_date, lastweek]))
+    stmt_total = stmt_total.where(models.VocList.base_date.in_([start_date, lastweek]))
+
+    txt_l = []
+    # code의 값목록 : 삼성|노키아
+    if group != "":
+        txt_l = group.split("|")
+
+    # 선택 조건
+    if code == "제조사별":
+        stmt = stmt.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VocList.mkng_cmpn_nm.in_(txt_l))
+    elif code == "본부별":
+        txt_l = [txt.replace("NW운용본부", "") for txt in txt_l]
+        stmt = stmt.where(models.VocList.new_hq_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VocList.new_hq_nm.in_(txt_l))
+    elif code == "센터별":
+        txt_l = [txt.replace("액세스운용센터","") for txt in txt_l]
+        stmt = stmt.where(models.VocList.new_center_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VocList.new_center_nm.in_(txt_l))
+    elif code == "팀별":
+        stmt = stmt.where(models.VocList.oper_team_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VocList.oper_team_nm.in_(txt_l))
+    elif code == "팀별":
+        stmt = stmt.where(models.VocList.area_jo_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VocList.area_jo_nm.in_(txt_l))
+    elif code == "시도별":
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.sido_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
+    elif code == "시군구별":
+        stmt_where = select(models.AddrCode.eup_myun_dong_nm).where(models.AddrCode.gun_gu_nm.in_(txt_l))
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
+        stmt_total = stmt_total.where(models.VocList.eup_myun_dong_nm.in_(stmt_where))
+    elif code == "읍면동별":
+        stmt = stmt.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
+        stmt_total = stmt_total.where(models.VocList.eup_myun_dong_nm.in_(txt_l))
+    elif code == "전국" or code == "전체" or code == "all":
+        pass
+    else:
+        raise ex.NotFoundAccessKeyEx
+
+    stmt = stmt.where(models.VocList.anals_3_prod_level_nm!="MVNO")
+    stmt = stmt.group_by(*entities).order_by(sum_cnt.desc())
+    stmt_total = stmt_total.where(models.VocList.anals_3_prod_level_nm != "MVNO")
+    stmt_total = stmt_total.order_by(sum_cnt.desc())
+
+    print(stmt.compile(compile_kwargs={"literal_binds": True}))
+
+    query = await db.execute(stmt)
+    query_result = query.fetchmany(size=limit)
+    query_keys = query.keys()
+    query_keys = list(query_keys)
+
+    #합계 query 실행
+    query_total = await db.execute(stmt_total)
+    query_result_total = query_total.fetchall()
+
+    query_result = query_result + query_result_total
+
+    list_compare = list(map(lambda x: schemas.VocCompareProdOutput(**dict(zip(query_keys, x))), query_result))
+    return list_compare

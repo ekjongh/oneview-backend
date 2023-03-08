@@ -15,7 +15,8 @@ from app.crud.voc import get_voc_list_by_group_date, \
                          get_voc_trend_item_by_group_month, \
                          get_voc_trend_by_group_hour_stack,\
                          get_voc_summary_by_group_date, \
-                         get_voc_count_item_by_group_hour
+                         get_voc_count_item_by_group_hour,\
+                         get_voc_compare_by_prod
 
 
 router = APIRouter()
@@ -126,3 +127,8 @@ async def get_voc_count_item_hour(prod:str=None, code:str=None, group:str="",sta
     voc_count_hour = await get_voc_count_item_by_group_hour(db=db, prod=prod, code=code, group=group,
                                                  start_date=start_date, by=by)
     return voc_count_hour
+
+@router.get("/compare-prod", response_model=List[schemas.VocCompareProdOutput])
+async def get_voc_by_prod(code:str=None, group:str="", start_date: str = "20220905", db: SessionLocal = Depends(get_db)):
+    list_compare = await get_voc_compare_by_prod(db=db, code=code, group=group, start_date=start_date)
+    return list_compare
