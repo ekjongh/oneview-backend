@@ -1431,6 +1431,16 @@ async def get_voc_trend_by_group_hour_stack(db: AsyncSession, prod: str = None, 
     return list_voc_trend
 
 
+# ======================================================================================================================
+# (VOCAI용) 기준일자 시간별 항목별(유형,단말,주소) VOC 건수(히드맵용)를 제공하는 함수
+# [ 파리미터 이해 ]
+# 검색조건 항목 : prod, start_date, end_date
+# 다이나믹 검색조건 항목 : code (컬럼명 결정), group (검색할 값)
+# 그룹핑 항목 : by (입력값), voc_hour (내부조회값)
+# 집계 항목 : voc_cnt (내부조회값)
+# ----------------------------------------------------------------------------------------------------------------------
+# 2023.03.09 - 조별 오류 조치 및 읍면동 검색조건 추가
+# ======================================================================================================================
 async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, code: str = None, group: str = None,
                                          start_date: str = None, by: str = None):
     """ (VOCAI용) 기준일자 시간별 항목별(유형,단말,주소) VOC 건수(히드맵용)를 제공하는 함수
@@ -1443,17 +1453,19 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
         - by :
         [ 반환값 ]
         [ 관련 테이블 ]
-        - SUM_VOC_TXN, SUM_VOC_TEST
+        - SUM_VOC_TXN, SUM_VOC_TXN_RTIME
     """
     # def : 아이템별 VOC건수 heatmap용 (시간별)
     stmt_where_and = []
 
-    # start_Date가 없으면 당일로 조회
+    # 조회시자일자(start_Date)가 없으면 당일로 설정한다.
     today = datetime.today().strftime("%Y%m%d")
     if not start_date : 
         start_date = today
 
-    # from : tbl_name은 today는 실시간Tbl 참조, 과거는 SUM_VOC_TXN 참조
+    # 조회시작일자에 따라 데이터를 조회하는 테이블을 결정한다.
+    # 당일 : 실시간 VOC (SUM_VOC_TXN_RTIME)
+    # 당일이전(~전일까지) : VOC (SUM_VOC_TXN)
     if start_date == today:
         tbl_name = models.VocListHH
     else:
@@ -1488,10 +1500,10 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
     # else :
     #     grp_col = tbl_name.voc_wjt_scnd_nm
 
-    # where : prod + code + group+ start_date+ end_date
-    ## 날짜 조건
+    # 쿼리문에 조회조건(WHERE)에 기준일자(예:20230309)를 추가한다.
     stmt_where_and.append(tbl_name.base_date == start_date)
-    ## 상품 조건
+
+    ## 쿼리문에 조회조건(WHERE)에 상품(5G,LTE,3G)을 추가한다.
     if prod and prod != "전체" and prod != "all":
         prod_l = prod.split("|")
         stmt_where_and.append(tbl_name.anals_3_prod_level_nm.in_(prod_l))
@@ -1544,24 +1556,33 @@ async def get_voc_count_item_by_group_hour(db: AsyncSession, prod: str = None, c
     # else:
     #     raise ex.NotFoundAccessKeyEx
 
-    # stmt 생성
+    # 쿼리문의 그룹핑(GROUP BY)에 들어간 항목을 정의한다.
     entities = [
         grp_col.label("name"),
         voc_hour,
     ]
+    # 쿼리문의 집계(Aggregation)함수에 들어갈 항목을 정의한다.
     entities_groupby = [
         voc_cnt
     ]
+    # 쿼리문을 생성한다.
     stmt = select(*entities, *entities_groupby)
     stmt = stmt.where(and_(*stmt_where_and))
     stmt = stmt.group_by(*entities)
 
+    # [디버깅코드] 생성된 쿼리문을 인쇄한다.
     print(stmt.compile(compile_kwargs={"literal_binds": True}))
 
     query = await db.execute(stmt)
     query_result = query.fetchall()
     # output , [{name:분류명, data:[0시건수,01시건수,02시건수,... ]}, {name:b, data:[0,0,0,0] }, ]
 
+    # 쿼리한 결과값을 리스트에 담아서 반환한다.
+    # [{ "name": "메세지서비스",
+    #    "data": [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ] <- 시간대별 VOC 건수
+    #  },
+    #  ....
+    #  ]
     list_items = []
     code_set = set([r[0] for r in query_result])
     for code in code_set:
